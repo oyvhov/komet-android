@@ -15,11 +15,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import app.komet.R
+import app.komet.domain.GlyphKind
 import app.komet.domain.LetterCase
 import app.komet.domain.Maalform
 
@@ -76,6 +79,22 @@ object K {
         Color(0xFF9B6BFF),
         Color(0xFFFF6FC0),
     )
+}
+
+/**
+ * Andika by SIL International (SIL Open Font License 1.1, see assets/licenses) for everything a child
+ * reads in a task: single-storey a and g as taught in school, and letters that are hard to mix up.
+ * Interface chrome and maths digits keep the system font.
+ */
+val ReadingFont = FontFamily(
+    Font(R.font.andika_regular, FontWeight.Normal),
+    Font(R.font.andika_bold, FontWeight.Bold),
+)
+
+/** The font for a piece of task text: letters, words and sentences are reading material. */
+fun GlyphKind.fontFamily(): FontFamily? = when (this) {
+    GlyphKind.LETTER, GlyphKind.WORD, GlyphKind.SENTENCE, GlyphKind.SENTENCE_WORD, GlyphKind.EXACT -> ReadingFont
+    GlyphKind.NUMBER, GlyphKind.PLAIN -> null
 }
 
 /** Profile-level reading preferences that every task renderer needs. */

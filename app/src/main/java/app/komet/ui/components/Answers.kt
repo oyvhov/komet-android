@@ -42,6 +42,8 @@ import app.komet.ui.S
 import app.komet.ui.theme.K
 import app.komet.ui.theme.LocalMotion
 import app.komet.ui.theme.LocalReading
+import app.komet.ui.theme.ReadingFont
+import app.komet.ui.theme.fontFamily
 
 enum class OptionLook { NORMAL, WRONG, CORRECT, FADED }
 
@@ -139,6 +141,7 @@ fun OptionContent(option: Option, ink: Color) {
                 text,
                 color = ink,
                 fontSize = if (option.kind == GlyphKind.NUMBER || option.kind == GlyphKind.LETTER || option.kind == GlyphKind.EXACT) fixedSp(size) else MaterialTheme.typography.headlineMedium.fontSize,
+                fontFamily = option.kind.fontFamily(),
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
             )
@@ -149,7 +152,7 @@ fun OptionContent(option: Option, ink: Color) {
                 Text(
                     it.inCase(LocalReading.current.letterCase),
                     color = ink,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleLarge.copy(fontFamily = ReadingFont),
                     fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center,
                 )
@@ -302,6 +305,7 @@ fun BuildSlots(answer: Answer.Build, placed: List<Int>, revealed: Boolean, modif
                     filled?.let { readingString(app.komet.domain.txt(it), answer.kind) } ?: "",
                     color = K.Ink,
                     fontSize = if (letters) fixedSp(42.dp) else MaterialTheme.typography.headlineSmall.fontSize,
+                    fontFamily = answer.kind.fontFamily(),
                     fontWeight = FontWeight.ExtraBold,
                 )
             }
@@ -359,6 +363,7 @@ fun BuildTiles(
                     readingString(app.komet.domain.txt(tile), answer.kind),
                     color = K.Ink,
                     fontSize = if (letters) fixedSp(38.dp) else MaterialTheme.typography.headlineSmall.fontSize,
+                    fontFamily = answer.kind.fontFamily(),
                     fontWeight = FontWeight.ExtraBold,
                 )
             }

@@ -43,11 +43,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import app.komet.domain.Answer
+import app.komet.domain.Subject
 import app.komet.domain.Token
 import app.komet.domain.Visual
 import app.komet.ui.KometViewModel
@@ -72,6 +78,7 @@ import app.komet.ui.components.str
 import app.komet.ui.components.subjectColors
 import app.komet.ui.theme.K
 import app.komet.ui.theme.LocalVisualBox
+import app.komet.ui.theme.ReadingFont
 import kotlinx.coroutines.delay
 
 @Composable
@@ -139,6 +146,7 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
                 praise = S.praise[round.praise % S.praise.size].str(),
                 answer = correctText,
                 explanation = question.explanation?.str(),
+                answerFont = if (round.skill.subject == Subject.READING) ReadingFont else null,
                 onNext = { vm.next() },
             )
         }
@@ -228,16 +236,17 @@ private fun PromptLine(prompt: String, tryAgain: Boolean) {
             if (showTryAgain) {
                 Text(
                     S.tryAgain.str(),
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleLarge.copy(fontFamily = ReadingFont),
                     color = K.Ink,
                     modifier = Modifier
                         .background(K.Reveal, RoundedCornerShape(50))
                         .padding(horizontal = 18.dp, vertical = 6.dp),
                 )
             } else {
+                // Children who are learning to read try the instruction too, so it uses the reading font.
                 Text(
                     prompt,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.headlineSmall.copy(fontFamily = ReadingFont),
                     color = K.Text,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 8.dp),
@@ -368,8 +377,27 @@ private fun ColumnScope.AnswerArea(vm: KometViewModel, round: RoundState, correc
 }
 
 @Composable
-private fun FeedbackBanner(correct: Boolean, praise: String, answer: String?, explanation: String?, onNext: () -> Unit) {
+private fun FeedbackBanner(
+    correct: Boolean,
+    praise: String,
+    answer: String?,
+    explanation: String?,
+    answerFont: FontFamily?,
+    onNext: () -> Unit,
+) {
     val background = if (correct) Color(0xFF123B2B) else Color(0xFF462A10)
+    val answerWas = S.answerWas.str()
+    val title = if (correct) {
+        AnnotatedString(praise)
+    } else {
+        buildAnnotatedString {
+            append(answerWas)
+            if (answer != null) {
+                append(": ")
+                withStyle(SpanStyle(fontFamily = answerFont)) { append(answer) }
+            }
+        }
+    }
     Column(
         Modifier
             .fillMaxWidth()
@@ -390,13 +418,13 @@ private fun FeedbackBanner(correct: Boolean, praise: String, answer: String?, ex
             }
             Column(Modifier.weight(1f)) {
                 Text(
-                    if (correct) praise else S.answerWas.str() + (answer?.let { ": $it" } ?: ""),
+                    title,
                     style = MaterialTheme.typography.headlineSmall,
                     color = if (correct) K.Good else K.Reveal,
                     fontWeight = FontWeight.Black,
                 )
                 if (!correct && explanation != null) {
-                    Text(explanation, style = MaterialTheme.typography.titleMedium, color = K.Text)
+                    Text(explanation, style = MaterialTheme.typography.titleMedium.copy(fontFamily = answerFont), color = K.Text)
                 }
             }
         }

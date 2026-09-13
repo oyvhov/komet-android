@@ -166,6 +166,10 @@ object S {
     val active = txt("Aktiv")
     val use = txt("Bruk")
     val aboutTitle = txt("Om Komet")
+    val fontCredit = txt(
+        "Skrifta i oppgåvene er Andika frå SIL International, fri under SIL Open Font License 1.1.",
+        "Skriften i oppgavene er Andika fra SIL International, fri under SIL Open Font License 1.1.",
+    )
     val aboutBody = txt(
         "Ingen reklame, ingen kjøp i appen og inga sporing. Den einaste nettkontakten er når Komet ser etter ny versjon på GitHub, og det kan du slå av. All framgang blir lagra berre på denne eininga.",
         "Ingen reklame, ingen kjøp i appen og ingen sporing. Den eneste nettkontakten er når Komet ser etter ny versjon på GitHub, og det kan du slå av. All fremgang lagres bare på denne enheten.",

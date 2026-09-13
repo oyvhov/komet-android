@@ -70,6 +70,7 @@ import app.komet.ui.components.str
 import app.komet.ui.components.subjectColors
 import app.komet.ui.theme.K
 import app.komet.ui.theme.LocalMotion
+import app.komet.ui.theme.ReadingFont
 
 private val zigzag = listOf(0f, 0.55f, 0f, -0.55f)
 private val NodeColumnWidth = 128.dp
@@ -240,6 +241,7 @@ private fun NodeRow(
                             skill.symbol,
                             color = K.Ink,
                             fontSize = fixedSp(if (skill.symbol.length <= 2) 30.dp else if (skill.symbol.length <= 3) 23.dp else 17.dp),
+                            fontFamily = if (skill.subject == Subject.READING) ReadingFont else null,
                             fontWeight = FontWeight.Black,
                             maxLines = 1,
                         )

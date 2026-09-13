@@ -50,6 +50,7 @@ import app.komet.ui.components.SpaceCardArt
 import app.komet.ui.components.StarGlyph
 import app.komet.ui.components.str
 import app.komet.ui.theme.K
+import app.komet.ui.theme.ReadingFont
 
 @Composable
 fun CollectionScreen(vm: KometViewModel) {
@@ -121,7 +122,7 @@ fun CollectionScreen(vm: KometViewModel) {
                     SpaceCardArt(card.art, Modifier.fillMaxSize().padding(16.dp), emojiSize = 140.dp)
                 }
                 Text(card.title.str(), style = MaterialTheme.typography.displaySmall, color = K.Text, textAlign = TextAlign.Center)
-                Text(card.fact.str(), style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Medium), color = K.Text, textAlign = TextAlign.Center)
+                Text(card.fact.str(), style = MaterialTheme.typography.headlineSmall.copy(fontFamily = ReadingFont, fontWeight = FontWeight.Normal), color = K.Text, textAlign = TextAlign.Center)
                 if (vm.speechAvailable) {
                     val spoken = card.title.str() + ". " + card.fact.str()
                     BigButton(

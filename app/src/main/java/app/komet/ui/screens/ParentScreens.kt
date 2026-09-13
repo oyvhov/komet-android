@@ -335,6 +335,7 @@ private fun SettingsTab(vm: KometViewModel) {
     SectionTitle(S.aboutTitle.str())
     Panel(Modifier.fillMaxWidth()) {
         Text(S.aboutBody.str(), style = MaterialTheme.typography.bodyLarge, color = K.Text)
+        Text(S.fontCredit.str(), style = MaterialTheme.typography.bodyMedium, color = K.Muted)
         Text(S.version(BuildConfig.VERSION_NAME).str(), style = MaterialTheme.typography.bodySmall, color = K.Muted)
     }
 }

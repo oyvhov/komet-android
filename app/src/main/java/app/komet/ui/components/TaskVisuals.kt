@@ -68,6 +68,8 @@ import app.komet.ui.theme.K
 import app.komet.ui.theme.LocalMotion
 import app.komet.ui.theme.LocalReading
 import app.komet.ui.theme.LocalVisualBox
+import app.komet.ui.theme.ReadingFont
+import app.komet.ui.theme.fontFamily
 import kotlin.math.PI
 import kotlin.math.ceil
 import kotlin.math.cos
@@ -596,7 +598,7 @@ private fun GlyphView(text: Txt, kind: GlyphKind) {
         GlyphKind.SENTENCE -> Text(
             value,
             color = K.Ink,
-            style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold, lineHeight = 46.sp),
+            style = MaterialTheme.typography.displaySmall.copy(fontFamily = ReadingFont, fontWeight = FontWeight.Bold, lineHeight = 46.sp),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 8.dp),
         )
@@ -608,7 +610,7 @@ private fun GlyphView(text: Txt, kind: GlyphKind) {
                 else -> 76f
             }
             val size = min(base, maxWidth.value / (value.length.coerceAtLeast(1) * 0.62f)).dp
-            Text(value, color = K.Ink, fontSize = fixedSp(size), fontWeight = FontWeight.Bold, maxLines = 1, lineHeight = fixedSp(size * 1.15f))
+            Text(value, color = K.Ink, fontSize = fixedSp(size), fontFamily = kind.fontFamily(), fontWeight = FontWeight.Bold, maxLines = 1, lineHeight = fixedSp(size * 1.15f))
         }
     }
 }
@@ -621,7 +623,7 @@ private fun PictureView(visual: Visual.Picture, state: VisualState) {
         val word = visual.word
         if (word != null && visual.hideIndex == null && (!visual.revealWord || state.answered)) {
             // A whole word reads as a word; only a word with a gap is laid out letter by letter.
-            Text(word.inCase(prefs.letterCase), color = K.Ink, fontSize = fixedSp(52.dp), fontWeight = FontWeight.Bold, maxLines = 1)
+            Text(word.inCase(prefs.letterCase), color = K.Ink, fontSize = fixedSp(52.dp), fontFamily = ReadingFont, fontWeight = FontWeight.Bold, maxLines = 1)
         } else if (word != null && visual.hideIndex != null) {
             val shown = word.inCase(prefs.letterCase)
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.Bottom) {
@@ -638,6 +640,7 @@ private fun PictureView(visual: Visual.Picture, state: VisualState) {
                             if (hidden) "" else letter.toString(),
                             color = if (index == visual.hideIndex && state.answered) K.GoodDeep else K.Ink,
                             fontSize = fixedSp(46.dp),
+                            fontFamily = ReadingFont,
                             fontWeight = FontWeight.Bold,
                         )
                     }
@@ -650,10 +653,16 @@ private fun PictureView(visual: Visual.Picture, state: VisualState) {
 @Composable
 private fun StoryView(visual: Visual.Story) {
     val text = if (visual.reading) readingString(visual.text, GlyphKind.SENTENCE) else visual.text.str()
+    // Andika's regular weight is already sturdy; its bold would make a whole paragraph heavy.
+    val style = if (visual.reading) {
+        MaterialTheme.typography.headlineMedium.copy(fontFamily = ReadingFont, fontWeight = FontWeight.Normal, lineHeight = 38.sp)
+    } else {
+        MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold, lineHeight = 36.sp)
+    }
     Text(
         text,
         color = K.Ink,
-        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold, lineHeight = 36.sp),
+        style = style,
         modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
     )
 }
