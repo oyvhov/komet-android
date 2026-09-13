@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- All child-facing text lives in Kotlin (ui/Strings.kt) because the app switches between
+         nynorsk and bokmål per profile, independent of the device language. -->
+    <string name="app_name">Komet</string>
+</resources>

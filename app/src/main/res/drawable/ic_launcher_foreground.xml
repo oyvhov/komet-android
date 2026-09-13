@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Tail: tapers from the head towards the lower left. -->
+    <path android:pathData="M54.5,34.5 Q40,58 29,80 Q52,68 73.5,53.5 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="64"
+                android:startY="44"
+                android:endX="30"
+                android:endY="80"
+                android:startColor="#FFFFB547"
+                android:endColor="#00FF6B9A" />
+        </aapt:attr>
+    </path>
+    <path
+        android:strokeColor="#99FFE08A"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M50,40 Q42,50 36,60" />
+    <path
+        android:strokeColor="#77FFB0C8"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M69,59 Q60,66 50,72" />
+    <!-- Head -->
+    <path android:pathData="M64,44m-13,0a13,13 0,1 1,26 0a13,13 0,1 1,-26 0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="60"
+                android:centerY="40"
+                android:gradientRadius="16"
+                android:startColor="#FFFFF6D8"
+                android:endColor="#FFFFC53D" />
+        </aapt:attr>
+    </path>
+</vector>
