@@ -68,6 +68,11 @@ import app.komet.ui.components.fixedSp
 import app.komet.ui.components.shake
 import app.komet.ui.components.str
 import app.komet.ui.components.subjectColors
+import app.komet.ui.components.GameText
+import app.komet.ui.components.Tone
+import app.komet.ui.components.gloss
+import app.komet.ui.components.subjectTone
+import androidx.compose.foundation.border
 import app.komet.ui.theme.K
 import app.komet.ui.theme.LocalMotion
 import app.komet.ui.theme.ReadingFont
@@ -87,6 +92,7 @@ fun WorldScreen(vm: KometViewModel, subject: Subject) {
     val chapters = Curriculum.chapters(subject)
     val skills = Curriculum.skills(subject)
     val recommended = remember(profile) { Progression.recommended(profile, subject) }
+    val weak = remember(profile) { Progression.weakSkills(profile, subject) }
     val (accent, accentDeep) = subjectColors(subject)
     val rows = remember(subject) {
         chapters.flatMap { chapter -> listOf<MapRow>(MapRow.Header(chapter)) + chapter.skills.indices.map { MapRow.Node(chapter, it) } }
@@ -115,6 +121,12 @@ fun WorldScreen(vm: KometViewModel, subject: Subject) {
                 .weight(1f),
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 40.dp),
         ) {
+            if (weak.isNotEmpty()) {
+                item(key = "review") {
+                    val names = weak.map { it.title.str() }.joinToString(", ")
+                    ReviewCard(names, subjectTone(subject)) { vm.startReview(subject) }
+                }
+            }
             items(rows.size, key = { index ->
                 when (val row = rows[index]) {
                     is MapRow.Header -> "h-${row.chapter.id}"
@@ -139,6 +151,39 @@ fun WorldScreen(vm: KometViewModel, subject: Subject) {
                     }
                 }
             }
+        }
+    }
+}
+
+/** «Repetisjon»: the levels that are hard right now, mixed into one round. */
+@Composable
+private fun ReviewCard(names: String, tone: Tone, onStart: () -> Unit) {
+    PressSurface(
+        onClick = onStart,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        face = K.Surface,
+        edge = K.SurfaceLow,
+        shape = RoundedCornerShape(26.dp),
+        contentAlignment = Alignment.CenterStart,
+        contentPadding = PaddingValues(16.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Box(
+                Modifier
+                    .size(58.dp)
+                    .border(2.dp, K.Outline, CircleShape)
+                    .gloss(tone.face, CircleShape, top = tone.top),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(KometIcons.Refresh, contentDescription = null, tint = Color.White, modifier = Modifier.size(30.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                GameText(S.review.str(), style = MaterialTheme.typography.titleLarge)
+                Text(S.reviewDetail(names).str(), style = MaterialTheme.typography.bodyMedium, color = K.Muted, maxLines = 2)
+            }
+            GameText(S.reviewStart.str(), style = MaterialTheme.typography.titleMedium, color = tone.top)
         }
     }
 }

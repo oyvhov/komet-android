@@ -1,19 +1,23 @@
 # Innhald i Komet
 
-76 nivå fordelte på 11 planetar. Kvart nivå lagar nye oppgåver kvar gong, så same runde blir aldri
-lik to gonger. Ei runde er 8 oppgåver (5–6 for tekstar og ordbygging).
+116 nivå fordelte på 24 planetar i fire fag: matte, norsk, engelsk og verdsrommet. Kvart nivå lagar
+nye oppgåver kvar gong, så same runde blir aldri lik to gonger. Ei runde er 8 oppgåver (4–6 for tekstar,
+ordbygging, skriving og små emne). Kvart svar blir lagra med ein gong, og ein avbroten runde kan haldast
+fram frå heimeskjermen.
 
 **Klassesteg:** 0 = 5 år / førskule, 1 = 1. klasse, 2 = 2. klasse, 3 = 3. klasse. Nivå under barnet
 sitt klassesteg er opne frå start, det første på klassesteget er ope, og resten opnar seg når nivået
 før har minst éi stjerne. Det første nivået på kvar planet er alltid ope.
 
-## Matte (50 nivå)
+## Matte (52 nivå)
 
 ### Tal
 | Id | Nivå | Kl. | Oppgåve |
 | --- | --- | --- | --- |
 | `m_count5` | Tel til 5 | 0 | Tel ting (1–5) |
+| `m_write1` | Skriv tal 1–5 | 0 | Spor tala med fingeren, med ting å telje |
 | `m_count10` | Tel til 10 | 0 | Tel ting, av og til spreidde |
+| `m_write2` | Skriv tal 6–9 og 0 | 0 | Spor tala med fingeren |
 | `m_next10` | Før og etter | 0 | Kva tal kjem før/etter (0–10) |
 | `m_compare10` | Størst og minst | 0 | Vel største/minste tal med prikkar |
 | `m_count20` | Tel til 20 | 1 | Tiarrammer 11–20 |
@@ -87,7 +91,7 @@ før har minst éi stjerne. Det første nivået på kvar planet er alltid ope.
 | `m_times_1_5` | Gongetabellen 1–5 | 3 | Skriv svaret |
 | `m_times_all` | Heile gongetabellen | 3 | 2–10 |
 
-## Lesing (26 nivå)
+## Norsk (31 nivå)
 
 ### Bokstavar
 | Id | Nivå | Kl. | Oppgåve |
@@ -100,6 +104,18 @@ før har minst éi stjerne. Det første nivået på kvar planet er alltid ope.
 | `r_letters4` | Bokstavar 4 | 1 | Å Ø Æ J Y |
 | `r_abc` | Alfabetet | 1 | Kva bokstav kjem før/etter |
 | `r_letters5` | Bokstavar 5 | 2 | C W Z X Q |
+
+### Skriv bokstavar
+Barnet dreg ein komet langs bokstaven: nummererte startpunkt, stipla retningspil og strekrekkjefølgje
+etter stavskrift. Store eller små bokstavar etter profilen, med eit biletord som byrjar på bokstaven.
+
+| Id | Nivå | Kl. | Oppgåve |
+| --- | --- | --- | --- |
+| `r_write1` | Skriv bokstavar 1 | 0 | A I O S L M |
+| `r_write2` | Skriv bokstavar 2 | 0 | E R N U T K |
+| `r_write3` | Skriv bokstavar 3 | 1 | V F H G D B P |
+| `r_write4` | Skriv bokstavar 4 | 1 | Å Ø Æ J Y |
+| `r_write5` | Skriv bokstavar 5 | 2 | C W Z X Q |
 
 ### Lydar og rim
 | Id | Nivå | Kl. | Oppgåve |
@@ -131,6 +147,59 @@ før har minst éi stjerne. Det første nivået på kvar planet er alltid ope.
 | `r_word_order` | Ordne orda | 2 | Byggje setninga |
 | `r_story` | Les ein tekst | 2 | 12 korte tekstar med spørsmål |
 
+## Engelsk (21 nivå)
+
+Engelske ord blir lesne høgt med engelsk stemme. Manglar eininga engelsk stemme, blir orda viste som tekst.
+
+| Id | Nivå | Kl. | Oppgåve |
+| --- | --- | --- | --- |
+| `e_hello1` | Hei og takk | 0 | Hello, goodbye, thank you: kva seier du / når seier du det? |
+| `e_hello2` | God natt | 1 | Good morning, good night, happy birthday |
+| `e_hello3` | Snakk engelsk | 2 | Please, sorry, how are you? |
+| `e_colours_listen` | Høyr fargane | 0 | Høyr fargen, trykk på malingsflekken |
+| `e_colours_read` | Les fargane | 1 | Sjå fargen, vel ordet |
+| `e_numbers5` | One, two, three | 0 | Høyr talet (1–5) |
+| `e_numbers10` | Tal til ten | 1 | Høyr talet (1–10) |
+| `e_numbers_read` | Les tala | 2 | Sjå talet, vel ordet |
+| `e_animals_listen` | Høyr dyra | 0 | 17 dyr |
+| `e_animals_read` | Les dyra | 1 | Sjå dyret, vel ordet |
+| `e_animals_translate` | Dyr på engelsk | 2 | Frå norsk til engelsk |
+| `e_food_listen` | Høyr maten | 1 | 12 matord |
+| `e_food_read` | Les maten | 2 | Sjå maten, vel ordet |
+| `e_body_listen` | Kroppen | 1 | Eye, nose, hand … |
+| `e_family_listen` | Familien | 1 | Mum, dad, baby … |
+| `e_clothes_listen` | Kleda | 2 | Hat, shoe, sock … |
+| `e_me_read` | Les om meg | 3 | Kropp, familie og klede |
+| `e_things_listen` | Ting rundt meg | 1 | Ball, car, book … |
+| `e_things_translate` | Kva betyr det? | 2 | Frå engelsk til norsk |
+| `e_spell3` | Stav korte ord | 2 | cat, dog, sun … med bokstavbrikker |
+| `e_spell5` | Stav lengre ord | 3 | fish, horse, apple … |
+
+## Verdsrommet (12 nivå)
+
+| Id | Nivå | Kl. | Oppgåve |
+| --- | --- | --- | --- |
+| `s_basics` | Sol, jord og måne | 0 | Kva er kva, og månefasane |
+| `s_sun_facts` | Dag og natt | 1 | Sant eller usant om sola og jorda |
+| `s_moon_facts` | Månen | 2 | Sant eller usant om månen |
+| `s_planet_names` | Kva planet? | 1 | Jorda, Mars, Jupiter og Saturn frå teikninga |
+| `s_planet_clues` | Kven er eg? | 2 | «Eg er den raude planeten» → finn planeten |
+| `s_planet_size` | Størst og minst | 2 | Tre planetar: kven er størst eller minst? |
+| `s_planet_order` | Rekkjefølgja | 3 | Ordne fire planetar frå sola og utover |
+| `s_travel_things` | Ut i rommet | 0 | Rakett, astronaut, satellitt, teleskop |
+| `s_travel_facts` | Livet i romstasjonen | 2 | Sant eller usant om romfart |
+| `s_sky_things` | På himmelen | 1 | Nordlys, Karlsvogna, stjerneskot, komet |
+| `s_sky_facts` | Stjernene | 2 | Sant eller usant om stjernene |
+| `s_quiz` | Stor romquiz | 3 | Alle påstandane blanda |
+
+## Utforsk, favorittar og repetisjon
+
+- **Utforsk** viser alle oppgåvetypar (pluss, klokka, rim, engelske ord, planetane …) med alle nivåa
+  frå lett til vanskeleg. Alle kan spelast, uavhengig av trinn.
+- **Favorittar:** hjartet ved eit nivå legg det øvst i Utforsk og som snarveg på heimeskjermen.
+- **Repetisjon:** når barnet har svart på minst 6 oppgåver i eit nivå og har under 80 % rett første gong,
+  dukkar nivået opp i «Repetisjon» øvst på kartet for faget. Runden blandar dei tre svakaste nivåa.
+
 ## Rakettløp
 
 60 sekund med tre svaralternativ. Raketten flyg frå jorda mot månen for kvart rett svar.
@@ -147,5 +216,5 @@ Moduser: pluss til 10, minus til 10, pluss og minus til 20, gonge med 2, 5 og 10
 
 ## Ordbank
 
-137 biletord med stavingar, 10 rimfamiliar og 15 samansette ord. Ord som skil seg mellom målformene
+137 biletord med stavingar, 10 rimfamiliar og 15 samansette ord. Engelsk har om lag 90 ord og 11 fraser. Ord som skil seg mellom målformene
 (KVAL/HVAL, NASE/NESE, HAMMAR/HAMMER …) har begge formene.

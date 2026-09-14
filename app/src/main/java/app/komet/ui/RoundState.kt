@@ -35,7 +35,14 @@ enum class Phase { ANSWERING, CORRECT, REVEALED }
  * Everything the task screen needs about the round in progress. Lives in the ViewModel. A round picked
  * up again starts at [startIndex] with the first-try count it had when it was left.
  */
-class RoundState(val skill: Skill, val questions: List<Question>, startIndex: Int = 0, startFirstTry: Int = 0) {
+class RoundState(
+    val skill: Skill,
+    val questions: List<Question>,
+    startIndex: Int = 0,
+    startFirstTry: Int = 0,
+    /** For a review round: the level each task comes from, so its answer is counted there. */
+    val sources: List<Skill>? = null,
+) {
     var index by mutableIntStateOf(startIndex)
     var phase by mutableStateOf(Phase.ANSWERING)
     /** Misses on the current task. */
@@ -55,6 +62,11 @@ class RoundState(val skill: Skill, val questions: List<Question>, startIndex: In
     var lastAnswerAt: Long = startedAt
 
     val question: Question get() = questions[index]
+
+    val isReview: Boolean get() = sources != null
+
+    /** The level the current task belongs to. */
+    val source: Skill get() = sources?.getOrNull(index) ?: skill
     val isLast: Boolean get() = index == questions.lastIndex
 
     fun resetForNext() {

@@ -1,5 +1,20 @@
 # Endringslogg
 
+## 1.2.0 · under arbeid
+
+- **Nytt utsjånad:** same romtema, men djupare fargar, blanke 3D-knappar, kvit spelskrift med kontur,
+  blanke stjerner, rangmerke på figuren og oppdragskort der planeten bryt ut av ramma.
+- **Barneskrift:** Andika (SIL, OFL) i alle oppgåver, med «a» og «g» slik skulen lærer dei.
+- **Skriv med kometen:** spor bokstavar (store og små) og tal med fingeren i rett strekrekkjefølgje.
+  Nytt kapittel «Skriv bokstavar» og to nivå med tal.
+- **Engelsk:** ny modul med 21 nivå: fraser, fargar, tal, dyr, mat, kropp, familie, klede, ting og
+  staving, lesne høgt med engelsk stemme.
+- **Verdsrommet:** ny modul med 12 nivå om sola, månen, planetane, romfart og stjernehimmelen.
+- **Utforsk og favorittar:** finn oppgåvetypar på tvers av trinn og legg nivå til som favorittar med hjarte.
+- **Lagring etter kvart svar:** ein avbroten runde kan haldast fram frå heimeskjermen.
+- **Repetisjon:** eigen runde med nivåa barnet oftast bommar på, per fag.
+- «Lesing» heiter no «Norsk».
+
 ## 1.1.0 · 13. september 2026
 
 - Oppdatering i appen frå GitHub Releases, same kontrakt som Spole: éin signert APK per utgåve,

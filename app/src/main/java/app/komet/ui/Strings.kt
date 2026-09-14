@@ -77,6 +77,9 @@ object S {
 
     // Kart
     fun levels(done: Int, total: Int) = txt("$done av $total nivå")
+    val review = txt("Repetisjon")
+    fun reviewDetail(names: String) = txt("Øv på det som er vanskeleg: $names", "Øv på det som er vanskelig: $names")
+    val reviewStart = txt("Øv no", "Øv nå")
     val lockedHint = txt("Fullfør nivået før først", "Fullfør nivået før først")
     val chapterLocked = txt("Låst")
 

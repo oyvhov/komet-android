@@ -184,11 +184,26 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
     // ── Rounds ─────────────────────────────────────────────────────────────────────────────────
 
     fun startSkill(skill: Skill) {
+        if (Curriculum.isReview(skill)) {
+            startReview(skill.subject)
+            return
+        }
         val current = profile ?: return
         val context = QuestionContext(Random(System.nanoTime()), current.maalform, current.letterCase)
         // A new round replaces one that was left earlier; its answers are already counted.
         if (current.activeRound != null) updateProfile(current.id) { it.copy(activeRound = null) }
         round = RoundState(skill, Curriculum.round(skill, context))
+        if (screen == Screen.Result || screen == Screen.Play) replaceTop(Screen.Play) else open(Screen.Play)
+    }
+
+    /** A round of tasks from the levels in [subject] that the child finds hardest right now. */
+    fun startReview(subject: app.komet.domain.Subject) {
+        val current = profile ?: return
+        val weak = Progression.weakSkills(current, subject)
+        if (weak.isEmpty()) return
+        val context = QuestionContext(Random(System.nanoTime()), current.maalform, current.letterCase)
+        val tasks = Curriculum.reviewRound(weak, context)
+        round = RoundState(Curriculum.reviewSkill(subject), tasks.map { it.second }, sources = tasks.map { it.first })
         if (screen == Screen.Result || screen == Screen.Play) replaceTop(Screen.Play) else open(Screen.Play)
     }
 
@@ -298,7 +313,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         current.lastAnswerAt = now
         val updated = Progression.applyAnswer(
             profile = player,
-            skill = current.skill,
+            skill = current.source,
             rightFirstTime = rightFirstTime,
             done = current.index + 1,
             roundFirstTry = current.firstTry,
@@ -306,6 +321,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             seconds = seconds,
             today = today,
             now = now,
+            trackRound = !current.isReview,
         )
         commit(state.withProfile(updated))
     }
@@ -343,6 +359,15 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun finishRound(current: RoundState) {
         val player = profile ?: return
+        if (current.isReview) {
+            val outcome = Progression.applyReview(player, current.firstTry, current.questions.size, today, state.settings.dailyGoal)
+            commit(state.withProfile(outcome.profile))
+            result = ResultInfo(outcome = outcome, skill = current.skill, raceMode = null, next = null)
+            round = null
+            replaceTop(Screen.Result)
+            sounds.play(Sfx.COMPLETE)
+            return
+        }
         val seconds = ((System.currentTimeMillis() - current.startedAt) / 1000).toInt()
         val outcome = Progression.applyRound(
             profile = player,

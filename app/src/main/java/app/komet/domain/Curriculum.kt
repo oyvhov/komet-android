@@ -32,6 +32,35 @@ object Curriculum {
         return questions
     }
 
+    fun isReview(skill: Skill): Boolean = skill.id.startsWith(REVIEW_PREFIX)
+
+    /** The level a review round shows on its result screen. Its tasks come from [reviewRound]. */
+    fun reviewSkill(subject: Subject): Skill = Skill(
+        id = REVIEW_PREFIX + subject.name.lowercase(),
+        subject = subject,
+        title = txt("Repetisjon"),
+        detail = txt("Øv på det som er vanskeleg", "Øv på det som er vanskelig"),
+        grade = 0,
+        symbol = "↻",
+    ) { error("Review rounds are built from other levels with reviewRound") }
+
+    /** A mixed round from [skills], taking turns so every weak level gets practice. */
+    fun reviewRound(skills: List<Skill>, context: QuestionContext, count: Int = 8): List<Pair<Skill, Question>> {
+        require(skills.isNotEmpty()) { "nothing to review" }
+        val result = ArrayList<Pair<Skill, Question>>(count)
+        val keys = HashSet<String>()
+        var attempts = 0
+        while (result.size < count) {
+            val skill = skills[result.size % skills.size]
+            val question = skill.generate(context)
+            attempts++
+            if (keys.add("${skill.id}:${question.key}") || attempts > count * 30) result += skill to question
+        }
+        return result
+    }
+
+    private const val REVIEW_PREFIX = "review_"
+
     private fun sameAnswer(a: Question, b: Question): Boolean {
         val left = a.answer
         val right = b.answer

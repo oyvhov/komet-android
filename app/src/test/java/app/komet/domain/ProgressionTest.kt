@@ -180,6 +180,45 @@ class ProgressionTest {
     }
 
     @Test
+    fun `review picks practised levels with the lowest first-try rate`() {
+        val p = profile().copy(
+            skills = mapOf(
+                "m_add10" to SkillStats(bestStars = 2, answered = 16, firstTry = 8), // 50 %
+                "m_sub10" to SkillStats(bestStars = 1, answered = 10, firstTry = 3), // 30 %
+                "m_add20" to SkillStats(bestStars = 3, answered = 16, firstTry = 15), // strong
+                "m_clock_hour" to SkillStats(bestStars = 1, answered = 3, firstTry = 0), // too little data
+                "r_rhyme" to SkillStats(bestStars = 1, answered = 20, firstTry = 2), // other subject
+            ),
+        )
+        assertEquals(listOf("m_sub10", "m_add10"), Progression.weakSkills(p, Subject.MATH).map { it.id })
+        assertEquals(listOf("r_rhyme"), Progression.weakSkills(p, Subject.READING).map { it.id })
+        assertTrue(Progression.weakSkills(profile(), Subject.MATH).isEmpty())
+    }
+
+    @Test
+    fun `a review round counts answers on their own levels and keeps a saved round`() {
+        val saved = ActiveRound("m_add5", 2, 2, 8)
+        var p = profile().copy(activeRound = saved)
+        val weak = listOf(skill("m_sub10"), skill("m_add10"))
+        val tasks = Curriculum.reviewRound(weak, QuestionContext(kotlin.random.Random(3)))
+        assertEquals(8, tasks.size)
+        assertEquals("levels take turns", listOf("m_sub10", "m_add10", "m_sub10", "m_add10"), tasks.take(4).map { it.first.id })
+        tasks.forEachIndexed { index, (source, _) ->
+            p = Progression.applyAnswer(p, source, rightFirstTime = index % 2 == 0, done = index + 1, roundFirstTry = index / 2 + 1, total = 8, seconds = 5, today = 7L, now = index.toLong(), trackRound = false)
+        }
+        assertEquals(4, p.skills["m_sub10"]!!.answered)
+        assertEquals(4, p.skills["m_add10"]!!.answered)
+        assertEquals("a review never replaces the round that was left", saved, p.activeRound)
+        val outcome = Progression.applyReview(p, firstTry = 4, total = 8, today = 7L, dailyGoal = 3)
+        assertEquals(2, outcome.stars)
+        assertEquals(p.totalStars + 2, outcome.profile.totalStars)
+        assertEquals(1, outcome.profile.today(7L).rounds)
+        assertEquals(8, outcome.profile.today(7L).answered)
+        assertEquals(saved, outcome.profile.activeRound)
+        assertTrue(Curriculum.isReview(Curriculum.reviewSkill(Subject.MATH)))
+    }
+
+    @Test
     fun `favourites toggle and keep their order`() {
         var p = profile()
         p = Progression.toggleFavorite(p, "m_add10")

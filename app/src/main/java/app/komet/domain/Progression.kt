@@ -126,6 +126,7 @@ object Progression {
         seconds: Int,
         today: Long,
         now: Long,
+        trackRound: Boolean = true,
     ): Profile {
         val first = if (rightFirstTime) 1 else 0
         val old = profile.skills[skill.id] ?: SkillStats()
@@ -140,7 +141,12 @@ object Progression {
             skills = profile.skills + (skill.id to stats),
             days = (profile.days + (today to updatedDay)).filterKeys { it > today - KEEP_DAYS },
             lastSubject = skill.subject,
-            activeRound = if (done < total) ActiveRound(skill.id, done, roundFirstTry, total, now) else null,
+            activeRound = when {
+                // A review round mixes levels and cannot be picked up; it leaves any saved round alone.
+                !trackRound -> profile.activeRound
+                done < total -> ActiveRound(skill.id, done, roundFirstTry, total, now)
+                else -> null
+            },
         )
     }
 
@@ -182,6 +188,30 @@ object Progression {
         )
         return finish(profile, base, stars, firstTry, total, seconds, today, dailyGoal, countAnswers = !answersCounted)
     }
+
+    /** Enough answers to trust the numbers, and a first-try rate that says «practise this». */
+    const val REVIEW_MIN_ANSWERED = 6
+    const val REVIEW_BELOW = 0.8f
+
+    /** Levels in [subject] the child has practised but still often gets wrong, weakest first. */
+    fun weakSkills(profile: Profile, subject: Subject, max: Int = 3): List<Skill> =
+        Curriculum.skills(subject)
+            .mapNotNull { skill ->
+                val stats = profile.skills[skill.id] ?: return@mapNotNull null
+                if (stats.answered < REVIEW_MIN_ANSWERED) return@mapNotNull null
+                val rate = stats.firstTry.toFloat() / stats.answered
+                if (rate >= REVIEW_BELOW) null else skill to rate
+            }
+            .sortedBy { it.second }
+            .take(max)
+            .map { it.first }
+
+    /**
+     * A finished review round: stars and a round for the day, while the answers were already counted on
+     * their own levels. A round that was left elsewhere stays saved.
+     */
+    fun applyReview(profile: Profile, firstTry: Int, total: Int, today: Long, dailyGoal: Int): RoundOutcome =
+        finish(profile, profile, stars(firstTry, total), firstTry, total, 0, today, dailyGoal, countAnswers = false)
 
     fun toggleFavorite(profile: Profile, skillId: String): Profile =
         profile.copy(favorites = if (skillId in profile.favorites) profile.favorites - skillId else profile.favorites + skillId)
