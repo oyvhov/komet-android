@@ -2,6 +2,7 @@ package app.komet.data
 
 import app.komet.domain.ActiveRound
 import app.komet.domain.AppState
+import app.komet.domain.Curriculum
 import app.komet.domain.DayStats
 import app.komet.domain.HeroLook
 import app.komet.domain.LetterCase
@@ -9,8 +10,11 @@ import app.komet.domain.Maalform
 import app.komet.domain.Profile
 import app.komet.domain.RaceMode
 import app.komet.domain.Settings
+import app.komet.domain.Shop
+import app.komet.domain.ShopSlot
 import app.komet.domain.SkillStats
 import app.komet.domain.Subject
+import app.komet.domain.Wallet
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -111,6 +115,10 @@ class StateStore(private val file: File) {
             }
             put("favorites", JSONArray().apply { profile.favorites.forEach { put(it) } })
             put("visitedPlanets", JSONArray().apply { profile.visitedPlanets.sortedBy { it.ordinal }.forEach { put(it.name) } })
+            put("nuggets", profile.nuggets)
+            put("owned", JSONArray().apply { profile.owned.sorted().forEach { put(it) } })
+            put("equipped", JSONObject().apply { profile.equipped.forEach { (slot, id) -> put(slot.name, id) } })
+            put("collectedNuggets", JSONArray().apply { profile.collectedNuggets.sorted().forEach { put(it) } })
             put("hero", JSONObject().apply {
                 put("suit", profile.hero.suit)
                 put("skin", profile.hero.skin)
@@ -186,6 +194,8 @@ class StateStore(private val file: File) {
             val favoritesJson = json.optJSONArray("favorites") ?: JSONArray()
             val favorites = (0 until favoritesJson.length()).mapNotNull { favoritesJson.optString(it, "").ifBlank { null } }.distinct()
             val avatar = json.optInt("avatar", 0)
+            val totalStars = json.optInt("totalStars", 0)
+            val owned = strings(json.optJSONArray("owned")).filter { Shop.item(it) != null }.toSet()
             val hero = json.optJSONObject("hero")?.let { look ->
                 HeroLook(
                     suit = look.optInt("suit", 0),
@@ -203,7 +213,7 @@ class StateStore(private val file: File) {
                 letterCase = enumOrNull<LetterCase>(json.optString("letterCase", "")) ?: LetterCase.UPPER,
                 unlockAll = json.optBoolean("unlockAll", false),
                 skills = skills,
-                totalStars = json.optInt("totalStars", 0),
+                totalStars = totalStars,
                 streak = json.optInt("streak", 0),
                 lastGoalDay = json.optLong("lastGoalDay", -1L),
                 days = days,
@@ -217,8 +227,23 @@ class StateStore(private val file: File) {
                 visitedPlanets = json.optJSONArray("visitedPlanets")?.let { visited ->
                     (0 until visited.length()).mapNotNull { enumOrNull<Subject>(visited.optString(it, "")) }.toSet()
                 } ?: emptySet(),
+                // Profiles from before the shop start with a gift that grows with their stars.
+                nuggets = if (json.has("nuggets")) json.optInt("nuggets", 0).coerceAtLeast(0) else Wallet.startingSum(totalStars),
+                owned = owned,
+                equipped = json.optJSONObject("equipped")?.let { worn ->
+                    worn.keys().asSequence().mapNotNull { key ->
+                        val slot = enumOrNull<ShopSlot>(key) ?: return@mapNotNull null
+                        val id = worn.optString(key, "")
+                        val item = Shop.item(id) ?: return@mapNotNull null
+                        if (item.slot == slot && id in owned) slot to id else null
+                    }.toMap()
+                } ?: emptyMap(),
+                collectedNuggets = strings(json.optJSONArray("collectedNuggets")).filter { Curriculum.skill(it) != null }.toSet(),
             )
         }
+
+        private fun strings(array: JSONArray?): List<String> =
+            if (array == null) emptyList() else (0 until array.length()).mapNotNull { array.optString(it, "").ifBlank { null } }
 
         private inline fun <reified T : Enum<T>> enumOrNull(name: String): T? =
             enumValues<T>().firstOrNull { it.name == name }

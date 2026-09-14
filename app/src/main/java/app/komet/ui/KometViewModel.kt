@@ -18,6 +18,9 @@ import app.komet.domain.Answer
 import app.komet.domain.AppState
 import app.komet.domain.Curriculum
 import app.komet.domain.HeroLook
+import app.komet.domain.Purchase
+import app.komet.domain.ShopSlot
+import app.komet.domain.Wallet
 import app.komet.domain.LetterCase
 import app.komet.domain.Maalform
 import app.komet.domain.Profile
@@ -186,6 +189,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             name = name.trim().ifBlank { "Romfarar" }.take(20),
             avatar = hero.suit,
             hero = hero.safe(),
+            nuggets = Wallet.WELCOME,
             grade = grade,
             maalform = maalform,
             letterCase = letterCase,
@@ -193,6 +197,37 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         )
         commit(state.copy(profiles = state.profiles + profile, activeProfileId = profile.id))
         goHome()
+    }
+
+    // ── Gold nuggets and the shop ──────────────────────────────────────────────────────────────
+
+    fun buy(itemId: String): Purchase {
+        val current = profile ?: return Purchase.Unknown
+        val result = Wallet.buy(current, itemId)
+        if (result is Purchase.Bought) {
+            commit(state.withProfile(result.profile))
+            sounds.play(Sfx.UNLOCK)
+        }
+        return result
+    }
+
+    fun equip(itemId: String) {
+        val current = profile ?: return
+        commit(state.withProfile(Wallet.equip(current, itemId)))
+    }
+
+    fun unequip(slot: ShopSlot) {
+        val current = profile ?: return
+        commit(state.withProfile(Wallet.unequip(current, slot)))
+    }
+
+    /** Picks up the nugget by a finished level on a planet. */
+    fun collectNugget(skillId: String): Boolean {
+        val current = profile ?: return false
+        val updated = Wallet.collect(current, skillId) ?: return false
+        commit(state.withProfile(updated))
+        sounds.play(Sfx.COIN)
+        return true
     }
 
     /** Remembers that Bolt has welcomed the child to [subject]'s planet. */
@@ -220,9 +255,11 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun resetProgress(id: String) = updateProfile(id) {
+        // The wardrobe stays; the nuggets and the planets' pickups start again with the stars.
         it.copy(
             skills = emptyMap(), totalStars = 0, streak = 0, lastGoalDay = -1L, days = emptyMap(),
             raceBest = emptyMap(), lastSubject = null, seenCards = 0,
+            nuggets = Wallet.WELCOME, collectedNuggets = emptySet(),
         )
     }
 

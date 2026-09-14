@@ -56,6 +56,14 @@ data class Profile(
     val hero: HeroLook = HeroLook.fromAvatar(avatar),
     /** Planets Bolt has already introduced, so the welcome is told only once. */
     val visitedPlanets: Set<Subject> = emptySet(),
+    /** Gold nuggets to spend in the shop. Never below zero. */
+    val nuggets: Int = 0,
+    /** Shop items bought, by id. */
+    val owned: Set<String> = emptySet(),
+    /** What is worn or used now, one item per slot. */
+    val equipped: Map<ShopSlot, String> = emptyMap(),
+    /** Levels whose nugget on the planet has been picked up. */
+    val collectedNuggets: Set<String> = emptySet(),
 ) {
     fun stars(skillId: String): Int = skills[skillId]?.bestStars ?: 0
 

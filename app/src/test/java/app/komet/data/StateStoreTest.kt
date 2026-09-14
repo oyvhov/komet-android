@@ -10,8 +10,10 @@ import app.komet.domain.Maalform
 import app.komet.domain.Profile
 import app.komet.domain.RaceMode
 import app.komet.domain.Settings
+import app.komet.domain.ShopSlot
 import app.komet.domain.SkillStats
 import app.komet.domain.Subject
+import app.komet.domain.Wallet
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -43,6 +45,10 @@ class StateStoreTest {
                 favorites = listOf("r_rhyme", "m_add10"),
                 hero = HeroLook(suit = 4, skin = 5, hair = 3, hairStyle = 2),
                 visitedPlanets = setOf(Subject.MATH, Subject.SPACE),
+                nuggets = 23,
+                owned = setOf("helmet_gold", "bolt_pink"),
+                equipped = mapOf(ShopSlot.HELMET to "helmet_gold"),
+                collectedNuggets = setOf("m_add5"),
             ),
             Profile(id = "b", name = "Bror", avatar = 0, grade = 0),
         ),
@@ -77,6 +83,25 @@ class StateStoreTest {
         assertTrue(odd.hero.skin in HeroPalette.skins.indices)
         assertTrue(odd.hero.hair in HeroPalette.hairs.indices)
         assertTrue(odd.hero.hairStyle in 0 until HeroPalette.HAIR_STYLES)
+    }
+
+    @Test
+    fun `nuggets and the wardrobe are checked when read`() {
+        val gift = StateStore.decode(JSONObject("""{"profiles":[{"id":"x","totalStars":72}]}""")).profiles.single()
+        assertEquals(Wallet.startingSum(72), gift.nuggets)
+
+        val odd = StateStore.decode(
+            JSONObject(
+                """{"profiles":[{"id":"y","nuggets":-4,"owned":["helmet_gold","gone_item"],
+                "equipped":{"HELMET":"helmet_gold","VISOR":"visor_gold","BOLT":"helmet_gold","NOPE":"x"},
+                "collectedNuggets":["m_add5","no_level"]}]}""",
+            ),
+        ).profiles.single()
+        assertEquals(0, odd.nuggets)
+        assertEquals(setOf("helmet_gold"), odd.owned)
+        // Not owned, or in the wrong slot: taken off.
+        assertEquals(mapOf(ShopSlot.HELMET to "helmet_gold"), odd.equipped)
+        assertEquals(setOf("m_add5"), odd.collectedNuggets)
     }
 
     @Test

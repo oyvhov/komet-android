@@ -7,7 +7,7 @@ import kotlin.math.exp
 import kotlin.math.min
 import kotlin.math.sin
 
-enum class Sfx { TAP, CORRECT, WRONG, STAR, COMPLETE, UNLOCK, TICK, GO, WHOOSH, STEP, BOING, BEEP, SPARKLE }
+enum class Sfx { TAP, CORRECT, WRONG, STAR, COMPLETE, UNLOCK, TICK, GO, WHOOSH, STEP, BOING, BEEP, SPARKLE, COIN }
 
 /**
  * Every sound in Komet is synthesised here: short bell tones with a soft attack, so feedback is
@@ -72,6 +72,11 @@ object Synth {
         Sfx.SPARKLE -> listOf(2093.0, 2637.0, 3136.0, 3520.0, 4186.0).mapIndexed { index, frequency ->
             Tone(frequency, index * 0.05, 0.4, 0.22, decay = 7.0)
         }
+        // A bright two-note «pling», like a coin in a game.
+        Sfx.COIN -> listOf(
+            Tone(1975.5, 0.0, 0.09, 0.4, decay = 18.0),
+            Tone(2637.0, 0.07, 0.42, 0.42, decay = 6.0),
+        )
     }
 
     fun render(sfx: Sfx): FloatArray {

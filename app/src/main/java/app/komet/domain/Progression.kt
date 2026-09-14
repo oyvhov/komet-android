@@ -14,6 +14,8 @@ data class RoundOutcome(
     val goalReachedNow: Boolean,
     val newRecord: Boolean = false,
     val previousBest: Int = 0,
+    /** Gold nuggets earned by this round, already added to [profile]. */
+    val nuggets: Int = 0,
 )
 
 object Progression {
@@ -229,8 +231,15 @@ object Progression {
         val record = score > previous
         val stars = raceStars(score)
         val base = profile.copy(raceBest = if (record) profile.raceBest + (mode to score) else profile.raceBest)
-        return finish(profile, base, stars, score, answered, seconds, today, dailyGoal)
-            .copy(newRecord = record && score > 0, previousBest = previous)
+        val outcome = finish(profile, base, stars, score, answered, seconds, today, dailyGoal)
+        val newRecord = record && score > 0
+        val bonus = if (newRecord) Wallet.RECORD_BONUS else 0
+        return outcome.copy(
+            profile = outcome.profile.copy(nuggets = outcome.profile.nuggets + bonus),
+            newRecord = newRecord,
+            previousBest = previous,
+            nuggets = outcome.nuggets + bonus,
+        )
     }
 
     private fun finish(
@@ -264,11 +273,13 @@ object Progression {
         }
         val totalStars = base.totalStars + stars
         val days = (base.days + (today to updatedDay)).filterKeys { it > today - KEEP_DAYS }
+        val earned = Wallet.roundReward(stars, reachedNow)
         val after = base.copy(
             totalStars = totalStars,
             days = days,
             streak = streak,
             lastGoalDay = if (reachedNow) today else base.lastGoalDay,
+            nuggets = base.nuggets + earned,
         )
         val cardsBefore = SpaceCards.unlockedCount(before.totalStars)
         val cardsAfter = SpaceCards.unlockedCount(totalStars)
@@ -282,6 +293,7 @@ object Progression {
             newCards = SpaceCards.all.subList(cardsBefore, cardsAfter),
             newRank = rankAfter.takeIf { it != rankBefore },
             goalReachedNow = reachedNow,
+            nuggets = earned,
         )
     }
 }

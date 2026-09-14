@@ -48,6 +48,6 @@ class SoundFx(context: Context) {
 
     private companion object {
         /** Bump when [Synth] changes so cached files are rendered again. */
-        const val VERSION = 2
+        const val VERSION = 3
     }
 }
