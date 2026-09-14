@@ -288,7 +288,7 @@ fun SpaceCardArt(art: CardArt, modifier: Modifier = Modifier, emojiSize: Dp = 44
 
 /** A small rocket, drawn pointing up. [flame] animates the exhaust. */
 @Composable
-fun RocketArt(modifier: Modifier = Modifier, body: Color = Color(0xFFF4F6FF), accent: Color = K.Race, flame: Boolean = true) {
+fun RocketArt(modifier: Modifier = Modifier, body: Color = Color(0xFFF4F6FF), accent: Color = K.Race, flame: Boolean = true, stripes: Boolean = false) {
     val motion = LocalMotion.current && flame
     val transition = rememberInfiniteTransition(label = "flame")
     val flicker = transition.animateFloat(0.8f, 1.15f, infiniteRepeatable(tween(140), RepeatMode.Reverse), label = "flicker")
@@ -320,6 +320,14 @@ fun RocketArt(modifier: Modifier = Modifier, body: Color = Color(0xFFF4F6FF), ac
             close()
         }
         drawPath(hull, Brush.horizontalGradient(listOf(body, body.copy(red = body.red * 0.8f, green = body.green * 0.82f, blue = body.blue * 0.92f))))
+        if (stripes) {
+            clipPath(hull) {
+                val bands = listOf(Color(0xFFFF5A64), Color(0xFFFFC21A), Color(0xFF28CC5E), Color(0xFF3D8BFF))
+                bands.forEachIndexed { index, color ->
+                    drawRect(color, Offset(0f, h * (0.5f + index * 0.07f)), Size(w, h * 0.05f))
+                }
+            }
+        }
         val nose = Path().apply {
             moveTo(w * 0.5f, 0f)
             cubicTo(w * 0.64f, h * 0.07f, w * 0.7f, h * 0.14f, w * 0.72f, h * 0.2f)

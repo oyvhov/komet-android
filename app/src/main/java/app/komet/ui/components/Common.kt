@@ -43,7 +43,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.komet.domain.Subject
-import app.komet.ui.S
 import app.komet.ui.theme.K
 
 val MaxContentWidth = 720.dp
@@ -89,9 +88,6 @@ fun ScreenTopBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        if (onBack != null) {
-            RoundIconButton(KometIcons.Back, S.back.str(), onBack, size = 52.dp)
-        }
         Text(
             title,
             style = MaterialTheme.typography.headlineMedium,
@@ -103,6 +99,8 @@ fun ScreenTopBar(
                 .semantics { heading() },
         )
         trailing()
+        // Every screen on top of the map closes with the same red X in the corner.
+        if (onBack != null) CloseButton(onClick = onBack)
     }
 }
 

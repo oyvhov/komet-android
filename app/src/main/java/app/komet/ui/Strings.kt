@@ -80,6 +80,29 @@ object S {
     fun levelCount(count: Int) = txt("$count nivå")
     val gradeShort = listOf(txt("Førskule", "Førskole"), txt("1. klasse"), txt("2. klasse"), txt("3. klasse"))
 
+    // Gullklumpar, butikken og profilvindauget
+    val nuggets = txt("Gullklumpar", "Gullklumper")
+    fun nuggetsEarned(n: Int) = if (n == 1) txt("+1 gullklump") else txt("+$n gullklumpar", "+$n gullklumper")
+    val shop = txt("Butikken")
+    fun buyFor(price: Int) = txt("Kjøp for $price")
+    fun confirmBuy(name: String, price: Int) = txt("Vil du kjøpe $name for $price gullklumpar?", "Vil du kjøpe $name for $price gullklumper?")
+    val yesBuy = txt("Ja, kjøp")
+    val notNow = txt("Nei, ikkje no", "Nei, ikke nå")
+    val notEnough = txt("Du har ikkje nok gullklumpar endå", "Du har ikke nok gullklumper ennå")
+    fun missing(n: Int) = if (n == 1) txt("Du manglar 1 gullklump", "Du mangler 1 gullklump") else txt("Du manglar $n gullklumpar", "Du mangler $n gullklumper")
+    val earnMore = txt("Spel rundar og plukk gullklumpar på planetane.", "Spill runder og plukk gullklumper på planetene.")
+    fun bought(name: String) = txt("Du kjøpte $name!")
+    val putOn = txt("Ta på")
+    val takeOff = txt("Ta av")
+    val inUse = txt("I bruk")
+    val owned = txt("Kjøpt")
+    val plain = txt("Vanleg", "Vanlig")
+    val switchPlayer = txt("Byt spelar", "Bytt spiller")
+    fun starsToRank(n: Int, title: String) = if (n == 1) txt("1 stjerne til $title") else txt("$n stjerner til $title")
+    val topRank = txt("Høgaste rang!", "Høyeste rang!")
+    val daysInRow = txt("Dagar på rad", "Dager på rad")
+    val pickNugget = txt("Plukk gullklumpen", "Plukk gullklumpen")
+
     // Planetane: Bolt ønskjer velkomen første gong
     fun planetWelcome(subject: app.komet.domain.Subject) = when (subject) {
         app.komet.domain.Subject.MATH -> txt(

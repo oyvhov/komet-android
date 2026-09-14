@@ -7,13 +7,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,12 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
@@ -67,6 +58,7 @@ import app.komet.domain.Maalform
 import app.komet.ui.KometViewModel
 import app.komet.ui.S
 import app.komet.ui.components.BigButton
+import app.komet.ui.components.CloseButton
 import app.komet.ui.components.KometIcons
 import app.komet.ui.components.RocketArt
 import app.komet.ui.components.RoundIconButton
@@ -116,10 +108,10 @@ fun OnboardingScreen(vm: KometViewModel, adding: Boolean) {
                     .padding(horizontal = 20.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (step > 0 || adding) {
-                    RoundIconButton(KometIcons.Back, S.back.str(), onClick = { if (step > 0) step-- else vm.back() }, size = 52.dp)
+                if (step > 0) {
+                    RoundIconButton(KometIcons.Back, S.back.str(), onClick = { step-- }, size = 56.dp)
                 } else {
-                    Spacer(Modifier.size(52.dp))
+                    Spacer(Modifier.size(56.dp))
                 }
                 Row(
                     Modifier.weight(1f),
@@ -133,7 +125,8 @@ fun OnboardingScreen(vm: KometViewModel, adding: Boolean) {
                         )
                     }
                 }
-                Spacer(Modifier.size(52.dp))
+                // A new player can be called off with the red X; the very first profile cannot.
+                if (adding) CloseButton(onClick = { vm.back() }) else Spacer(Modifier.size(56.dp))
             }
 
             AnimatedContent(

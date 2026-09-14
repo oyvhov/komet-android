@@ -84,7 +84,7 @@ fun SubjectBackdrop(subject: Subject, modifier: Modifier = Modifier) {
  * helmet travels along it, and a gold star waits at the end.
  */
 @Composable
-fun JourneyTrack(progress: Float, color: Color, hero: HeroLook, modifier: Modifier = Modifier, height: Dp = 16.dp) {
+fun JourneyTrack(progress: Float, color: Color, hero: HeroLook, modifier: Modifier = Modifier, height: Dp = 16.dp, gear: Gear = Gear.None) {
     val animated by animateFloatAsState(progress.coerceIn(0f, 1f), tween(600), label = "journey")
     BoxWithConstraints(modifier.height(40.dp), contentAlignment = Alignment.CenterStart) {
         val badge = 36.dp
@@ -114,16 +114,16 @@ fun JourneyTrack(progress: Float, color: Color, hero: HeroLook, modifier: Modifi
                 .offset { IntOffset(((trackWidth - badge) * animated).roundToPx(), 0) }
                 .size(badge),
         ) {
-            HeroBadge(hero, size = badge)
+            HeroBadge(hero, size = badge, gear = gear)
         }
     }
 }
 
 /** Bolt reacting to an answer, for small spaces such as the feedback banner. */
 @Composable
-fun BoltReaction(correct: Boolean, modifier: Modifier = Modifier) {
+fun BoltReaction(correct: Boolean, modifier: Modifier = Modifier, paint: String? = null) {
     val time = rememberSceneTime()
     Canvas(modifier) {
-        drawBolt(if (correct) BoltMood.HAPPY else BoltMood.TALK, time.value)
+        drawBolt(if (correct) BoltMood.HAPPY else BoltMood.TALK, time.value, paint)
     }
 }

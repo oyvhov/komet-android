@@ -16,9 +16,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,12 +32,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import app.komet.domain.SpaceCard
 import app.komet.domain.SpaceCards
 import app.komet.ui.KometViewModel
 import app.komet.ui.S
 import app.komet.ui.components.BigButton
+import app.komet.ui.components.KometDialog
 import app.komet.ui.components.GameText
 import androidx.compose.foundation.border
 import androidx.compose.ui.graphics.Color
@@ -104,17 +102,8 @@ fun CollectionScreen(vm: KometViewModel) {
     }
 
     open?.let { card ->
-        Dialog(onDismissRequest = { open = null }) {
-            Column(
-                Modifier
-                    .widthIn(max = 460.dp)
-                    .clip(RoundedCornerShape(32.dp))
-                    .background(K.SurfaceHigh)
-                    .verticalScroll(rememberScrollState())
-                    .padding(22.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-            ) {
+        KometDialog(onClose = { open = null }, maxWidth = 480.dp) {
+            run {
                 Box(
                     Modifier
                         .fillMaxWidth()
@@ -138,7 +127,6 @@ fun CollectionScreen(vm: KometViewModel) {
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                BigButton(S.close.str(), onClick = { open = null }, face = K.Surface, edge = K.SurfaceLow, textColor = K.Text, modifier = Modifier.fillMaxWidth())
             }
         }
     }

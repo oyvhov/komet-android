@@ -125,7 +125,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             Screen.Play -> round?.let { musicFor(it.skill.subject) }
             Screen.Collection -> MusicTheme.SPACE
             Screen.RaceMenu, Screen.Race -> MusicTheme.RACE
-            Screen.Result, Screen.ParentGate, Screen.Parent, Screen.HeroEditor -> null
+            Screen.Result, Screen.ParentGate, Screen.Parent, Screen.HeroEditor, Screen.Shop -> null
         }
         theme?.let(music::play)
     }
@@ -614,6 +614,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             "space" -> { goHome(); open(Screen.World(Subject.SPACE)) }
             "addprofile" -> { goHome(); open(Screen.AddProfile) }
             "hero" -> { goHome(); open(Screen.HeroEditor) }
+            "shop" -> { goHome(); open(Screen.Shop) }
         }
         skill?.let(Curriculum::skill)?.let {
             goHome()

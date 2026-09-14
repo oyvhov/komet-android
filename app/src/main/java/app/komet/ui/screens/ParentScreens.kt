@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +29,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -43,13 +41,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -66,6 +62,8 @@ import app.komet.ui.S
 import app.komet.ui.Screen
 import app.komet.ui.components.AnswerDisplay
 import app.komet.ui.components.BigButton
+import app.komet.ui.components.ConfirmPopup
+import app.komet.ui.components.KometDialog
 import app.komet.ui.components.KometIcons
 import app.komet.ui.components.Keypad
 import app.komet.ui.components.PageColumn
@@ -75,6 +73,7 @@ import app.komet.ui.components.ProgressTrack
 import app.komet.ui.components.ScreenTopBar
 import app.komet.ui.components.SectionTitle
 import app.komet.ui.components.SegmentedChoice
+import app.komet.ui.scene.Gear
 import app.komet.ui.scene.HeroBadge
 import app.komet.ui.components.str
 import app.komet.ui.components.subjectColors
@@ -169,7 +168,7 @@ private fun ProgressTab(vm: KometViewModel) {
     val minutes = weekStats.sumOf { it.seconds } / 60
 
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        HeroBadge(profile.hero, size = 48.dp)
+        HeroBadge(profile.hero, size = 48.dp, gear = Gear.of(profile.equipped))
         Column(Modifier.weight(1f)) {
             Text(profile.name, style = MaterialTheme.typography.headlineSmall, color = K.Text)
             Text(Progression.rank(profile.totalStars).title.str(), style = MaterialTheme.typography.bodyMedium, color = K.Gold)
@@ -414,7 +413,7 @@ private fun ProfilesTab(vm: KometViewModel) {
         val active = profile.id == vm.profile?.id
         Panel(Modifier.fillMaxWidth(), color = if (active) K.SurfaceHigh else K.Surface) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                HeroBadge(profile.hero, size = 56.dp)
+                HeroBadge(profile.hero, size = 56.dp, gear = Gear.of(profile.equipped))
                 Column(Modifier.weight(1f)) {
                     Text(profile.name, style = MaterialTheme.typography.headlineSmall, color = K.Text)
                     Text(
@@ -488,13 +487,16 @@ private fun SmallAction(text: String, danger: Boolean = false, onClick: () -> Un
 
 @Composable
 private fun ConfirmDialog(body: String, confirm: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = K.SurfaceHigh,
-        title = { Text(S.areYouSure.str(), color = K.Text) },
-        text = { Text(body, color = K.Muted, style = MaterialTheme.typography.bodyLarge) },
-        confirmButton = { TextButton(onClick = onConfirm) { Text(confirm, color = K.Bad, fontWeight = FontWeight.Bold) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(S.cancel.str(), color = K.Text) } },
+    // Something that deletes is red, and cancelling is the safe grey choice.
+    ConfirmPopup(
+        title = S.areYouSure.str(),
+        body = body,
+        confirm = confirm,
+        onConfirm = onConfirm,
+        dismiss = S.cancel.str(),
+        onClose = onDismiss,
+        confirmFace = K.Bad,
+        confirmEdge = K.BadDeep,
     )
 }
 
@@ -502,33 +504,27 @@ private fun ConfirmDialog(body: String, confirm: String, onConfirm: () -> Unit, 
 @Composable
 private fun EditProfileDialog(profile: Profile, onSave: (String) -> Unit, onDismiss: () -> Unit) {
     var name by remember { mutableStateOf(profile.name) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = K.SurfaceHigh,
-        title = { Text(profile.name, color = K.Text) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it.take(20) },
-                    label = { Text(S.nameLabel.str()) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, autoCorrectEnabled = false),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = K.Gold,
-                        unfocusedBorderColor = K.Line,
-                        focusedLabelColor = K.Gold,
-                        unfocusedLabelColor = K.Muted,
-                        cursorColor = K.Gold,
-                        focusedTextColor = K.Text,
-                        unfocusedTextColor = K.Text,
-                    ),
-                )
-            }
-        },
-        confirmButton = { TextButton(onClick = { onSave(name) }) { Text(S.done.str(), color = K.Gold, fontWeight = FontWeight.Bold) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(S.cancel.str(), color = K.Text) } },
-    )
+    KometDialog(onClose = onDismiss) {
+        Text(profile.name, style = MaterialTheme.typography.headlineSmall, color = K.Text, modifier = Modifier.fillMaxWidth().padding(end = 24.dp))
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it.take(20) },
+            label = { Text(S.nameLabel.str()) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, autoCorrectEnabled = false),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = K.Gold,
+                unfocusedBorderColor = K.Line,
+                focusedLabelColor = K.Gold,
+                unfocusedLabelColor = K.Muted,
+                cursorColor = K.Gold,
+                focusedTextColor = K.Text,
+                unfocusedTextColor = K.Text,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        BigButton(S.done.str(), onClick = { onSave(name) }, icon = KometIcons.Check, modifier = Modifier.fillMaxWidth())
+    }
 }
 
 @Composable

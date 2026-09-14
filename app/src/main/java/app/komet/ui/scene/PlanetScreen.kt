@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
@@ -64,7 +63,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -75,10 +76,16 @@ import app.komet.domain.Chapter
 import app.komet.domain.Curriculum
 import app.komet.domain.Progression
 import app.komet.domain.Skill
+import app.komet.domain.ShopSlot
 import app.komet.domain.Subject
+import app.komet.domain.Wallet
 import app.komet.ui.KometViewModel
 import app.komet.ui.S
 import app.komet.ui.components.BigButton
+import app.komet.ui.components.CloseButton
+import app.komet.ui.components.NuggetPill
+import app.komet.ui.components.drawNugget
+import app.komet.ui.components.drawRays
 import app.komet.ui.components.Feedback
 import app.komet.ui.components.GameText
 import app.komet.ui.components.KometIcons
@@ -217,6 +224,8 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
         if (boltMood == BoltMood.TALK) boltMood = BoltMood.IDLE
     }
     val hops = remember(subject) { mutableStateMapOf<Int, Long>() }
+    // Nuggets picked up on this visit, with the moment, so each can fly off before it disappears.
+    val picked = remember(subject) { mutableStateMapOf<String, Float>() }
     val camera = rememberSceneCamera(subject)
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -294,7 +303,7 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
             val left = window * 0.5f - 0.8f
             val right = window * 0.5f + metrics.viewport + 1.3f
 
-            if (layout.padX in left..right) LandingPad(layout.padX, time, onTap = { vm.back() })
+            if (layout.padX in left..right) LandingPad(layout.padX, time, rocketPaint(profile.equipped[ShopSlot.ROCKET]), onTap = { vm.back() })
 
             if (weak.isNotEmpty() && layout.workshopX in left..right) {
                 Workshop(layout.workshopX, tone.face, time, selected = selection == Selection.Review) {
@@ -334,12 +343,31 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
 
             if (layout.goalX in left..right) GoalMonument(layout.goalX, tone.top, time) { feedback.sfx(Sfx.SPARKLE) }
 
+            val waiting = remember(profile) { Wallet.pickups(profile, subject).map { it.id }.toSet() }
+            for (station in layout.stations) {
+                if (station.x !in left..right) continue
+                val id = station.skill.id
+                val taken = picked[id]
+                if (id !in waiting && taken == null) continue
+                NuggetPickup(
+                    x = station.x + metrics.unitsOf(layout.medallion * 0.62f),
+                    y = station.y - metrics.unitsOf(layout.medallion * 0.9f),
+                    size = (layout.medallion * 0.62f).coerceAtLeast(44.dp),
+                    time = time,
+                    takenAt = taken,
+                    onTap = {
+                        if (taken == null && vm.collectNugget(id)) picked[id] = time.value
+                    },
+                )
+            }
+
             val heroHeight = layout.heroHeight
             Astronaut(
                 look = profile.hero,
                 time = time,
                 pose = { pose },
                 facingLeft = { facingLeft },
+                gear = Gear.of(profile.equipped),
                 modifier = Modifier
                     .worldAt({ Offset(heroX.value, PlanetGround.pathY(heroX.value) + 0.012f) })
                     .size(heroHeight * (2f / 3f), heroHeight),
@@ -347,6 +375,7 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
             Bolt(
                 time = time,
                 mood = { boltMood },
+                paint = profile.equipped[ShopSlot.BOLT],
                 modifier = Modifier
                     .worldAt({
                         val side = if (facingLeft) 1f else -1f
@@ -371,22 +400,29 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
         }
 
         if (welcome) {
-            SpeechBubble(
+            Box(
                 Modifier
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
                     .padding(start = 14.dp, end = 14.dp, top = 76.dp)
-                    .widthIn(max = 380.dp)
-                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { welcome = false },
-                tailAt = 0.2f,
+                    .widthIn(max = 400.dp),
             ) {
-                Text(
-                    app.komet.audio.Speaker.plain(S.planetWelcome(subject).str()),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontSize = cappedSp(17.sp),
-                    lineHeight = cappedSp(23.sp),
-                    color = K.Ink,
-                    fontWeight = FontWeight.Bold,
-                )
+                SpeechBubble(
+                    Modifier
+                        .padding(top = 14.dp, end = 14.dp)
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { welcome = false },
+                    tailAt = 0.2f,
+                ) {
+                    Text(
+                        app.komet.audio.Speaker.plain(S.planetWelcome(subject).str()),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = cappedSp(17.sp),
+                        lineHeight = cappedSp(23.sp),
+                        color = K.Ink,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(end = 34.dp),
+                    )
+                }
+                CloseButton(onClick = { welcome = false }, modifier = Modifier.align(Alignment.TopEnd))
             }
         }
 
@@ -398,11 +434,11 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            RoundIconButton(KometIcons.Back, S.back.str(), onClick = { vm.back() }, size = 52.dp)
-            NamePlate(S.subject(subject).str(), tone.face, tone.top)
-            Spacer(Modifier.weight(1f))
+            Box(Modifier.weight(1f)) { NamePlate(S.subject(subject).str(), tone.face, tone.top) }
             val skills = Curriculum.skills(subject)
             Pill("${Progression.earnedStars(profile, skills)} / ${skills.size * 3}", star = true)
+            NuggetPill(profile.nuggets)
+            CloseButton(onClick = { vm.back() })
         }
 
         val cardModifier = if (landscape) {
@@ -465,6 +501,46 @@ private suspend fun walkHero(
     }
 }
 
+/** A gold nugget by a finished level: it bobs and glints until it is tapped, then flies up and fades. */
+@Composable
+private fun SceneScope.NuggetPickup(x: Float, y: Float, size: Dp, time: State<Float>, takenAt: Float?, onTap: () -> Unit) {
+    val label = S.pickNugget.str()
+    val earned = S.nuggetsEarned(Wallet.PICKUP).str()
+    val measurer = rememberTextMeasurer()
+    val style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Black, color = K.GoldTop)
+    Canvas(
+        Modifier
+            .worldAt(x, y, anchorY = 0.5f)
+            .size(size * 1.7f)
+            .semantics { contentDescription = label }
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, role = Role.Button, onClick = onTap),
+    ) {
+        val t = time.value
+        val c = center
+        val r = size.toPx() * 0.36f
+        if (takenAt == null) {
+            val bob = sin(t * 3f + x * 7f) * r * 0.12f
+            val pulse = 0.5f + 0.5f * sin(t * 4f + x * 5f)
+            val at = c + Offset(0f, bob)
+            // A dark disc and a glowing ring keep the nugget clear of golden crystals behind it.
+            drawRays(at, r * 2.3f, K.GoldTop, t * 0.6f)
+            drawCircle(K.SpaceTop.copy(alpha = 0.5f), r * 1.35f, at)
+            drawCircle(K.GoldTop.copy(alpha = 0.55f + 0.45f * pulse), r * (1.35f + 0.08f * pulse), at, style = Stroke(r * 0.13f))
+            drawNugget(at, r, shine = pulse)
+        } else {
+            val p = ((t - takenAt) / 0.8f).coerceIn(0f, 1f)
+            if (p >= 1f) return@Canvas
+            val lift = p * r * 3.2f
+            drawRays(c - Offset(0f, lift), r * (2.2f + p * 2f), K.Gold.copy(alpha = 1f - p), t * 2f)
+            drawNugget(c - Offset(0f, lift), r * (1f - p * 0.5f), shine = 1f)
+            val text = measurer.measure(earned, style)
+            val topLeft = c - Offset(text.size.width / 2f, lift + r * 2.4f)
+            drawText(text, color = K.Outline, topLeft = topLeft, alpha = 1f - p, drawStyle = Stroke(width = 4.dp.toPx(), join = StrokeJoin.Round))
+            drawText(text, color = K.GoldTop, topLeft = topLeft, alpha = 1f - p)
+        }
+    }
+}
+
 @Composable
 private fun NamePlate(text: String, face: Color, top: Color) {
     GameText(
@@ -472,6 +548,7 @@ private fun NamePlate(text: String, face: Color, top: Color) {
         style = MaterialTheme.typography.headlineSmall,
         fontSize = cappedSp(22.sp),
         maxLines = 1,
+        autoFit = true,
         modifier = Modifier
             .border(2.dp, K.Outline, RoundedCornerShape(50))
             .gloss(face, RoundedCornerShape(50), top = top)
@@ -584,7 +661,7 @@ private fun SceneScope.ChapterSign(sign: Signpost, completed: Int) {
 }
 
 @Composable
-private fun SceneScope.LandingPad(x: Float, time: State<Float>, onTap: () -> Unit) {
+private fun SceneScope.LandingPad(x: Float, time: State<Float>, paint: RocketPaint, onTap: () -> Unit) {
     val width = units(0.2f, 96.dp, 160.dp)
     Box(
         Modifier
@@ -605,8 +682,9 @@ private fun SceneScope.LandingPad(x: Float, time: State<Float>, onTap: () -> Uni
             Modifier
                 .padding(bottom = width * 0.12f)
                 .size(width * 0.5f, width * 0.82f),
-            body = Color.White,
-            accent = K.Race,
+            body = paint.body,
+            accent = paint.accent,
+            stripes = paint.stripes,
         )
     }
 }

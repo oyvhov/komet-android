@@ -11,7 +11,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.border
+import app.komet.domain.ShopSlot
+import app.komet.ui.components.CloseButton
+import app.komet.ui.components.NuggetGlyph
 import app.komet.ui.scene.Astronaut
+import app.komet.ui.scene.Gear
 import app.komet.ui.scene.Bolt
 import app.komet.ui.scene.BoltMood
 import app.komet.ui.scene.HeroPose
@@ -141,6 +146,13 @@ fun ResultScreen(vm: KometViewModel) {
             }
         }
         if (outcome.stars >= 2 || outcome.newRecord) ConfettiBurst(info, Modifier.fillMaxSize())
+        CloseButton(
+            onClick = { vm.leaveResult() },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .safeDrawingPadding()
+                .padding(12.dp),
+        )
     }
 }
 
@@ -154,11 +166,13 @@ private fun Celebration(vm: KometViewModel, stars: Int, big: Boolean) {
             look = hero,
             time = time,
             pose = { if (stars > 0) HeroPose.CHEER else HeroPose.WAVE },
+            gear = Gear.of(vm.profile?.equipped.orEmpty()),
             modifier = if (big) Modifier.size(170.dp, 255.dp) else Modifier.size(84.dp, 126.dp),
         )
         Bolt(
             time = time,
             mood = { BoltMood.HAPPY },
+            paint = vm.profile?.equipped?.get(ShopSlot.BOLT),
             modifier = Modifier
                 .padding(bottom = if (big) 140.dp else 64.dp)
                 .size(if (big) 96.dp else 58.dp),
@@ -204,6 +218,20 @@ private fun ResultDetails(vm: KometViewModel, info: app.komet.ui.ResultInfo) {
         if (info.raceMode != null) {
             val best = maxOf(outcome.previousBest, outcome.firstTry)
             Text(S.record(best).str(), style = MaterialTheme.typography.titleMedium, color = K.Gold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        }
+        if (outcome.nuggets > 0) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(K.Gold.copy(alpha = 0.14f), RoundedCornerShape(24.dp))
+                    .border(1.5.dp, K.Gold.copy(alpha = 0.35f), RoundedCornerShape(24.dp))
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                NuggetGlyph(Modifier.size(40.dp))
+                GameText(S.nuggetsEarned(outcome.nuggets).str(), style = MaterialTheme.typography.headlineSmall, color = K.GoldTop)
+            }
         }
 
         outcome.newCards.lastOrNull()?.let { card ->

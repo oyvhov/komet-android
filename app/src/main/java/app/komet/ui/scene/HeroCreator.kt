@@ -45,10 +45,10 @@ import app.komet.domain.HeroPalette
 import app.komet.ui.KometViewModel
 import app.komet.ui.S
 import app.komet.ui.components.BigButton
+import app.komet.ui.components.CloseButton
 import app.komet.ui.components.GameText
 import app.komet.ui.components.KometIcons
 import app.komet.ui.components.LocalFeedback
-import app.komet.ui.components.RoundIconButton
 import app.komet.ui.components.str
 import app.komet.ui.theme.K
 
@@ -58,7 +58,7 @@ import app.komet.ui.theme.K
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun HeroCreator(look: HeroLook, onChange: (HeroLook) -> Unit, modifier: Modifier = Modifier) {
+fun HeroCreator(look: HeroLook, onChange: (HeroLook) -> Unit, modifier: Modifier = Modifier, gear: Gear = Gear.None) {
     val time = rememberSceneTime()
     val feedback = LocalFeedback.current
     var cheerAt by remember { mutableFloatStateOf(-10f) }
@@ -83,6 +83,7 @@ fun HeroCreator(look: HeroLook, onChange: (HeroLook) -> Unit, modifier: Modifier
                     look = look,
                     time = time,
                     pose = { if (time.value - cheerAt < 1.2f) HeroPose.CHEER else HeroPose.WAVE },
+                    gear = gear,
                     modifier = Modifier.size(140.dp, 210.dp),
                 )
             }
@@ -119,7 +120,7 @@ fun HeroCreator(look: HeroLook, onChange: (HeroLook) -> Unit, modifier: Modifier
                                 }
                                 .clickable(role = Role.RadioButton) { choose(look.copy(hairStyle = index)) },
                         ) {
-                            HeroBadge(look.copy(hairStyle = index), time, 54.dp)
+                            HeroBadge(look.copy(hairStyle = index), time, 54.dp, gear)
                         }
                     }
                 }
@@ -188,8 +189,8 @@ fun HeroEditorScreen(vm: KometViewModel) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            RoundIconButton(KometIcons.Back, S.back.str(), onClick = { vm.back() }, size = 52.dp)
-            GameText(S.editHero.str(), style = MaterialTheme.typography.headlineMedium, maxLines = 1, modifier = Modifier.weight(1f))
+            GameText(S.editHero.str(), style = MaterialTheme.typography.headlineMedium, maxLines = 1, autoFit = true, modifier = Modifier.weight(1f))
+            CloseButton(onClick = { vm.back() })
         }
         Column(
             Modifier
@@ -199,7 +200,7 @@ fun HeroEditorScreen(vm: KometViewModel) {
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp, vertical = 8.dp),
         ) {
-            HeroCreator(look, onChange = { look = it })
+            HeroCreator(look, onChange = { look = it }, gear = Gear.of(profile.equipped))
         }
         BigButton(
             text = S.done.str(),

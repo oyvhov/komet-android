@@ -25,10 +25,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -70,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import app.komet.audio.Sfx
 import app.komet.domain.Curriculum
 import app.komet.domain.Progression
+import app.komet.domain.ShopSlot
 import app.komet.domain.SpaceCards
 import app.komet.domain.Subject
 import app.komet.ui.KometViewModel
@@ -78,6 +77,7 @@ import app.komet.ui.Screen
 import app.komet.ui.components.GameText
 import app.komet.ui.components.KometIcons
 import app.komet.ui.components.LocalFeedback
+import app.komet.ui.components.NuggetPill
 import app.komet.ui.components.Pill
 import app.komet.ui.components.PressSurface
 import app.komet.ui.components.RoundIconButton
@@ -273,7 +273,8 @@ fun StarMapScreen(vm: KometViewModel) {
                         rotationZ = if (route == null) 28f + sin(time.value * 1.7f) * 3f else flightAngle(layout, route, flight.value)
                     },
             ) {
-                app.komet.ui.components.RocketArt(Modifier.fillMaxSize(), body = Color.White, accent = K.Race)
+                val paint = rocketPaint(profile.equipped[ShopSlot.ROCKET])
+                app.komet.ui.components.RocketArt(Modifier.fillMaxSize(), body = paint.body, accent = paint.accent, stripes = paint.stripes)
             }
         }
 
@@ -293,7 +294,7 @@ fun StarMapScreen(vm: KometViewModel) {
         )
     }
 
-    if (picker) ProfilePicker(vm, time) { picker = false }
+    if (picker) ProfileWindow(vm, time) { picker = false }
 }
 
 private fun bezier(a: Offset, b: Offset, c: Offset, d: Offset, t: Float): Offset {
@@ -848,7 +849,7 @@ private fun MapOverlay(vm: KometViewModel, time: State<Float>, onProfile: () -> 
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Box {
-                    HeroBadge(profile.hero, time, 52.dp)
+                    HeroBadge(profile.hero, time, 52.dp, Gear.of(profile.equipped))
                     Box(
                         Modifier
                             .align(Alignment.BottomEnd)
@@ -885,6 +886,12 @@ private fun MapOverlay(vm: KometViewModel, time: State<Float>, onProfile: () -> 
             }
             Spacer(Modifier.weight(0.01f))
             Pill(profile.totalStars.toString(), star = true)
+            NuggetPill(
+                profile.nuggets,
+                modifier = Modifier.clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, role = Role.Button, onClickLabel = S.shop.str()) {
+                    vm.open(Screen.Shop)
+                },
+            )
             Box {
                 RoundIconButton(KometIcons.Lock, S.parents.str(), onClick = { vm.open(Screen.ParentGate) }, size = 48.dp, tint = K.Muted)
                 if (vm.updater.state.release != null) {
@@ -917,7 +924,7 @@ private fun MapOverlay(vm: KometViewModel, time: State<Float>, onProfile: () -> 
 
 /** The astronaut's face in a round frame. */
 @Composable
-fun HeroBadge(look: app.komet.domain.HeroLook, time: State<Float> = remember { mutableFloatStateOf(0f) }, size: androidx.compose.ui.unit.Dp) {
+fun HeroBadge(look: app.komet.domain.HeroLook, time: State<Float> = remember { mutableFloatStateOf(0f) }, size: androidx.compose.ui.unit.Dp, gear: Gear = Gear.None) {
     Box(
         Modifier
             .size(size)
@@ -927,7 +934,7 @@ fun HeroBadge(look: app.komet.domain.HeroLook, time: State<Float> = remember { m
             .background(Brush.verticalGradient(listOf(Color(0xFF3A4BB0), Color(0xFF151C5C))))
             .border((size.value * 0.05f).coerceAtLeast(2f).dp, Color.White.copy(alpha = 0.8f), CircleShape),
     ) {
-        HeroPortrait(look, time, Modifier.fillMaxSize())
+        HeroPortrait(look, time, Modifier.fillMaxSize(), gear = gear)
     }
 }
 
@@ -943,6 +950,7 @@ private fun MissionBubble(vm: KometViewModel, time: State<Float>, modifier: Modi
     Row(modifier, verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         Bolt(
             time = time,
+            paint = profile.equipped[ShopSlot.BOLT],
             mood = { if (talking) BoltMood.TALK else BoltMood.IDLE },
             modifier = Modifier
                 .size(76.dp)
@@ -1002,57 +1010,4 @@ private fun MissionBubble(vm: KometViewModel, time: State<Float>, modifier: Modi
             }
         }
     }
-}
-
-@Composable
-private fun ProfilePicker(vm: KometViewModel, time: State<Float>, onClose: () -> Unit) {
-    val profile = vm.profile ?: return
-    AlertDialog(
-        onDismissRequest = onClose,
-        containerColor = K.SurfaceHigh,
-        title = { Text(if (vm.state.profiles.size > 1) S.whoPlays.str() else profile.name, color = K.Text, style = MaterialTheme.typography.headlineSmall) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                PressSurface(
-                    onClick = {
-                        onClose()
-                        vm.open(Screen.HeroEditor)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    face = K.Cosmos,
-                    edge = K.CosmosDeep,
-                    top = K.CosmosTop,
-                    contentAlignment = Alignment.CenterStart,
-                    contentPadding = PaddingValues(12.dp),
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        HeroBadge(profile.hero, time, 48.dp)
-                        GameText(S.editHero.str(), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                    }
-                }
-                if (vm.state.profiles.size > 1) vm.state.profiles.forEach { other ->
-                    PressSurface(
-                        onClick = {
-                            vm.switchProfile(other.id)
-                            onClose()
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        face = if (other.id == profile.id) K.Surface else K.SurfaceLow,
-                        edge = K.SpaceTop,
-                        contentAlignment = Alignment.CenterStart,
-                        contentPadding = PaddingValues(12.dp),
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            HeroBadge(other.hero, time, 48.dp)
-                            Text(other.name, style = MaterialTheme.typography.titleLarge, color = K.Text, modifier = Modifier.weight(1f))
-                            Pill(other.totalStars.toString(), star = true)
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onClose) { Text(S.close.str(), color = K.Gold) }
-        },
-    )
 }

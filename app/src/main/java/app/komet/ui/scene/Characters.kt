@@ -41,19 +41,19 @@ enum class HeroPose { IDLE, WALK, CHEER, WAVE }
 
 enum class BoltMood { IDLE, HAPPY, TALK, SURPRISED }
 
-private val SuitWhite = Color(0xFFF4F7FF)
-private val SuitShade = Color(0xFFC3CDE6)
-private val SuitBack = Color(0xFFAAB5D6)
-private val VisorTop = Color(0xFF24357E)
-private val VisorBottom = Color(0xFF0A1036)
+internal val SuitWhite = Color(0xFFF4F7FF)
+internal val SuitShade = Color(0xFFC3CDE6)
+internal val SuitBack = Color(0xFFAAB5D6)
+internal val VisorTop = Color(0xFF24357E)
+internal val VisorBottom = Color(0xFF0A1036)
 private val EyeInk = Color(0xFF1A1440)
 private val BoltCyan = Color(0xFF5CF2FF)
-private val BoltTeal = Color(0xFF27B8CC)
+internal val BoltTeal = Color(0xFF27B8CC)
 private val BubbleBottom = Color(0xFFE9EEFF)
 
 /**
- * The child's astronaut, drawn in code. The pose, facing and clock are read while drawing only, so a
- * walking figure never recomposes. The canvas is two units wide for three tall.
+ * The child's astronaut, drawn in code, wearing [gear] from the shop. The pose, facing and clock are read
+ * while drawing only, so a walking figure never recomposes. The canvas is two units wide for three tall.
  */
 @Composable
 fun Astronaut(
@@ -62,20 +62,22 @@ fun Astronaut(
     modifier: Modifier = Modifier,
     pose: () -> HeroPose = { HeroPose.IDLE },
     facingLeft: () -> Boolean = { false },
+    gear: Gear = Gear.None,
 ) {
     val safe = look.safe()
     val suit = Color(HeroPalette.suits[safe.suit])
     val skin = Color(HeroPalette.skins[safe.skin])
     val hair = Color(HeroPalette.hairs[safe.hair])
     Canvas(modifier) {
-        drawAstronaut(suit, skin, hair, safe.hairStyle, pose(), time.value, facingLeft())
+        drawAstronaut(suit, skin, hair, safe.hairStyle, pose(), time.value, facingLeft(), gear)
     }
 }
 
 /** Draws the astronaut with its feet at the bottom centre of the canvas. */
-fun DrawScope.drawAstronaut(suit: Color, skin: Color, hair: Color, hairStyle: Int, pose: HeroPose, t: Float, facingLeft: Boolean) {
+fun DrawScope.drawAstronaut(suit: Color, skin: Color, hair: Color, hairStyle: Int, pose: HeroPose, t: Float, facingLeft: Boolean, gear: Gear = Gear.None) {
     val s = min(size.width / 100f, size.height / 150f)
     val suitDeep = lerp(suit, Color.Black, 0.3f)
+    val tones = suitTones(gear)
     val line = Stroke(width = 3.2f, join = StrokeJoin.Round, cap = StrokeCap.Round)
 
     var legFront = 0f
@@ -125,51 +127,45 @@ fun DrawScope.drawAstronaut(suit: Color, skin: Color, hair: Color, hairStyle: In
         // A soft shadow stays on the ground while the body bobs.
         drawOval(Color.Black.copy(alpha = 0.28f), Offset(-30f, -7f), Size(60f, 12f))
         withTransform({ translate(0f, bob) }) {
-            limb(Offset(-7f, -72f), armBack, 27f, 12f, SuitBack, suitDeep, line, glove = true)
-            // Backpack
-            drawRoundRect(suitDeep, Offset(-33f, -86f), Size(22f, 40f), CornerRadius(8f))
-            drawRoundRect(K.Outline, Offset(-33f, -86f), Size(22f, 40f), CornerRadius(8f), style = line)
-            drawLine(Color.White.copy(alpha = 0.25f), Offset(-28f, -80f), Offset(-28f, -54f), strokeWidth = 3f, cap = StrokeCap.Round)
-            limb(Offset(-7f, -40f), legBack, 31f, 15f, SuitBack, suitDeep, line, glove = false)
-            limb(Offset(8f, -40f), legFront, 31f, 15f, SuitWhite, suitDeep, line, glove = false)
+            drawPackBehind(gear, suit, t, line)
+            limb(Offset(-7f, -72f), armBack, 27f, 12f, tones.back, suitDeep, line, glove = true, gear.pattern, suit)
+            drawPack(gear, suit, suitDeep, pose, t, line)
+            drawBadgeBehind(gear, t, line)
+            limb(Offset(-7f, -40f), legBack, 31f, 15f, tones.back, suitDeep, line, glove = false, gear.pattern, suit)
+            limb(Offset(8f, -40f), legFront, 31f, 15f, tones.front, suitDeep, line, glove = false, gear.pattern, suit)
 
             // Body
-            val torso = Brush.verticalGradient(listOf(SuitWhite, SuitShade), startY = -82f, endY = -32f)
+            val torso = Brush.verticalGradient(listOf(tones.front, tones.shade), startY = -82f, endY = -32f)
             drawRoundRect(torso, Offset(-22f, -82f), Size(45f, 50f), CornerRadius(17f))
+            drawTorsoPattern(gear, suit)
             drawRoundRect(K.Outline, Offset(-22f, -82f), Size(45f, 50f), CornerRadius(17f), style = line)
             drawRoundRect(suit, Offset(-1f, -68f), Size(17f, 15f), CornerRadius(4f))
             drawRoundRect(K.Outline.copy(alpha = 0.7f), Offset(-1f, -68f), Size(17f, 15f), CornerRadius(4f), style = Stroke(2f))
             drawCircle(Color.White, 2.2f, Offset(3.5f, -63f))
             drawCircle(K.Gold, 2.2f, Offset(10.5f, -63f))
             drawRoundRect(lerp(suit, Color.White, 0.35f), Offset(2f, -58f), Size(11f, 2.6f), CornerRadius(1.3f))
+            drawBadgeChest(gear)
             // Belt
             drawRoundRect(suitDeep, Offset(-21f, -44f), Size(43f, 6f), CornerRadius(3f))
 
             // Collar
             drawRoundRect(suit, Offset(-24f, -88f), Size(50f, 11f), CornerRadius(5.5f))
             drawRoundRect(K.Outline, Offset(-24f, -88f), Size(50f, 11f), CornerRadius(5.5f), style = line)
+            drawBadgeCollar(gear, line)
 
-            // Antenna with a light that pulses
-            drawLine(K.Outline, Offset(-12f, -134f), Offset(-19f, -147f), strokeWidth = 4.2f, cap = StrokeCap.Round)
-            drawLine(SuitShade, Offset(-12f, -134f), Offset(-19f, -147f), strokeWidth = 1.8f, cap = StrokeCap.Round)
-            val pulse = 0.55f + 0.45f * sin(t * 3.1f)
-            drawCircle(K.Gold.copy(alpha = 0.35f * pulse), 7.5f, Offset(-19.5f, -148f))
-            drawCircle(K.Gold, 3.8f, Offset(-19.5f, -148f))
-            drawCircle(K.Outline, 3.8f, Offset(-19.5f, -148f), style = Stroke(1.8f))
+            drawAntenna(gear, suit, t)
 
             // Helmet
             val helmetCenter = Offset(3f, -108f)
-            drawCircle(
-                Brush.radialGradient(listOf(Color.White, SuitWhite, SuitShade), center = Offset(-8f, -122f), radius = 46f),
-                33f,
-                helmetCenter,
-            )
+            drawHelmetBehind(gear, suit, line)
+            drawCircle(helmetBrush(gear), 33f, helmetCenter)
+            drawHelmetDetails(gear, suit)
             drawCircle(K.Outline, 33f, helmetCenter, style = line)
 
             // Visor with the face behind it
             val visorRect = Rect(Offset(11.5f, -105f), 22f)
             val visor = Path().apply { addOval(Rect(visorRect.left - 1f, visorRect.top + 3f, visorRect.right + 1f, visorRect.bottom - 1f)) }
-            drawPath(visor, Brush.verticalGradient(listOf(VisorTop, VisorBottom), startY = -126f, endY = -84f))
+            drawPath(visor, visorBrush(gear))
             clipPath(visor) {
                 val face = Offset(13f, -100f)
                 drawCircle(skin, 18.5f, face)
@@ -190,14 +186,16 @@ fun DrawScope.drawAstronaut(suit: Color, skin: Color, hair: Color, hairStyle: In
                 } else {
                     drawArc(EyeInk, 20f, 140f, false, Offset(9f, -96f), Size(9f, 6f), style = Stroke(2f, cap = StrokeCap.Round))
                 }
+                drawVisorTint(gear)
                 // The visor reflects the sky.
                 drawRect(Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.12f), Color.Transparent), startY = -127f, endY = -100f), Offset(-12f, -128f), Size(48f, 30f))
             }
             drawPath(visor, K.Outline, style = Stroke(2.6f))
+            drawShades(gear)
             drawArc(Color.White.copy(alpha = 0.85f), 200f, 55f, false, Offset(-4f, -121f), Size(30f, 28f), style = Stroke(3f, cap = StrokeCap.Round))
             drawCircle(Color.White.copy(alpha = 0.85f), 1.8f, Offset(25f, -118f))
 
-            limb(Offset(11f, -72f), armFront, 27f, 12f, SuitWhite, suitDeep, line, glove = true)
+            limb(Offset(11f, -72f), armFront, 27f, 12f, tones.front, suitDeep, line, glove = true, gear.pattern, suit)
         }
     }
 }
@@ -253,11 +251,23 @@ private fun DrawScope.drawHair(hair: Color, style: Int, face: Offset) {
 }
 
 /** An arm or a leg hanging from [pivot], swung [angle] degrees forward, with a glove or a boot. */
-private fun DrawScope.limb(pivot: Offset, angle: Float, length: Float, width: Float, color: Color, end: Color, line: Stroke, glove: Boolean) {
+private fun DrawScope.limb(
+    pivot: Offset,
+    angle: Float,
+    length: Float,
+    width: Float,
+    color: Color,
+    end: Color,
+    line: Stroke,
+    glove: Boolean,
+    pattern: String? = null,
+    accent: Color = end,
+) {
     rotate(-angle, pivot) {
         val topLeft = Offset(pivot.x - width / 2, pivot.y - width / 2)
         val limbSize = Size(width, length + width / 2)
         drawRoundRect(color, topLeft, limbSize, CornerRadius(width / 2))
+        drawLimbPattern(pattern, accent, pivot, length, width, leg = !glove)
         drawRoundRect(K.Outline, topLeft, limbSize, CornerRadius(width / 2), style = line)
         val tip = Offset(pivot.x, pivot.y + length)
         if (glove) {
@@ -271,13 +281,14 @@ private fun DrawScope.limb(pivot: Offset, angle: Float, length: Float, width: Fl
     }
 }
 
-/** Bolt, the robot friend: hovers, blinks and shows its mood on a screen face. */
+/** Bolt, the robot friend: hovers, blinks and shows its mood on a screen face, in the [paint] bought for it. */
 @Composable
-fun Bolt(time: State<Float>, modifier: Modifier = Modifier, mood: () -> BoltMood = { BoltMood.IDLE }) {
-    Canvas(modifier) { drawBolt(mood(), time.value) }
+fun Bolt(time: State<Float>, modifier: Modifier = Modifier, mood: () -> BoltMood = { BoltMood.IDLE }, paint: String? = null) {
+    Canvas(modifier) { drawBolt(mood(), time.value, paint) }
 }
 
-fun DrawScope.drawBolt(mood: BoltMood, t: Float) {
+fun DrawScope.drawBolt(mood: BoltMood, t: Float, paint: String? = null) {
+    val colors = boltPaint(paint)
     val s = min(size.width, size.height) / 100f
     val line = Stroke(width = 3.2f, join = StrokeJoin.Round, cap = StrokeCap.Round)
     val bob = sin(t * 2.4f) * 3f
@@ -297,12 +308,12 @@ fun DrawScope.drawBolt(mood: BoltMood, t: Float) {
 
         val happy = mood == BoltMood.HAPPY
         val handLift = if (happy) -22f + sin(t * 10f) * 5f else 0f
-        drawHand(Offset(8f, 60f + sin(t * 2.4f + 1f) * 3f + handLift), line)
-        drawHand(Offset(92f, 60f + sin(t * 2.4f + 2.2f) * 3f + handLift), line)
+        drawHand(Offset(8f, 60f + sin(t * 2.4f + 1f) * 3f + handLift), line, colors)
+        drawHand(Offset(92f, 60f + sin(t * 2.4f + 2.2f) * 3f + handLift), line, colors)
 
-        drawRoundRect(BoltTeal, Offset(9f, 38f), Size(10f, 22f), CornerRadius(4f))
+        drawRoundRect(colors.trim, Offset(9f, 38f), Size(10f, 22f), CornerRadius(4f))
         drawRoundRect(K.Outline, Offset(9f, 38f), Size(10f, 22f), CornerRadius(4f), style = line)
-        drawRoundRect(BoltTeal, Offset(81f, 38f), Size(10f, 22f), CornerRadius(4f))
+        drawRoundRect(colors.trim, Offset(81f, 38f), Size(10f, 22f), CornerRadius(4f))
         drawRoundRect(K.Outline, Offset(81f, 38f), Size(10f, 22f), CornerRadius(4f), style = line)
 
         drawLine(K.Outline, Offset(50f, 14f), Offset(50f, 3f), strokeWidth = 4.4f, cap = StrokeCap.Round)
@@ -313,9 +324,9 @@ fun DrawScope.drawBolt(mood: BoltMood, t: Float) {
         drawCircle(K.Outline, 4.8f, Offset(50f, 2f), style = Stroke(2f))
 
         val body = Offset(50f, 48f)
-        drawCircle(Brush.radialGradient(listOf(Color.White, Color(0xFFDDE6F5), Color(0xFF93A5C9)), center = Offset(36f, 30f), radius = 62f), 36f, body)
+        drawCircle(Brush.radialGradient(listOf(colors.light, colors.mid, colors.dark), center = Offset(36f, 30f), radius = 62f), 36f, body)
         clipPath(Path().apply { addOval(Rect(body, 36f)) }) {
-            drawRect(BoltTeal, Offset(10f, 70f), Size(80f, 7f))
+            drawRect(colors.trim, Offset(10f, 70f), Size(80f, 7f))
         }
         drawCircle(K.Outline, 36f, body, style = line)
 
@@ -353,8 +364,8 @@ fun DrawScope.drawBolt(mood: BoltMood, t: Float) {
     }
 }
 
-private fun DrawScope.drawHand(center: Offset, line: Stroke) {
-    drawCircle(Brush.radialGradient(listOf(Color.White, Color(0xFFB7C6E2)), center = center - Offset(3f, 3f), radius = 12f), 8.5f, center)
+private fun DrawScope.drawHand(center: Offset, line: Stroke, colors: BoltPaint) {
+    drawCircle(Brush.radialGradient(listOf(colors.light, lerp(colors.mid, colors.dark, 0.4f)), center = center - Offset(3f, 3f), radius = 12f), 8.5f, center)
     drawCircle(K.Outline, 8.5f, center, style = line)
 }
 
@@ -394,7 +405,7 @@ fun SpeechBubble(modifier: Modifier = Modifier, tailAt: Float = 0.12f, content: 
 
 /** The astronaut's helmet and face, filling a round portrait. */
 @Composable
-fun HeroPortrait(look: HeroLook, time: State<Float>, modifier: Modifier = Modifier) {
+fun HeroPortrait(look: HeroLook, time: State<Float>, modifier: Modifier = Modifier, gear: Gear = Gear.None) {
     val safe = look.safe()
     val suit = Color(HeroPalette.suits[safe.suit])
     val skin = Color(HeroPalette.skins[safe.skin])
@@ -406,15 +417,15 @@ fun HeroPortrait(look: HeroLook, time: State<Float>, modifier: Modifier = Modifi
         val figure = Size(100f * scale, 150f * scale)
         // Put the figure's feet where the helmet ends up in the middle of the portrait.
         withTransform({ translate(size.width / 2 - 3f * scale - figure.width / 2, size.height / 2 + 108f * scale - figure.height) }) {
-            drawFigureInto(figure, suit, skin, hair, safe.hairStyle, time.value)
+            drawFigureInto(figure, suit, skin, hair, safe.hairStyle, time.value, gear)
         }
     }
 }
 
-private fun DrawScope.drawFigureInto(figure: Size, suit: Color, skin: Color, hair: Color, hairStyle: Int, t: Float) {
+private fun DrawScope.drawFigureInto(figure: Size, suit: Color, skin: Color, hair: Color, hairStyle: Int, t: Float, gear: Gear) {
     val previous = drawContext.size
     drawContext.size = figure
-    drawAstronaut(suit, skin, hair, hairStyle, HeroPose.IDLE, t, facingLeft = false)
+    drawAstronaut(suit, skin, hair, hairStyle, HeroPose.IDLE, t, facingLeft = false, gear = gear)
     drawContext.size = previous
 }
 

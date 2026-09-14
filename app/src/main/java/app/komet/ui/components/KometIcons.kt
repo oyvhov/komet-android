@@ -190,6 +190,20 @@ object KometIcons {
 
     val HeartOutline = icon("HeartOutline") { heart() }
 
+    val Bag = icon("Bag") {
+        moveTo(5f, 8.5f); lineTo(19f, 8.5f); lineTo(18f, 20.5f); lineTo(6f, 20.5f); close()
+        moveTo(9f, 8.5f); lineTo(9f, 7f)
+        arcToRelative(3f, 3f, 0f, false, true, 6f, 0f)
+        lineTo(15f, 8.5f)
+    }
+
+    val Shirt = icon("Shirt") {
+        moveTo(8.5f, 4f); lineTo(3.5f, 7.5f); lineTo(5.8f, 11f); lineTo(8f, 10f); lineTo(8f, 20.5f)
+        lineTo(16f, 20.5f); lineTo(16f, 10f); lineTo(18.2f, 11f); lineTo(20.5f, 7.5f); lineTo(15.5f, 4f)
+        quadTo(12f, 7f, 8.5f, 4f)
+        close()
+    }
+
     val Compass = icon("Compass") {
         circle(12f, 12f, 9f)
         moveTo(15.8f, 8.2f); lineTo(13.4f, 13.4f); lineTo(8.2f, 15.8f); lineTo(10.6f, 10.6f); close()

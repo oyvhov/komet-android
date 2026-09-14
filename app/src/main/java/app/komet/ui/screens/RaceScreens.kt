@@ -31,7 +31,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.komet.domain.PlanetLook
@@ -40,15 +39,16 @@ import app.komet.ui.KometViewModel
 import app.komet.ui.RacePhase
 import app.komet.ui.S
 import app.komet.ui.components.ChoiceGrid
-import app.komet.ui.components.KometIcons
 import app.komet.ui.components.OptionLook
 import app.komet.ui.components.PageColumn
 import app.komet.ui.components.Pill
 import app.komet.ui.components.PlanetArt
 import app.komet.ui.components.PressSurface
 import app.komet.ui.components.ProgressTrack
+import app.komet.domain.ShopSlot
+import app.komet.ui.components.CloseButton
 import app.komet.ui.components.RocketArt
-import app.komet.ui.components.RoundIconButton
+import app.komet.ui.scene.rocketPaint
 import app.komet.ui.components.ScreenTopBar
 import app.komet.ui.components.TaskVisual
 import app.komet.ui.components.VisualState
@@ -114,10 +114,10 @@ fun RaceScreen(vm: KometViewModel) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            RoundIconButton(KometIcons.Close, S.close.str(), { vm.back() }, size = 50.dp)
             ProgressTrack(race.remainingMs / 60_000f, Modifier.weight(1f), color = if (race.remainingMs < 10_000) K.Bad else K.Race, height = 16.dp)
             Text("${(race.remainingMs + 999) / 1000}", style = MaterialTheme.typography.headlineSmall, color = K.Text, modifier = Modifier.width(40.dp), textAlign = TextAlign.End)
             Pill(race.score.toString(), star = true)
+            CloseButton(onClick = { vm.back() })
         }
         Row(
             Modifier
@@ -126,7 +126,7 @@ fun RaceScreen(vm: KometViewModel) {
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            RocketTrack(score = race.score, target = target, best = best, modifier = Modifier.width(64.dp).fillMaxHeight())
+            RocketTrack(score = race.score, target = target, best = best, paint = rocketPaint(profile.equipped[ShopSlot.ROCKET]), modifier = Modifier.width(64.dp).fillMaxHeight())
             Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Box(
                     Modifier
@@ -166,7 +166,7 @@ fun RaceScreen(vm: KometViewModel) {
 
 /** Earth at the bottom, the moon at the top, and the rocket climbing one step per right answer. */
 @Composable
-private fun RocketTrack(score: Int, target: Int, best: Int, modifier: Modifier = Modifier) {
+private fun RocketTrack(score: Int, target: Int, best: Int, paint: app.komet.ui.scene.RocketPaint, modifier: Modifier = Modifier) {
     val progress by animateFloatAsState((score / target.toFloat()).coerceIn(0f, 1f), tween(350), label = "rocket")
     BoxWithConstraints(modifier) {
         val trackTop = 56.dp
@@ -194,6 +194,9 @@ private fun RocketTrack(score: Int, target: Int, best: Int, modifier: Modifier =
                 .size(40.dp, 64.dp)
                 .align(Alignment.TopCenter)
                 .offset(y = rocketY),
+            body = paint.body,
+            accent = paint.accent,
+            stripes = paint.stripes,
         )
     }
 }

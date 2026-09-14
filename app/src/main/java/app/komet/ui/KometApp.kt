@@ -10,10 +10,8 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +26,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import app.komet.domain.LetterCase
 import app.komet.domain.Maalform
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import app.komet.ui.components.BigButton
+import app.komet.ui.components.GameText
+import app.komet.ui.components.KometDialog
+import app.komet.ui.components.KometIcons
 import app.komet.ui.components.LocalFeedback
 import app.komet.ui.components.SpaceBackground
 import app.komet.ui.components.str
@@ -43,6 +49,7 @@ import app.komet.ui.screens.RaceScreen
 import app.komet.ui.screens.ResultScreen
 import app.komet.ui.scene.HeroEditorScreen
 import app.komet.ui.scene.PlanetScreen
+import app.komet.ui.scene.ShopScreen
 import app.komet.ui.scene.StarMapScreen
 import app.komet.ui.theme.K
 import app.komet.ui.theme.LocalReading
@@ -104,31 +111,30 @@ fun KometApp(vm: KometViewModel) {
                         Screen.ParentGate -> ParentGateScreen(vm)
                         Screen.Parent -> ParentScreen(vm)
                         Screen.HeroEditor -> HeroEditorScreen(vm)
+                        Screen.Shop -> ShopScreen(vm)
                     }
                 }
             }
         }
 
         if (confirmQuit) {
-            AlertDialog(
-                onDismissRequest = { confirmQuit = false },
-                containerColor = K.SurfaceHigh,
-                title = { Text(S.quitTitle.str(), style = MaterialTheme.typography.headlineSmall, color = K.Text) },
-                text = { Text(S.quitBody.str(), style = MaterialTheme.typography.bodyLarge, color = K.Muted) },
-                confirmButton = {
-                    TextButton(onClick = { confirmQuit = false }) {
-                        Text(S.keepGoing.str(), color = K.Gold, style = MaterialTheme.typography.labelLarge)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = {
+            // Carrying on is the big gold choice; leaving is the quieter one, and the X just closes the question.
+            KometDialog(onClose = { confirmQuit = false }) {
+                GameText(S.quitTitle.str(), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(end = 24.dp))
+                Text(S.quitBody.str(), style = MaterialTheme.typography.bodyLarge, color = K.Muted, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                BigButton(S.keepGoing.str(), onClick = { confirmQuit = false }, icon = KometIcons.Play, modifier = Modifier.fillMaxWidth())
+                BigButton(
+                    S.quit.str(),
+                    onClick = {
                         confirmQuit = false
                         vm.quitRound()
-                    }) {
-                        Text(S.quit.str(), color = K.Muted, style = MaterialTheme.typography.labelLarge)
-                    }
-                },
-            )
+                    },
+                    face = K.SurfaceHigh,
+                    edge = K.SurfaceLow,
+                    textColor = K.Text,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
     }
 }

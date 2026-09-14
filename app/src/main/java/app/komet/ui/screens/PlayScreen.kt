@@ -20,15 +20,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -85,7 +82,10 @@ import app.komet.ui.theme.ReadingFont
 import app.komet.ui.components.TracingPad
 import app.komet.ui.components.fixedSp
 import app.komet.ui.components.subjectTone
+import app.komet.domain.ShopSlot
+import app.komet.ui.components.CloseButton
 import app.komet.ui.scene.Astronaut
+import app.komet.ui.scene.Gear
 import app.komet.ui.scene.Bolt
 import app.komet.ui.scene.BoltMood
 import app.komet.ui.scene.BoltReaction
@@ -160,6 +160,7 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
             exit = slideOutVertically(tween(140)) { it / 2 } + fadeOut(tween(100)),
         ) {
             FeedbackBanner(
+                boltPaint = vm.profile?.equipped?.get(ShopSlot.BOLT),
                 correct = phase == Phase.CORRECT,
                 praise = S.praise[round.praise % S.praise.size].str(),
                 answer = correctText,
@@ -230,11 +231,10 @@ private fun TopBar(vm: KometViewModel, round: RoundState, accent: Color, onQuit:
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        RoundIconButton(KometIcons.Close, S.closeRound.str(), onQuit, size = 50.dp)
         val done = round.index + if (round.phase == Phase.ANSWERING) 0 else 1
-        val hero = vm.profile?.hero
-        if (hero != null) {
-            JourneyTrack(done / round.questions.size.toFloat(), accent, hero, Modifier.weight(1f))
+        val player = vm.profile
+        if (player != null) {
+            JourneyTrack(done / round.questions.size.toFloat(), accent, player.hero, Modifier.weight(1f), gear = Gear.of(player.equipped))
         } else {
             ProgressTrack(done / round.questions.size.toFloat(), Modifier.weight(1f), color = accent, track = K.SurfaceHigh, height = 16.dp)
         }
@@ -244,6 +244,7 @@ private fun TopBar(vm: KometViewModel, round: RoundState, accent: Color, onQuit:
         if (vm.speechAvailable) {
             RoundIconButton(KometIcons.Speaker, S.readQuestion.str(), { vm.readQuestion() }, size = 50.dp)
         }
+        CloseButton(onClick = onQuit)
     }
 }
 
@@ -253,7 +254,8 @@ private fun TopBar(vm: KometViewModel, round: RoundState, accent: Color, onQuit:
  */
 @Composable
 private fun HeroCorner(vm: KometViewModel, round: RoundState) {
-    val hero = vm.profile?.hero ?: return
+    val player = vm.profile ?: return
+    val hero = player.hero
     val time = rememberSceneTime()
     var surprised by remember { mutableStateOf(false) }
     LaunchedEffect(round.shakeCount) {
@@ -273,10 +275,12 @@ private fun HeroCorner(vm: KometViewModel, round: RoundState) {
             look = hero,
             time = time,
             pose = { if (phase == Phase.CORRECT) HeroPose.CHEER else HeroPose.IDLE },
+            gear = Gear.of(player.equipped),
             modifier = Modifier.size(88.dp, 132.dp),
         )
         Bolt(
             time = time,
+            paint = player.equipped[ShopSlot.BOLT],
             mood = {
                 when {
                     phase == Phase.CORRECT -> BoltMood.HAPPY
@@ -523,6 +527,7 @@ private fun TraceExample(visual: Visual, accent: Color) {
 
 @Composable
 private fun FeedbackBanner(
+    boltPaint: String?,
     correct: Boolean,
     praise: String,
     answer: String?,
@@ -553,7 +558,7 @@ private fun FeedbackBanner(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            BoltReaction(correct, Modifier.size(58.dp))
+            BoltReaction(correct, Modifier.size(58.dp), paint = boltPaint)
             Column(Modifier.weight(1f)) {
                 Text(
                     title,
