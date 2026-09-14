@@ -8,8 +8,8 @@ Dato: 14. september 2026
 | --- | --- |
 | Pakke | `app.komet` |
 | Versjon | 1.2.0 (versionCode 3), minSdk 26, targetSdk 36 |
-| APK | `Komet-v1.2.0.apk`, APK_SIZE byte |
-| APK SHA-256 | `APK_SHA256` |
+| APK | `Komet-v1.2.0.apk`, 2 285 318 byte |
+| APK SHA-256 | `3a9d5f4335622a52f1fe3a5edde0f236cc58e12009bc3df2f864210d43277ca0` |
 | Sertifikat SHA-256 | `e914f8b6b01f9b7105104b1f1c0dde9f554043fef81a44444dd963ee6859195b` (CN=Komet) – same nøkkel som 1.1.0 |
 | Løyve | `INTERNET` og `REQUEST_INSTALL_PACKAGES` (uendra) |
 | Debuggable | Nei |
@@ -18,7 +18,7 @@ Kommando: `gradlew testDebugUnitTest assembleRelease lintRelease` – grønt.
 
 ## Testar
 
-- Einingstestar: **TEST_COUNT av TEST_COUNT**. Nytt sidan 1.1.0:
+- Einingstestar: **77 av 77**. Nytt sidan 1.1.0:
   - `StrokesTest` (10) og `StrokeSheetExport`: strekgeometri, retning, rekkjefølgje og at kvart av dei
     68 teikna kan skrivast med sporaren; kontrollark i `app/build/reports/strokes`.
   - `TopicsTest` (3): alle nivå har ein oppgåvetype i riktig fag.
@@ -26,7 +26,7 @@ Kommando: `gradlew testDebugUnitTest assembleRelease lintRelease` – grønt.
   - `SpaceContentTest` (4): planetrekkjefølgje, storleik, fakta og storleiksoppgåver.
   - `ProgressionTest`: lagring etter kvart svar, hald fram runde, favorittar og repetisjon.
   - `StateStoreTest`: lagra runde og favorittar, og at øydelagde verdiar blir ignorerte.
-- Lint (release): 0 feil, LINT_WARNINGS åtvaringar (avhengigheitsversjonar låste til Spole-cachen og
+- Lint (release): 0 feil, 12 åtvaringar (avhengigheitsversjonar låste til Spole-cachen og
   kjende åtvaringar frå 1.1.0).
 
 ## Visuell kontroll (emulator `Komet_Phone`, debug-bygg)
@@ -39,7 +39,8 @@ Kommando: `gradlew testDebugUnitTest assembleRelease lintRelease` – grønt.
 - Verdsrommet: planetbilete, storleiksoppgåve og sant/usant.
 - Repetisjon: kort på Matte-kartet, blanda runde og resultat.
 - Romkort med sjeldanheitsrammer, rakettløp og kartnodar med ny skrift.
-- Skriftstorleik 2.0: FONT_CHECK.
+- Skriftstorleik 2.0: Heim, Utforsk og ei engelsk fraseoppgåve. «Neste oppdrag» og rangmerket er retta. Flistitlane krympar no automatisk til dei passar, kontrollert med «Verdensrommet» på bokmål ved vanleg skrift. Ved 2.0 fall emulatoren ut før nytt bilete kunne takast, så krympinga ved 2.0 er ikkje sett på skjerm etter rettinga.
+- Nettbrett liggjande (2560 × 1600): skriving med biletord til høgre, og Heim med fire fag på rad.
 
 ## Ikkje testa
 
