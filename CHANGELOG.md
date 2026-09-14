@@ -1,6 +1,6 @@
 # Endringslogg
 
-## Under arbeid · 2.0.0-beta2
+## 2.0.0-beta2 · 14. september 2026 · testutgåve med gullklumpar og butikk
 
 - **Gullklumpar:** éin for kvar stjerne i ein runde, bonus for dagens oppdrag og nye rekordar i
   rakettløpet, og ein klump å plukke opp ved kvart fullført nivå på planetane. Eldre profilar får ei
