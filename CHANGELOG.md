@@ -9,8 +9,12 @@
   ei fullført runde.
 - **Astronauten din og roboten Bolt:** lag astronauten i oppstarten (drakt, hud, hår og frisyre) og endre
   han seinare frå profilmenyen. Bolt les nivånamn høgt.
-- **Musikk:** eigen melodi for kartet, kvart fag og rakettløpet, laga i appen. Kan slåast av på
-  foreldresida. Nye lydar for rakett, steg og innbyggjarar.
+- **Musikk:** eigen melodi for kartet, kvart fag og rakettløpet, laga i appen og lagra på eininga etter
+  første gong. Kan slåast av på foreldresida. Nye lydar for rakett, steg og innbyggjarar.
+- **Oppgåvene skjer på planeten:** himmelen og åsane til faget i bakgrunnen, astronauten går langs
+  framdriftslinja, og Bolt forklarar i svarbanneret. På nettbrett står astronauten og Bolt ved svara.
+- **Resultatet er ei feiring** med astronauten og Bolt, og «Til planeten» tek barnet tilbake dit nivået var.
+- Bolt ønskjer velkomen første gong barnet kjem til ein planet.
 - Fyller heile skjermen på mobil og nettbrett, både ståande og liggjande.
 
 ## 1.2.0 · 14. september 2026

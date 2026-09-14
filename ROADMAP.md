@@ -61,12 +61,16 @@ lærer undervegs. Alt fyller skjermen på både mobil og nettbrett, med grafikk,
       innbyggjarane.
 - [ ] **5. Historia.** Hovudforteljing i kapittel, oppdragsbok, korte animerte mellomscener med
       opplesing, og løningar som endrar verda.
+      *Gjort:* Bolt ønskjer velkomen til kvar planet første gong. *Att:* forteljing, oppdragsbok og
+      mellomscener.
 - [x] **6. Musikk og lydar.** Eigen musikk for kvart område, lydar for det barnet trykkjer på, stemmer til
       figurane og innstilling for musikk av/på.
       *Gjort:* seks melodiar laga i kode, sus, steg, boing, pip og glitter, demping under opplesing og
       brytar på foreldresida.
 - [ ] **7. Oppgåvene inne i eventyret.** Oppgåveskjermen blir ei scene med figurane til stades og animert
       respons; på nettbrett står scena og oppgåva side om side.
+      *Gjort:* planetbakgrunn, astronauten på framdriftslinja, Bolt i svarbanneret, astronaut og Bolt
+      ved svara på nettbrett, og resultatet som feiring. *Att:* rakettløpet og romkorta i same stil.
 - [ ] **8. Heimebasen.** Ein eigen base å pynte med ting barnet vinn.
 - [ ] **9. Pussing og test.** Yting på eldre nettbrett, test på fysisk nettbrett, release 2.0.
 
