@@ -51,7 +51,7 @@ private fun listenSkill(id: String, title: Txt, detail: Txt, grade: Int, symbol:
         Question(
             key = word.en,
             prompt = txt("Lytt og finn", "Lytt og finn"),
-            visual = Visual.Listen(spoken = txt(spoken(word.en)), fallback = txt(word.en), kind = GlyphKind.WORD),
+            visual = Visual.Listen(spoken = txt(spoken(word.en)), fallback = txt(word.en), kind = GlyphKind.WORD, sameAsFallback = false),
             answer = Answer.Choice(choices.map { it.asPicture() }, choices.indexOf(word)),
             speech = txt("Finn ${spoken(word.en)}."),
             reward = reward(word),
@@ -132,7 +132,7 @@ private fun phraseSkill(id: String, title: Txt, detail: Txt, grade: Int, symbol:
             Question(
                 key = "hear:${phrase.en}",
                 prompt = txt("Når seier du det?", "Når sier du det?"),
-                visual = Visual.Listen(spoken = txt(spoken(phrase.en)), fallback = txt(phrase.en), kind = GlyphKind.PLAIN),
+                visual = Visual.Listen(spoken = txt(spoken(phrase.en)), fallback = txt(phrase.en), kind = GlyphKind.PLAIN, sameAsFallback = false),
                 answer = choiceOf(phrase, others, r) { Option.Picture(it.emoji) },
                 speech = txt("Når seier du ${spoken(phrase.en)}", "Når sier du ${spoken(phrase.en)}"),
                 reward = reward,

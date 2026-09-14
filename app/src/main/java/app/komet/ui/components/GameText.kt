@@ -3,7 +3,8 @@ package app.komet.ui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +65,8 @@ fun GameText(
     fontSize: TextUnit = TextUnit.Unspecified,
     textAlign: TextAlign? = null,
     maxLines: Int = Int.MAX_VALUE,
+    /** Shrink the text until it fits instead of cutting it off; for one-word titles in fixed tiles. */
+    autoFit: Boolean = false,
 ) {
     val size = when {
         fontSize.isSpecified -> fontSize
@@ -82,20 +85,23 @@ fun GameText(
         ),
     )
     val fill = if (textAlign != null && textAlign != TextAlign.Start) Modifier.fillMaxWidth() else Modifier
+    val fit = if (autoFit) TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = size, stepSize = 1.sp) else null
     Box(modifier, contentAlignment = Alignment.TopStart) {
-        Text(
+        BasicText(
             text,
             style = base.copy(color = outline, drawStyle = Stroke(width = rim, join = StrokeJoin.Round), shadow = Shadow(outline, Offset(0f, drop), 0f)),
             maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
+            autoSize = fit,
             modifier = Modifier.matchParentSize(),
         )
-        Text(
+        BasicText(
             text,
             style = base.copy(color = color),
             maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
-            modifier = fill,
+            autoSize = fit,
+            modifier = if (autoFit) fill.then(Modifier.fillMaxWidth()) else fill,
         )
     }
 }

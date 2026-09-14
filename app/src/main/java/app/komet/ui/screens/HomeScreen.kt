@@ -29,6 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import app.komet.ui.components.fixedSp
+import app.komet.ui.components.cappedSp
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -53,6 +54,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.komet.domain.Curriculum
@@ -374,7 +376,7 @@ private fun RankBadge(number: Int, modifier: Modifier = Modifier) {
             .background(Brush.verticalGradient(listOf(K.GoldTop, K.Gold, K.GoldDeep)), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        GameText(number.toString(), style = MaterialTheme.typography.labelLarge, fontSize = 15.sp)
+        GameText(number.toString(), style = MaterialTheme.typography.labelLarge, fontSize = fixedSp(15.dp))
     }
 }
 
@@ -417,8 +419,8 @@ private fun MissionCard(
                 color = tone.top,
                 letterSpacing = 1.5.sp,
                 fontWeight = FontWeight.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+                // Two lines rather than «NESTE OPP…» when the system font is large.
+                maxLines = 2,
                 modifier = Modifier.padding(end = 120.dp),
             )
             GameText(title, style = MaterialTheme.typography.displaySmall, modifier = Modifier.padding(end = 110.dp), maxLines = 2)
@@ -481,13 +483,8 @@ private fun GameTile(
                 Spacer(Modifier.weight(1f))
                 Box(Modifier.heightIn(min = 72.dp), contentAlignment = Alignment.Center) { art() }
             }
-            // Long names such as «Verdensrommet» step down in size instead of being cut off.
-            val titleSize = when {
-                title.length > 11 -> 20.sp
-                title.length > 8 -> 23.sp
-                else -> 26.sp
-            }
-            GameText(title, style = MaterialTheme.typography.headlineMedium, fontSize = titleSize, maxLines = 1)
+            // Long names such as «Verdensrommet» shrink to fit the tile instead of being cut off.
+            GameText(title, style = MaterialTheme.typography.headlineMedium, fontSize = cappedSp(26.sp), maxLines = 1, autoFit = true)
             if (stars != null) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     StarGlyph(filled = true, modifier = Modifier.size(20.dp))
@@ -509,7 +506,8 @@ private fun FloatingRocket() {
     val bob = transition.animateFloat(0f, 1f, infiniteRepeatable(tween(1300), RepeatMode.Reverse), label = "bobbing")
     RocketArt(
         Modifier
-            .offset(y = if (motion) (bob.value * -6f).dp else 0.dp)
+            // The lambda offset reads the animation in the layout phase, so the tile is not recomposed every frame.
+            .offset { IntOffset(0, if (motion) (bob.value * -6f).dp.roundToPx() else 0) }
             .size(50.dp, 78.dp),
         body = Color.White,
         accent = K.Gold,

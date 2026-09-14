@@ -1,6 +1,6 @@
 # Komet: lokal arbeidsrettleiing
 
-Komet er ein lese- og matteapp for barn (5–9 år), laga for Android med Kotlin og Jetpack Compose.
+Komet er ein læringsapp for barn (5–9 år) med matte, norsk, engelsk og verdsrommet, laga for Android med Kotlin og Jetpack Compose.
 Les `docs/AI_INSTRUCTIONS.md` før arbeid i prosjektet. Innhaldslista med alle nivå ligg i
 `docs/INNHALD.md`.
 
@@ -14,3 +14,5 @@ Les `docs/AI_INSTRUCTIONS.md` før arbeid i prosjektet. Innhaldslista med alle n
   verifiser digest og oppdateringsflyten.
 - Alt barnet ser, skal finnast på både nynorsk og bokmål (`Txt(nn, nb)`).
 - Nytt innhald skal ha einingstest som viser at rett svar faktisk er rett.
+- Design: same retning som appen har (romtema, planetar, blanke 3D-knappar, `GameText`). Ikkje HUD/sci-fi-grensesnitt.
+- Prioriteringar og status ligg i `ROADMAP.md`.

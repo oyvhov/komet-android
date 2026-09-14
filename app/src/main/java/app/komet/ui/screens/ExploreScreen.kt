@@ -200,11 +200,8 @@ private fun TopicTile(topic: Topic, shade: Int, detail: String, stars: String, o
                 )
             }
             GameText(topic.title.str(), style = MaterialTheme.typography.titleLarge, maxLines = 2)
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(detail, style = MaterialTheme.typography.labelMedium, color = Color.White.copy(alpha = 0.9f))
-                Text("·", color = Color.White.copy(alpha = 0.6f))
-                Text("⭐ $stars", style = MaterialTheme.typography.labelMedium, color = Color.White.copy(alpha = 0.9f))
-            }
+            // One text, so large system fonts wrap it as a line and not word by word in three boxes.
+            Text("$detail  ·  ⭐ $stars", style = MaterialTheme.typography.labelMedium, color = Color.White.copy(alpha = 0.9f))
         }
     }
 }

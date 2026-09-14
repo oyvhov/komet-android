@@ -12,7 +12,7 @@ Rekkjefølgja under er prioritert. Kryss av når eit punkt er ferdig og testa.
 
 - [x] **Barneskrift.** Andika (SIL, OFL) for all lesetekst, med «a» og «g» slik skulen lærer dei.
 - [x] **Strekdata for skriving.** Stavskrift-rekkjefølgje for A–Å, a–å og 0–9, med testar og kontrollark.
-- [ ] **Design som eit kult spel, i same retning som før (IKKJE HUD/sci-fi-grensesnitt).** Behald romtema,
+- [x] **Design som eit kult spel, i same retning som før (IKKJE HUD/sci-fi-grensesnitt).** *Gjort på alle skjermar; ventar på eigarens syn.* Behald romtema,
       planetar, rakett, runde former og 3D-knappar. Byt flate pastellfargar med djupe, metta gradientar
       med lys og skugge, feit kvit tekst med mørk kontur, glans på knappar og stjerner og meir liv i
       løningar (stjerner, romkort). Vis heimeskjermen til eigaren før resten blir endra.

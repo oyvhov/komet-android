@@ -6,11 +6,12 @@ pakke, nøkkel og emulator.
 
 ## 1. Produktet og faste føringar
 
-Komet er ein app der barn øver på rekning og lesing. Temaet er verdsrommet: planetar er kapittel,
-stjerner er framgang, og romkort er premien.
+Komet er ein app der barn øver på matte, norsk, engelsk og verdsrommet. Temaet er verdsrommet:
+planetar er kapittel, stjerner er framgang, og romkort er premien.
 
-- **For barn, ikkje barnsleg.** Rolege, mørke romflater, sterke fargar per verd, eigne teikningar.
-  Ingen maskot som snakkar, ingen regnbogepalett.
+- **Som eit kult spel, ikkje ein barnsleg app – og ikkje HUD.** Mørkt romtema, planetar og blanke 3D-knappar
+  (`PressSurface` + `gloss`), djupe fargar per fag (`Tones`), kvit spelskrift med mørk kontur (`GameText`).
+  Ingen flate pastellflater, ingen sci-fi-grensesnitt med kanta panel. Ingen maskot som snakkar.
 - **Lett å bruke utan å kunne lese.** Oppgåvene blir lesne høgt (norsk talemotor), knappane er minst
   64 dp og nesten alle svar er eitt trykk.
 - **Aldri straff.** Feil svar gir «Prøv igjen». Etter to bom blir rett svar vist med ei forklaring.
@@ -31,9 +32,9 @@ stjerner er framgang, og romkort er premien.
 
 | Mappe | Innhald |
 | --- | --- |
-| `domain/` | Rein Kotlin utan Android: oppgåvemodell, generatorar, ordbank, framgang, romkort. |
+| `domain/` | Rein Kotlin utan Android: oppgåvemodell, generatorar per fag (`MathSkills`, `ReadingSkills`, `EnglishSkills`, `SpaceSkills`), ordbank, oppgåvetypar (`Topics`), strekdata for skriving (`Strokes`), framgang, romkort. |
 | `data/` | `StateStore` – éi JSON-fil, atomisk skriving, knekt fil blir lagt til side. |
-| `audio/` | `Speaker` (norsk TTS), `Synth` (lydeffektar laga i kode) og `SoundFx`. |
+| `audio/` | `Speaker` (norsk TTS, og engelsk for tekst merkt `{en:…}`), `Synth` (lydeffektar laga i kode) og `SoundFx`. |
 | `ui/` | ViewModel, navigasjon (`Screen`), tekstar (`Strings.kt`), tema, komponentar og skjermar. |
 
 Dataflyt: `Skill.generate(QuestionContext)` → `Curriculum.round()` → `RoundState` i
@@ -41,11 +42,12 @@ Dataflyt: `Skill.generate(QuestionContext)` → `Curriculum.round()` → `RoundS
 
 ### Leggje til eit nytt nivå
 
-1. Skriv generatoren i `MathSkills.kt` eller `ReadingSkills.kt` med `math(...)`/`reading(...)`.
+1. Skriv generatoren i fagfila (`MathSkills.kt`, `ReadingSkills.kt`, `EnglishSkills.kt`, `SpaceSkills.kt`).
 2. Plasser han i rett kapittel. Klassesteget (`grade`) må aldri gå ned innanfor eit kapittel.
 3. Bruk berre visuelle typar som finst i `Visual`, eller legg til ein ny og teikn han i `TaskVisuals.kt`.
-4. Utvid `MathContentTest`/`ReadingContentTest` slik at testen reknar ut svaret sjølv.
-5. Oppdater `docs/INNHALD.md`.
+4. Gi nivået ein oppgåvetype i `Topics.kt` (`TopicsTest` feilar elles), så det finst i Utforsk.
+5. Utvid innhaldstesten for faget slik at testen reknar ut svaret sjølv.
+6. Oppdater `docs/INNHALD.md`.
 
 ## 3. Bygging
 

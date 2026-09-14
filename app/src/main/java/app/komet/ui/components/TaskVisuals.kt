@@ -694,7 +694,7 @@ private fun ListenView(visual: Visual.Listen, state: VisualState, onListen: (Txt
         }
     } else {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(S.findSame.str(), color = K.InkMuted, style = MaterialTheme.typography.titleMedium)
+            if (visual.sameAsFallback) Text(S.findSame.str(), color = K.InkMuted, style = MaterialTheme.typography.titleMedium)
             GlyphView(visual.fallback, visual.kind)
         }
     }

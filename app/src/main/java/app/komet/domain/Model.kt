@@ -63,8 +63,11 @@ sealed interface Visual {
     data class Balance(val left: List<Token>, val right: List<Token>) : Visual
     /** A short text. [reading] texts follow the profile's letter case; maths word problems do not. */
     data class Story(val text: Txt, val reading: Boolean = true) : Visual
-    /** A large listen button: the task is to find what is heard. [fallback] is shown when speech is off. */
-    data class Listen(val spoken: Txt, val fallback: Txt, val kind: GlyphKind) : Visual
+    /**
+     * A large listen button: the task is to find what is heard. [fallback] is shown when speech is off;
+     * [sameAsFallback] says the answer looks like the fallback («finn den same»), not like a picture of it.
+     */
+    data class Listen(val spoken: Txt, val fallback: Txt, val kind: GlyphKind, val sameAsFallback: Boolean = true) : Visual
     data class Stack(val items: List<Visual>) : Visual
     data class Compare(val a: Int, val b: Int) : Visual
     /** A big blob of paint in [color] (ARGB). */

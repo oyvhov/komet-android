@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.komet.domain.GlyphKind
 import app.komet.domain.LetterCase
 import app.komet.domain.Txt
@@ -49,6 +50,17 @@ fun ReadingPrefs.render(text: Txt, kind: GlyphKind): String {
 @Composable
 @ReadOnlyComposable
 fun fixedSp(size: Dp): TextUnit = with(LocalDensity.current) { size.toSp() }
+
+/**
+ * A text size that follows the system font size up to [maxScale]. For titles inside fixed-size tiles,
+ * where a single long word such as «Verdensrommet» cannot wrap and would otherwise be cut off.
+ */
+@Composable
+@ReadOnlyComposable
+fun cappedSp(size: TextUnit, maxScale: Float = 1.3f): TextUnit {
+    val scale = LocalDensity.current.fontScale
+    return if (scale <= maxScale) size else (size.value * maxScale / scale).sp
+}
 
 /** Shakes sideways each time [trigger] changes while [active] is true. */
 @Composable
