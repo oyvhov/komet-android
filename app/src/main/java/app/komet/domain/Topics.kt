@@ -22,6 +22,10 @@ enum class Topic(val subject: Subject, val title: Txt, val icon: String) {
     SPELLING(Subject.READING, txt("Byggje ord", "Bygge ord"), "🧩"),
     SENTENCES(Subject.READING, txt("Setningar og tekstar", "Setninger og tekster"), "📜"),
     WRITE_LETTERS(Subject.READING, txt("Skriv bokstavar", "Skriv bokstaver"), "✍️"),
+    EN_PHRASES(Subject.ENGLISH, txt("Snakk engelsk"), "💬"),
+    EN_COLOURS_NUMBERS(Subject.ENGLISH, txt("Fargar og tal", "Farger og tall"), "🎨"),
+    EN_WORDS(Subject.ENGLISH, txt("Engelske ord"), "🐶"),
+    EN_SPELL(Subject.ENGLISH, txt("Stav på engelsk"), "ABC"),
 }
 
 object Topics {
@@ -45,6 +49,10 @@ object Topics {
         put(Topic.SPELLING, "r_build3", "r_build4", "r_build5")
         put(Topic.SENTENCES, "r_sentence_pic", "r_truefalse", "r_missing_word", "r_word_order", "r_story")
         put(Topic.WRITE_LETTERS, "r_write1", "r_write2", "r_write3", "r_write4", "r_write5")
+        put(Topic.EN_PHRASES, "e_hello1", "e_hello2", "e_hello3")
+        put(Topic.EN_COLOURS_NUMBERS, "e_colours_listen", "e_colours_read", "e_numbers5", "e_numbers10", "e_numbers_read")
+        put(Topic.EN_WORDS, "e_animals_listen", "e_animals_read", "e_animals_translate", "e_food_listen", "e_food_read", "e_body_listen", "e_family_listen", "e_clothes_listen", "e_me_read", "e_things_listen", "e_things_translate")
+        put(Topic.EN_SPELL, "e_spell3", "e_spell5")
     }
 
     fun of(skill: Skill): Topic? = bySkill[skill.id]

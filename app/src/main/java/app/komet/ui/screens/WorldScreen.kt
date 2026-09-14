@@ -99,7 +99,7 @@ fun WorldScreen(vm: KometViewModel, subject: Subject) {
 
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         ScreenTopBar(
-            title = (if (subject == Subject.MATH) S.math else S.reading).str(),
+            title = S.subject(subject).str(),
             onBack = { vm.back() },
             modifier = Modifier
                 .widthIn(max = MaxContentWidth)

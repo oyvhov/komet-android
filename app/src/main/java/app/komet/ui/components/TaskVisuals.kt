@@ -124,6 +124,7 @@ fun TaskVisual(
                 }
             }
             is Visual.Compare -> CompareView(visual.a, visual.b)
+            is Visual.ColorBlob -> PaintBlob(visual.color, Modifier.size(minOf(180.dp, LocalVisualBox.current.height * 0.8f)))
         }
     }
 }
@@ -822,5 +823,19 @@ fun SlotOutline(modifier: Modifier = Modifier, active: Boolean) {
             cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx()),
             style = Stroke(width = 3.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 9f))),
         )
+    }
+}
+
+/** A round blob of paint with a highlight, so white and black read as paint and not as holes. */
+@Composable
+fun PaintBlob(color: Long, modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val r = size.minDimension * 0.44f
+        val c = center
+        val paint = Color(color)
+        drawCircle(K.Outline.copy(alpha = 0.55f), r + 3.dp.toPx(), c)
+        drawCircle(paint, r, c)
+        drawCircle(Brush.radialGradient(listOf(Color.White.copy(alpha = 0.45f), Color.Transparent), Offset(c.x - r * 0.35f, c.y - r * 0.4f), r * 0.7f), r, c)
+        drawCircle(Color.Black.copy(alpha = 0.12f), r, c, style = Stroke(r * 0.08f))
     }
 }

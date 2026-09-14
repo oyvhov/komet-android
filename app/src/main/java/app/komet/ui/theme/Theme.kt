@@ -70,6 +70,10 @@ object K {
     val CardsTop = Color(0xFFB38FFF)
     val CardsDeep = Color(0xFF4222B0)
 
+    val English = Color(0xFF23A049)
+    val EnglishTop = Color(0xFF6EE58E)
+    val EnglishDeep = Color(0xFF12692E)
+
     val Explore = Color(0xFF0FA982)
     val ExploreTop = Color(0xFF5CEBC4)
     val ExploreDeep = Color(0xFF08684F)

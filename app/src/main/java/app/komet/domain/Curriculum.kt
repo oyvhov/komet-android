@@ -1,7 +1,7 @@
 package app.komet.domain
 
 object Curriculum {
-    val chapters: List<Chapter> = MathCurriculum.chapters + ReadingCurriculum.chapters
+    val chapters: List<Chapter> = MathCurriculum.chapters + ReadingCurriculum.chapters + EnglishCurriculum.chapters
 
     val skills: List<Skill> = chapters.flatMap { it.skills }
 

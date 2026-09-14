@@ -139,7 +139,8 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
         input = round.input,
         answered = answered,
         correctValue = if (answered) correctText else null,
-        speechAvailable = vm.speechAvailable,
+        // English listening needs an English voice; without one the word is shown instead.
+        speechAvailable = vm.speechAvailable && (round.skill.subject != Subject.ENGLISH || vm.speaker.englishAvailable),
     )
 
     // The banner sits in the column rather than over it, so the highlighted answer stays visible.

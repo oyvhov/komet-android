@@ -47,7 +47,13 @@ object S {
     fun roundsOf(done: Int, goal: Int) = txt("$done av $goal rundar", "$done av $goal runder")
     val goalDone = txt("Fullført! Bra jobba i dag.", "Fullført! Bra jobbet i dag.")
     val math = txt("Matte")
-    val reading = txt("Lesing")
+    val reading = txt("Norsk")
+    val english = txt("Engelsk")
+    fun subject(subject: app.komet.domain.Subject) = when (subject) {
+        app.komet.domain.Subject.MATH -> math
+        app.komet.domain.Subject.READING -> reading
+        app.komet.domain.Subject.ENGLISH -> english
+    }
     val race = txt("Rakettløp")
     val raceDetail = txt("Rekn så fort du kan", "Regn så fort du kan")
     val cards = txt("Romkort")
@@ -157,6 +163,11 @@ object S {
     val voiceLoading = txt("Startar …", "Starter …")
     val voiceMissing = txt("Manglar norsk stemme. Installer «Norsk» i taleinnstillingane.", "Mangler norsk stemme. Installer «Norsk» i taleinnstillingene.")
     val voiceUnavailable = txt("Fann ingen talemotor på eininga.", "Fant ingen talemotor på enheten.")
+    val englishVoiceReady = txt("Engelsk stemme: klar")
+    val englishVoiceMissing = txt(
+        "Engelsk stemme manglar. Engelske ord blir viste som tekst i staden for å bli lesne høgt.",
+        "Engelsk stemme mangler. Engelske ord vises som tekst i stedet for å bli lest høyt.",
+    )
     val openTtsSettings = txt("Opne taleinnstillingar", "Åpne taleinnstillinger")
     val testVoice = txt("Test stemma", "Test stemmen")
     val testSentence = txt("Hei! Eg er klar til å lese for deg.", "Hei! Jeg er klar til å lese for deg.")

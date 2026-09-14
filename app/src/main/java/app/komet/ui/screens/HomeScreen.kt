@@ -164,7 +164,7 @@ fun HomeScreen(vm: KometViewModel) {
             MissionCard(
                 label = S.nextMission.str(),
                 title = recommended.title.str(),
-                detail = (if (recommended.subject == Subject.MATH) S.math else S.reading).str() + " · " + chapter.title.str(),
+                detail = S.subject(recommended.subject).str() + " · " + chapter.title.str(),
                 tone = tone,
                 button = S.start.str(),
                 onStart = { vm.startSkill(recommended) },
@@ -211,6 +211,15 @@ fun HomeScreen(vm: KometViewModel) {
                         onClick = { vm.open(Screen.World(Subject.READING)) },
                         modifier = m,
                     ) { PlanetArt(Curriculum.chapters(Subject.READING).first().look, Modifier.size(80.dp), glow = false) }
+                },
+                { m ->
+                    GameTile(
+                        title = S.english.str(),
+                        stars = starsText(vm, Subject.ENGLISH),
+                        tone = Tones.English,
+                        onClick = { vm.open(Screen.World(Subject.ENGLISH)) },
+                        modifier = m,
+                    ) { Text("🇬🇧", fontSize = fixedSp(54.dp)) }
                 },
                 { m ->
                     GameTile(

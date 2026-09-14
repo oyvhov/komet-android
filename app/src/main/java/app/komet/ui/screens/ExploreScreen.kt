@@ -94,9 +94,9 @@ fun ExploreScreen(vm: KometViewModel) {
                     )
                 }
             }
-            listOf(Subject.MATH, Subject.READING).forEach { subject ->
+            Subject.entries.filter { subject -> Topics.all.any { it.subject == subject } }.forEach { subject ->
                 item(key = "heading-$subject") {
-                    SectionHeading((if (subject == Subject.MATH) S.math else S.reading).str(), Modifier.padding(top = 10.dp))
+                    SectionHeading(S.subject(subject).str(), Modifier.padding(top = 10.dp))
                 }
                 item(key = "topics-$subject") {
                     TopicGrid(Topics.all.filter { it.subject == subject }) { topic, index, tileModifier ->

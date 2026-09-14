@@ -212,7 +212,7 @@ private fun ProgressTab(vm: KometViewModel) {
 
     Subject.entries.forEach { subject ->
         val (color, _) = subjectColors(subject)
-        SectionTitle((if (subject == Subject.MATH) S.math else S.reading).str())
+        SectionTitle(S.subject(subject).str())
         Panel(Modifier.fillMaxWidth()) {
             Curriculum.chapters(subject).forEach { chapter ->
                 val done = Progression.completed(profile, chapter.skills)
@@ -283,6 +283,13 @@ private fun SettingsTab(vm: KometViewModel) {
             Speaker.Status.UNAVAILABLE -> S.voiceUnavailable.str()
         }
         Text(status, style = MaterialTheme.typography.bodyMedium, color = if (vm.speaker.status == Speaker.Status.READY) K.Good else K.Reveal)
+        if (vm.speaker.status == Speaker.Status.READY) {
+            Text(
+                (if (vm.speaker.englishAvailable) S.englishVoiceReady else S.englishVoiceMissing).str(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (vm.speaker.englishAvailable) K.Good else K.Reveal,
+            )
+        }
         // Stacked, not side by side: «Opne taleinnstillingar» is too long to share a row without breaking a word.
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             BigButton(
