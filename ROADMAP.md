@@ -25,6 +25,43 @@ Rekkjefølgja under er prioritert. Kryss av når eit punkt er ferdig og testa.
 - [x] **Repetisjon.** Ein runde med det barnet har bomma mest på.
 - [x] Testar, lint, signert APK, dokumentasjon og verifikasjon. Publisert 14. september 2026 etter ja frå eigaren.
 
+## Milepæl 2.0 · Komet-eventyret
+
+**Mål:** Komet blir eit eventyrspel i same ånd som Mummidalen og Albert Junior. Barnet reiser gjennom
+eit levande, illustrert verdsrom saman med ein helt og ein ven, hjelper innbyggjarane på planetane og
+lærer undervegs. Alt fyller skjermen på både mobil og nettbrett, med grafikk, animasjon, musikk og lydar.
+
+**Prinsipp**
+
+- Barnet utforskar ei verd, ikkje menyar.
+- Kvar oppgåve har ein grunn i historia («Roboten treng fem skruar for å fikse raketten»).
+- Heile skjermen blir brukt: scener frå kant til kant i ståande og liggjande format, laga for nettbrett
+  og skalerte ned til mobil – ingen smale kolonnar med tomrom på sidene.
+- Vakkert og roleg: lag på lag med parallakse, mjukt lys, partiklar og musikk som passar kvar stad.
+- Framleis same læringsinnhald, nynorsk og bokmål, ingen reklame, ingen kjøp og fungerer utan nett.
+
+**Fasar**
+
+- [ ] **1. Fullskjerm og scenemotor.** Scener i lag med parallakse, animasjon og overgangar. Felles
+      oppsett for mobil og nettbrett i ståande og liggjande format.
+- [ ] **2. Helten og venen.** Hovudfigur og ein følgjesven som guidar, snakkar (opplesing) og reagerer
+      på svar, med animasjonar for kvile, gå, hoppe og juble.
+- [ ] **3. Stjernekartet.** Eit stort, levande solsystem å dra rundt i. Raketten flyg mellom planetane,
+      og låste område ligg i tåke.
+- [ ] **4. Planetane som stader.** Kvar fag-planet får ein illustrert overflate med landemerke,
+      innbyggjarar med oppdrag og nivå som ting i verda (steinar, dører, skilt).
+- [ ] **5. Historia.** Hovudforteljing i kapittel, oppdragsbok, korte animerte mellomscener med
+      opplesing, og løningar som endrar verda.
+- [ ] **6. Musikk og lydar.** Eigen musikk for kvart område, lydar for det barnet trykkjer på, stemmer til
+      figurane og innstilling for musikk av/på.
+- [ ] **7. Oppgåvene inne i eventyret.** Oppgåveskjermen blir ei scene med figurane til stades og animert
+      respons; på nettbrett står scena og oppgåva side om side.
+- [ ] **8. Heimebasen.** Ein eigen base å pynte med ting barnet vinn.
+- [ ] **9. Pussing og test.** Yting på eldre nettbrett, test på fysisk nettbrett, release 2.0.
+
+Første leveranse er ein heil smakebit: stjernekartet i fullskjerm med rakett, éin planet ferdig
+illustrert med figurar og oppdrag, og musikk – på både mobil og nettbrett.
+
 ## Seinare
 
 - Rakettverkstad: stjerner låser opp delar og fargar til raketten.
