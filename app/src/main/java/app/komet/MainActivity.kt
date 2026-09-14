@@ -47,12 +47,17 @@ class MainActivity : ComponentActivity() {
             speech = extras.getString("speech"),
             maalform = extras.getString("maalform"),
             letterCase = extras.getString("case"),
+            backgroundMusic = extras.getString("music"),
         )
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.onForeground()
     }
 
     override fun onStop() {
         super.onStop()
-        // Nothing should keep talking from a pocket or a closed tablet cover.
-        viewModel.speaker.stop()
+        viewModel.onBackground()
     }
 }

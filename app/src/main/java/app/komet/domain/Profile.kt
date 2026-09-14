@@ -63,6 +63,8 @@ data class Profile(
 
 data class Settings(
     val sound: Boolean = true,
+    /** Background music for the places in the adventure. */
+    val music: Boolean = true,
     val speech: Boolean = true,
     val slowSpeech: Boolean = true,
     val haptics: Boolean = true,

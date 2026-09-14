@@ -43,7 +43,7 @@ class StateStoreTest {
             Profile(id = "b", name = "Bror", avatar = 0, grade = 0),
         ),
         activeProfileId = "a",
-        settings = Settings(sound = false, speech = true, slowSpeech = false, haptics = false, autoRead = false, dailyGoal = 5),
+        settings = Settings(sound = false, music = false, speech = true, slowSpeech = false, haptics = false, autoRead = false, dailyGoal = 5),
     )
 
     @Test

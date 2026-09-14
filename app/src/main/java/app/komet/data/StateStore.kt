@@ -53,6 +53,7 @@ class StateStore(private val file: File) {
             state.activeProfileId?.let { put("activeProfileId", it) }
             put("settings", JSONObject().apply {
                 put("sound", state.settings.sound)
+                put("music", state.settings.music)
                 put("speech", state.settings.speech)
                 put("slowSpeech", state.settings.slowSpeech)
                 put("haptics", state.settings.haptics)
@@ -115,6 +116,7 @@ class StateStore(private val file: File) {
             val defaults = Settings()
             val settings = Settings(
                 sound = settingsJson.optBoolean("sound", defaults.sound),
+                music = settingsJson.optBoolean("music", defaults.music),
                 speech = settingsJson.optBoolean("speech", defaults.speech),
                 slowSpeech = settingsJson.optBoolean("slowSpeech", defaults.slowSpeech),
                 haptics = settingsJson.optBoolean("haptics", defaults.haptics),

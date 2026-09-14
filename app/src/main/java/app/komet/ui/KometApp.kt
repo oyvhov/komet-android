@@ -64,6 +64,7 @@ fun KometApp(vm: KometViewModel) {
 
     CompositionLocalProvider(LocalReading provides prefs, LocalFeedback provides vm.feedback) {
         val screen = vm.stack.lastOrNull() ?: Screen.Home
+        LaunchedEffect(screen) { vm.onScreenShown(screen) }
 
         BackHandler(enabled = vm.stack.size > 1) {
             if (screen == Screen.Play) confirmQuit = true else vm.back()

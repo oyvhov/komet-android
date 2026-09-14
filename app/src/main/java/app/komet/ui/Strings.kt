@@ -156,6 +156,7 @@ object S {
     val notEnoughData = txt("Spel nokre rundar først, så dukkar det opp her.", "Spill noen runder først, så dukker det opp her.")
     fun completedLevels(done: Int, total: Int) = txt("$done av $total nivå fullført")
     val soundAndSpeech = txt("Lyd og tale")
+    val music = txt("Musikk")
     val soundEffects = txt("Lydeffektar", "Lydeffekter")
     val readAloudSetting = txt("Opplesing")
     val autoRead = txt("Les oppgåvene høgt automatisk", "Les oppgavene høyt automatisk")

@@ -268,6 +268,7 @@ private fun SettingsTab(vm: KometViewModel) {
     val context = LocalContext.current
     SectionTitle(S.soundAndSpeech.str())
     Panel(Modifier.fillMaxWidth()) {
+        ToggleRow(S.music.str(), settings.music) { value -> vm.updateSettings { it.copy(music = value) } }
         ToggleRow(S.soundEffects.str(), settings.sound) { value -> vm.updateSettings { it.copy(sound = value) } }
         ToggleRow(S.readAloudSetting.str(), settings.speech) { value -> vm.updateSettings { it.copy(speech = value) } }
         ToggleRow(S.autoRead.str(), settings.autoRead, enabled = settings.speech) { value -> vm.updateSettings { it.copy(autoRead = value) } }

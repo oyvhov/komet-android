@@ -2,6 +2,7 @@ package app.komet.audio
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,13 @@ class Speaker(context: Context) {
 
     var rate: Float = 0.9f
 
+    /** Told when speech starts and when the last part of it ends, so music can make room. */
+    @Volatile
+    var onSpeaking: ((Boolean) -> Unit)? = null
+
+    @Volatile private var lastUtterance: String? = null
+    private var calls = 0
+
     private var pending: String? = null
     private var engine: TextToSpeech? = null
     private var norwegian: Voice? = null
@@ -57,6 +65,20 @@ class Speaker(context: Context) {
         }
         norwegianLocale = locale
         tts.language = locale
+        tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {
+                onSpeaking?.invoke(true)
+            }
+
+            override fun onDone(utteranceId: String?) = ended(utteranceId)
+
+            @Deprecated("Deprecated in Java")
+            override fun onError(utteranceId: String?) = ended(utteranceId)
+
+            override fun onError(utteranceId: String?, errorCode: Int) = ended(utteranceId)
+
+            override fun onStop(utteranceId: String?, interrupted: Boolean) = ended(utteranceId)
+        })
         // Prefer the best installed voice that works offline.
         norwegian = tts.bestVoice(NORWEGIAN)?.also { runCatching { tts.voice = it } }
         voiceName = runCatching { tts.voice?.name }.getOrNull()
@@ -72,10 +94,12 @@ class Speaker(context: Context) {
             status == Status.READY && tts != null -> {
                 tts.setSpeechRate(rate)
                 val parts = segments(text)
+                val call = ++calls
+                lastUtterance = "komet-$call-${parts.lastIndex}"
                 parts.forEachIndexed { index, part ->
                     useLanguage(tts, part.english)
                     val mode = if (index == 0) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
-                    tts.speak(part.text, mode, null, "komet-$index")
+                    tts.speak(part.text, mode, null, "komet-$call-$index")
                 }
                 if (parts.any { it.english }) useLanguage(tts, english = false)
             }
@@ -86,6 +110,12 @@ class Speaker(context: Context) {
     fun stop() {
         pending = null
         engine?.stop()
+        lastUtterance = null
+        onSpeaking?.invoke(false)
+    }
+
+    private fun ended(utteranceId: String?) {
+        if (utteranceId != null && utteranceId == lastUtterance) onSpeaking?.invoke(false)
     }
 
     fun shutdown() {

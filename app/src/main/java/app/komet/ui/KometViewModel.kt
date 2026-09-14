@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import app.komet.audio.MusicPlayer
+import app.komet.audio.MusicTheme
 import app.komet.audio.Sfx
 import app.komet.audio.SoundFx
 import app.komet.audio.Speaker
@@ -24,6 +26,7 @@ import app.komet.domain.RaceMode
 import app.komet.domain.Settings
 import app.komet.domain.Skill
 import app.komet.domain.SpaceCards
+import app.komet.domain.Subject
 import app.komet.domain.Txt
 import app.komet.ui.components.Feedback
 import app.komet.update.AppUpdater
@@ -43,6 +46,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     val speaker = Speaker(application)
     private val sounds = SoundFx(application)
+    private val music = MusicPlayer()
     val updater = AppUpdater(application, viewModelScope)
 
     var state by mutableStateOf(store.load())
@@ -67,6 +71,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         stack += if (state.profiles.isEmpty()) Screen.Onboarding else Screen.Home
+        speaker.onSpeaking = { speaking -> music.duck(speaking) }
         applySettings()
     }
 
@@ -95,8 +100,40 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun applySettings() {
         sounds.enabled = state.settings.sound
+        music.enabled = state.settings.music
         speaker.rate = if (state.settings.slowSpeech) 0.82f else 1.0f
         if (!state.settings.speech) speaker.stop()
+    }
+
+    // ── Music ──────────────────────────────────────────────────────────────────────────────────
+
+    /** Every place has its own music; a result or the parents' pages keep what was playing. */
+    fun onScreenShown(target: Screen) {
+        music.setQuiet(target == Screen.Play)
+        val theme = when (target) {
+            Screen.Onboarding, Screen.AddProfile, Screen.Home, Screen.Explore, is Screen.Topic -> MusicTheme.MAP
+            is Screen.World -> musicFor(target.subject)
+            Screen.Play -> round?.let { musicFor(it.skill.subject) }
+            Screen.Collection -> MusicTheme.SPACE
+            Screen.RaceMenu, Screen.Race -> MusicTheme.RACE
+            Screen.Result, Screen.ParentGate, Screen.Parent -> null
+        }
+        theme?.let(music::play)
+    }
+
+    private fun musicFor(subject: Subject): MusicTheme = when (subject) {
+        Subject.MATH -> MusicTheme.MATH
+        Subject.READING -> MusicTheme.READING
+        Subject.ENGLISH -> MusicTheme.ENGLISH
+        Subject.SPACE -> MusicTheme.SPACE
+    }
+
+    fun onForeground() = music.resume()
+
+    /** Nothing should keep playing or talking from a pocket or a closed tablet cover. */
+    fun onBackground() {
+        speaker.stop()
+        music.pause()
     }
 
     // ── Navigation ─────────────────────────────────────────────────────────────────────────────
@@ -197,7 +234,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /** A round of tasks from the levels in [subject] that the child finds hardest right now. */
-    fun startReview(subject: app.komet.domain.Subject) {
+    fun startReview(subject: Subject) {
         val current = profile ?: return
         val weak = Progression.weakSkills(current, subject)
         if (weak.isEmpty()) return
@@ -478,7 +515,12 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         speech: String?,
         maalform: String?,
         letterCase: String?,
+        backgroundMusic: String? = null,
     ) {
+        when (backgroundMusic) {
+            "off" -> updateSettings { it.copy(music = false) }
+            "on" -> updateSettings { it.copy(music = true) }
+        }
         val current = profile ?: return
         if (stars >= 0 || unlockAll) {
             updateProfile(current.id) { it.copy(totalStars = if (stars >= 0) stars else it.totalStars, unlockAll = it.unlockAll || unlockAll) }
@@ -497,14 +539,14 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         }
         when (screen) {
             "home" -> goHome()
-            "math" -> { goHome(); open(Screen.World(app.komet.domain.Subject.MATH)) }
-            "reading" -> { goHome(); open(Screen.World(app.komet.domain.Subject.READING)) }
+            "math" -> { goHome(); open(Screen.World(Subject.MATH)) }
+            "reading" -> { goHome(); open(Screen.World(Subject.READING)) }
             "cards" -> { goHome(); open(Screen.Collection) }
             "race" -> { goHome(); open(Screen.RaceMenu) }
             "parent" -> { goHome(); open(Screen.Parent) }
             "explore" -> { goHome(); open(Screen.Explore) }
-            "english" -> { goHome(); open(Screen.World(app.komet.domain.Subject.ENGLISH)) }
-            "space" -> { goHome(); open(Screen.World(app.komet.domain.Subject.SPACE)) }
+            "english" -> { goHome(); open(Screen.World(Subject.ENGLISH)) }
+            "space" -> { goHome(); open(Screen.World(Subject.SPACE)) }
         }
         skill?.let(Curriculum::skill)?.let {
             goHome()
@@ -548,8 +590,10 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     override fun onCleared() {
         raceJob?.cancel()
+        speaker.onSpeaking = null
         speaker.shutdown()
         sounds.release()
+        music.release()
         saver.shutdown()
     }
 }
