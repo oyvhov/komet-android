@@ -80,6 +80,26 @@ object S {
     fun levelCount(count: Int) = txt("$count nivå")
     val gradeShort = listOf(txt("Førskule", "Førskole"), txt("1. klasse"), txt("2. klasse"), txt("3. klasse"))
 
+    // Planetane: Bolt ønskjer velkomen første gong
+    fun planetWelcome(subject: app.komet.domain.Subject) = when (subject) {
+        app.komet.domain.Subject.MATH -> txt(
+            "Velkomen til Talplaneten! Her er tala gøymde i krystallane. Skal vi finne dei saman?",
+            "Velkommen til Tallplaneten! Her er tallene gjemt i krystallene. Skal vi finne dem sammen?",
+        )
+        app.komet.domain.Subject.READING -> txt(
+            "Dette er Bokstavplaneten. Soppane lyser når nokon les. Skal vi få heile skogen til å lyse?",
+            "Dette er Bokstavplaneten. Soppene lyser når noen leser. Skal vi få hele skogen til å lyse?",
+        )
+        app.komet.domain.Subject.ENGLISH -> txt(
+            "{en:Hello!} På Engelskplaneten snakkar alle engelsk. Vi lærer nokre ord saman!",
+            "{en:Hello!} På Engelskplaneten snakker alle engelsk. Vi lærer noen ord sammen!",
+        )
+        app.komet.domain.Subject.SPACE -> txt(
+            "Velkomen til rombasen! Herfrå ser vi sola, månen og alle planetane.",
+            "Velkommen til rombasen! Herfra ser vi solen, månen og alle planetene.",
+        )
+    }
+
     // Kart
     fun levels(done: Int, total: Int) = txt("$done av $total nivå")
     val review = txt("Repetisjon")

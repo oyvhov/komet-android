@@ -195,6 +195,12 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         goHome()
     }
 
+    /** Remembers that Bolt has welcomed the child to [subject]'s planet. */
+    fun markPlanetVisited(subject: Subject) {
+        val current = profile ?: return
+        if (subject !in current.visitedPlanets) updateProfile(current.id) { it.copy(visitedPlanets = it.visitedPlanets + subject) }
+    }
+
     fun updateHero(look: HeroLook) {
         val current = profile ?: return
         updateProfile(current.id) { it.copy(hero = look.safe(), avatar = look.suit) }

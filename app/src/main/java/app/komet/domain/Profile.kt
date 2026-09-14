@@ -54,6 +54,8 @@ data class Profile(
     val favorites: List<String> = emptyList(),
     /** The child's astronaut. */
     val hero: HeroLook = HeroLook.fromAvatar(avatar),
+    /** Planets Bolt has already introduced, so the welcome is told only once. */
+    val visitedPlanets: Set<Subject> = emptySet(),
 ) {
     fun stars(skillId: String): Int = skills[skillId]?.bestStars ?: 0
 

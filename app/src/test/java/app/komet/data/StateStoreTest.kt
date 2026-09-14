@@ -42,6 +42,7 @@ class StateStoreTest {
                 activeRound = ActiveRound("m_add10", done = 3, firstTry = 2, total = 8, updatedAt = 77L),
                 favorites = listOf("r_rhyme", "m_add10"),
                 hero = HeroLook(suit = 4, skin = 5, hair = 3, hairStyle = 2),
+                visitedPlanets = setOf(Subject.MATH, Subject.SPACE),
             ),
             Profile(id = "b", name = "Bror", avatar = 0, grade = 0),
         ),

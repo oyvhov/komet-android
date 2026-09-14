@@ -204,6 +204,18 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
     var facingLeft by remember(subject) { mutableStateOf(false) }
     var boltMood by remember(subject) { mutableStateOf(BoltMood.IDLE) }
     val shakes = remember(subject) { mutableStateMapOf<String, Int>() }
+    // The first visit starts with Bolt telling what this place is.
+    var welcome by remember(subject) { mutableStateOf(subject !in profile.visitedPlanets) }
+    LaunchedEffect(subject) {
+        if (!welcome) return@LaunchedEffect
+        vm.markPlanetVisited(subject)
+        delay(700)
+        boltMood = BoltMood.TALK
+        vm.say(S.planetWelcome(subject))
+        delay(7000)
+        welcome = false
+        if (boltMood == BoltMood.TALK) boltMood = BoltMood.IDLE
+    }
     val hops = remember(subject) { mutableStateMapOf<Int, Long>() }
     val camera = rememberSceneCamera(subject)
 
@@ -356,6 +368,26 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
             )
 
             PlanetForeground(biome, layout.geometry, time)
+        }
+
+        if (welcome) {
+            SpeechBubble(
+                Modifier
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
+                    .padding(start = 14.dp, end = 14.dp, top = 76.dp)
+                    .widthIn(max = 380.dp)
+                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { welcome = false },
+                tailAt = 0.2f,
+            ) {
+                Text(
+                    app.komet.audio.Speaker.plain(S.planetWelcome(subject).str()),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = cappedSp(17.sp),
+                    lineHeight = cappedSp(23.sp),
+                    color = K.Ink,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
         }
 
         Row(

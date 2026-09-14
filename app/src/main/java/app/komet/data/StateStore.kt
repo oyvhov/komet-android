@@ -110,6 +110,7 @@ class StateStore(private val file: File) {
                 })
             }
             put("favorites", JSONArray().apply { profile.favorites.forEach { put(it) } })
+            put("visitedPlanets", JSONArray().apply { profile.visitedPlanets.sortedBy { it.ordinal }.forEach { put(it.name) } })
             put("hero", JSONObject().apply {
                 put("suit", profile.hero.suit)
                 put("skin", profile.hero.skin)
@@ -213,6 +214,9 @@ class StateStore(private val file: File) {
                 activeRound = activeRound,
                 favorites = favorites,
                 hero = hero,
+                visitedPlanets = json.optJSONArray("visitedPlanets")?.let { visited ->
+                    (0 until visited.length()).mapNotNull { enumOrNull<Subject>(visited.optString(it, "")) }.toSet()
+                } ?: emptySet(),
             )
         }
 
