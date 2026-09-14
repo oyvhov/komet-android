@@ -8,7 +8,7 @@ Same kontrakt som Spole. Publiser berre når brukaren ber om ein ny release.
   `https://api.github.com/repos/oyvhov/komet-android/releases?per_page=100` utan token.
 - Produksjonspakke: `app.komet`, aldri `.debug`.
 - `versionName` og tag må samsvare: `1.2.0` og `v1.2.0`. Testutgåver: `1.2.0-beta1` og `v1.2.0-beta1`.
-- `versionCode` må vere høgare enn alle APK-ar som er delte, også lokale filer. 1.0.0 = 1, 1.1.0 = 2, 1.2.0 = 3.
+- `versionCode` må vere høgare enn alle APK-ar som er delte, også lokale filer. 1.0.0 = 1, 1.1.0 = 2, 1.2.0 = 3, 2.0.0-beta1 = 4.
 - Same Komet-signatur. Sertifikat SHA-256:
   `e914f8b6b01f9b7105104b1f1c0dde9f554043fef81a44444dd963ee6859195b`.
 - Releasen må vere publisert (ikkje kladd) og ha **nøyaktig éin APK**. Legg òg ved `SHA256SUMS.txt`,
@@ -47,7 +47,7 @@ Vent på BUILD SUCCESSFUL. Kontroller skjermane på `Komet_Phone` (sjå `docs/AI
 ## 3. Kontroller og arkiver artefaktane
 
 ```powershell
-$version='1.2.0' # endre ved neste release
+$version='2.0.0-beta1' # endre ved neste release
 $tag="v$version"
 $out="dist/release-$tag"
 New-Item -ItemType Directory -Path $out -Force | Out-Null

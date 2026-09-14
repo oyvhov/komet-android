@@ -1,6 +1,6 @@
 # Endringslogg
 
-## Under arbeid · 2.0 Komet-eventyret
+## 2.0.0-beta1 · 14. september 2026 · testutgåve av Komet-eventyret
 
 - **Stjernekartet** er ny heimeskjerm: sola, ein planet for kvart fag, rakettbana, romkort og Utforsk.
   Dra for å sjå rundt; raketten flyg dit du trykkjer.
