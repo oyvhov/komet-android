@@ -87,8 +87,10 @@ import app.komet.ui.components.Tones
 import app.komet.ui.components.fixedSp
 import app.komet.ui.components.gloss
 import app.komet.ui.components.str
+import app.komet.ui.components.cappedSp
 import app.komet.ui.components.subjectTone
 import app.komet.ui.theme.K
+import app.komet.ui.theme.LocalMotion
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -173,6 +175,7 @@ private fun parked(spot: PlaceSpot): Offset = Offset(spot.x - spot.radius * 1.25
 fun StarMapScreen(vm: KometViewModel) {
     val profile = vm.profile ?: return
     val feedback = LocalFeedback.current
+    val motion = LocalMotion.current
     val time = rememberSceneTime()
     val scope = rememberCoroutineScope()
     val camera = rememberSceneCamera(Unit)
@@ -206,7 +209,7 @@ fun StarMapScreen(vm: KometViewModel) {
 
             fun fly(place: MapPlace) {
                 if (flying != null) return
-                if (place == vm.mapPlace) {
+                if (place == vm.mapPlace || !motion) {
                     open(place)
                     return
                 }
@@ -554,11 +557,12 @@ private fun SceneScope.PlaceView(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            GameText(label, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+            GameText(label, style = MaterialTheme.typography.titleMedium, fontSize = cappedSp(17.sp), maxLines = 1)
             if (badge != null) {
                 GameText(
                     badge,
                     style = MaterialTheme.typography.labelMedium,
+                    fontSize = cappedSp(13.sp),
                     modifier = Modifier
                         .border(1.5.dp, K.Outline, RoundedCornerShape(50))
                         .background(Brush.verticalGradient(listOf(K.RaceTop, K.Race)), RoundedCornerShape(50))
@@ -576,7 +580,7 @@ private fun SceneScope.PlaceView(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 if (showStar) StarGlyph(true, Modifier.size(15.dp))
-                Text(detail, style = MaterialTheme.typography.labelMedium, color = K.Text, fontWeight = FontWeight.Bold, maxLines = 1)
+                Text(detail, style = MaterialTheme.typography.labelMedium, fontSize = cappedSp(14.sp), color = K.Text, fontWeight = FontWeight.Bold, maxLines = 1)
             }
         }
     }
@@ -858,8 +862,8 @@ private fun MapOverlay(vm: KometViewModel, time: State<Float>, onProfile: () -> 
                     }
                 }
                 Column {
-                    GameText(profile.name, style = MaterialTheme.typography.titleLarge, maxLines = 1)
-                    Text(rank.title.str(), style = MaterialTheme.typography.labelMedium, color = K.Gold, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    GameText(profile.name, style = MaterialTheme.typography.titleLarge, fontSize = cappedSp(20.sp), maxLines = 1)
+                    Text(rank.title.str(), style = MaterialTheme.typography.labelMedium, fontSize = cappedSp(14.sp), color = K.Gold, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (nextRank != null) {
                         val span = (nextRank.minStars - rank.minStars).coerceAtLeast(1)
                         val progress = ((profile.totalStars - rank.minStars) / span.toFloat()).coerceIn(0f, 1f)
@@ -903,7 +907,7 @@ private fun MapOverlay(vm: KometViewModel, time: State<Float>, onProfile: () -> 
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                Text(S.dailyMission.str(), style = MaterialTheme.typography.labelLarge, color = if (roundsToday >= goal) K.GoodTop else K.Text, fontWeight = FontWeight.ExtraBold)
+                Text(S.dailyMission.str(), style = MaterialTheme.typography.labelLarge, fontSize = cappedSp(16.sp), color = if (roundsToday >= goal) K.GoodTop else K.Text, fontWeight = FontWeight.ExtraBold)
                 repeat(goal.coerceAtMost(5)) { index -> StarGlyph(filled = index < roundsToday, modifier = Modifier.size(20.dp)) }
             }
             if (streak > 0) Pill(S.streak(streak).str(), icon = KometIcons.Flame, iconTint = Color(0xFFFF8A3D))
@@ -958,6 +962,7 @@ private fun MissionBubble(vm: KometViewModel, time: State<Float>, modifier: Modi
                 Text(
                     (if (resume != null) S.resumeLabel else S.nextMission).str().uppercase(),
                     style = MaterialTheme.typography.labelMedium,
+                    fontSize = cappedSp(13.sp),
                     color = tone.edge,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 1.sp,
@@ -967,6 +972,8 @@ private fun MissionBubble(vm: KometViewModel, time: State<Float>, modifier: Modi
                         Text(
                             (resume?.first ?: recommended).title.str(),
                             style = MaterialTheme.typography.titleLarge,
+                            fontSize = cappedSp(20.sp),
+                            lineHeight = cappedSp(25.sp),
                             color = K.Ink,
                             fontWeight = FontWeight.ExtraBold,
                             maxLines = 2,
@@ -975,6 +982,7 @@ private fun MissionBubble(vm: KometViewModel, time: State<Float>, modifier: Modi
                         Text(
                             if (resume != null) S.resumeDetail(resume.second.done, resume.second.total).str() else S.subject(recommended.subject).str(),
                             style = MaterialTheme.typography.labelMedium,
+                            fontSize = cappedSp(14.sp),
                             color = K.InkMuted,
                             maxLines = 1,
                         )
@@ -988,7 +996,7 @@ private fun MissionBubble(vm: KometViewModel, time: State<Float>, modifier: Modi
                         depth = 4.dp,
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 9.dp),
                     ) {
-                        GameText((if (resume != null) S.resume else S.start).str(), style = MaterialTheme.typography.titleMedium)
+                        GameText((if (resume != null) S.resume else S.start).str(), style = MaterialTheme.typography.titleMedium, fontSize = cappedSp(17.sp))
                     }
                 }
             }

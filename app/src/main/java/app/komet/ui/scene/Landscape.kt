@@ -454,18 +454,18 @@ private fun DrawScope.drawSkyObject(biome: Biome, metrics: SceneMetrics, camera:
                 val line = Path()
                 val points = (0..steps).map { i ->
                     val x = size.width * i / steps
-                    Offset(x, baseY + sin(i * 0.5f + band * 1.7f + t * 0.3f + camera * 0.5f) * 0.05f * u)
+                    Offset(x, baseY + sin(i * 0.42f + band * 1.7f + t * 0.3f + camera * 0.5f) * 0.035f * u)
                 }
                 line.moveTo(points[0].x, points[0].y)
                 for (point in points.drop(1)) line.lineTo(point.x, point.y)
-                drawPath(line, color.copy(alpha = 0.16f), style = Stroke(0.09f * u, cap = StrokeCap.Round))
-                drawPath(line, color.copy(alpha = 0.22f), style = Stroke(0.04f * u, cap = StrokeCap.Round))
-                drawPath(line, color.copy(alpha = 0.35f), style = Stroke(0.012f * u, cap = StrokeCap.Round))
+                drawPath(line, color.copy(alpha = 0.09f), style = Stroke(0.09f * u, cap = StrokeCap.Round))
+                drawPath(line, color.copy(alpha = 0.13f), style = Stroke(0.04f * u, cap = StrokeCap.Round))
+                drawPath(line, color.copy(alpha = 0.26f), style = Stroke(0.01f * u, cap = StrokeCap.Round))
                 for ((i, point) in points.withIndex()) {
                     if (i % 2 == 1) continue
                     val flicker = 0.5f + 0.5f * sin(t * 1.3f + i * 0.9f + band)
                     drawLine(
-                        Brush.verticalGradient(listOf(color.copy(alpha = 0.18f * flicker), Color.Transparent), startY = point.y, endY = point.y + 0.14f * u),
+                        Brush.verticalGradient(listOf(color.copy(alpha = 0.12f * flicker), Color.Transparent), startY = point.y, endY = point.y + 0.14f * u),
                         point,
                         point + Offset(0f, 0.14f * u),
                         strokeWidth = 0.012f * u,

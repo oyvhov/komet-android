@@ -69,6 +69,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.komet.audio.Sfx
 import app.komet.domain.Chapter
 import app.komet.domain.Curriculum
@@ -88,6 +89,7 @@ import app.komet.ui.components.PressSurface
 import app.komet.ui.components.RocketArt
 import app.komet.ui.components.RoundIconButton
 import app.komet.ui.components.StarRow
+import app.komet.ui.components.cappedSp
 import app.komet.ui.components.gloss
 import app.komet.ui.components.shake
 import app.komet.ui.components.str
@@ -228,6 +230,12 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
 
             fun walkTo(x: Float, spot: Skill?) {
                 heroSpot = spot
+                if (!motion) {
+                    walk[0]?.cancel()
+                    scope.launch { heroX.snapTo(x - layout.standOffset) }
+                    camera.jumpTo(x - metrics.viewport * fraction)
+                    return
+                }
                 val previous = walk[0]
                 walk[0] = scope.launch {
                     previous?.cancelAndJoin()
@@ -430,6 +438,7 @@ private fun NamePlate(text: String, face: Color, top: Color) {
     GameText(
         text,
         style = MaterialTheme.typography.headlineSmall,
+        fontSize = cappedSp(22.sp),
         maxLines = 1,
         modifier = Modifier
             .border(2.dp, K.Outline, RoundedCornerShape(50))
@@ -496,6 +505,8 @@ private fun SceneScope.StationView(
     Text(
         skill.title.str(),
         style = MaterialTheme.typography.labelMedium,
+        fontSize = cappedSp(14.sp),
+        lineHeight = cappedSp(17.sp),
         color = if (unlocked) K.Text else K.Muted,
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,
@@ -529,8 +540,8 @@ private fun SceneScope.ChapterSign(sign: Signpost, completed: Int) {
         ) {
             PlanetArt(look, Modifier.size(34.dp), glow = false)
             Column {
-                GameText(sign.chapter.title.str(), style = MaterialTheme.typography.titleMedium, maxLines = 1)
-                Text("$completed / ${sign.chapter.skills.size}", style = MaterialTheme.typography.labelMedium, color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Bold)
+                GameText(sign.chapter.title.str(), style = MaterialTheme.typography.titleMedium, fontSize = cappedSp(17.sp), maxLines = 1)
+                Text("$completed / ${sign.chapter.skills.size}", style = MaterialTheme.typography.labelMedium, fontSize = cappedSp(14.sp), color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Bold)
             }
         }
         Canvas(Modifier.size(12.dp, 30.dp)) {
@@ -674,10 +685,11 @@ private fun LevelCard(vm: KometViewModel, skill: Skill, compact: Boolean) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             if (!compact) LevelMedallion(skill, 56.dp)
             Column(Modifier.weight(1f)) {
-                GameText(skill.title.str(), style = MaterialTheme.typography.headlineSmall, maxLines = 2)
+                GameText(skill.title.str(), style = MaterialTheme.typography.headlineSmall, fontSize = cappedSp(22.sp), maxLines = 2)
                 Text(
                     Curriculum.chapterOf(skill).title.str() + " · " + S.gradeShort[skill.grade.coerceIn(0, 3)].str(),
                     style = MaterialTheme.typography.labelMedium,
+                    fontSize = cappedSp(14.sp),
                     color = K.Muted,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -695,7 +707,7 @@ private fun LevelCard(vm: KometViewModel, skill: Skill, compact: Boolean) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             StarRow(stars, size = 26.dp)
             if (!compact) {
-                Text(skill.detail.str(), style = MaterialTheme.typography.bodyMedium, color = K.Text, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                Text(skill.detail.str(), style = MaterialTheme.typography.bodyMedium, fontSize = cappedSp(15.sp), lineHeight = cappedSp(20.sp), color = K.Text, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
             }
         }
         if (unlocked) {
@@ -715,7 +727,7 @@ private fun LevelCard(vm: KometViewModel, skill: Skill, compact: Boolean) {
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Icon(KometIcons.Lock, contentDescription = null, tint = K.Muted, modifier = Modifier.size(24.dp))
-                Text(S.lockedHint.str(), style = MaterialTheme.typography.titleSmall, color = K.Muted)
+                Text(S.lockedHint.str(), style = MaterialTheme.typography.titleSmall, fontSize = cappedSp(15.sp), color = K.Muted)
             }
         }
     }
@@ -745,8 +757,8 @@ private fun ReviewCard(vm: KometViewModel, subject: Subject, names: List<String>
                 Icon(KometIcons.Refresh, contentDescription = null, tint = Color.White, modifier = Modifier.size(30.dp))
             }
             Column(Modifier.weight(1f)) {
-                GameText(S.review.str(), style = MaterialTheme.typography.headlineSmall)
-                Text(S.reviewDetail(names.joinToString(", ")).str(), style = MaterialTheme.typography.bodyMedium, color = K.Text, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                GameText(S.review.str(), style = MaterialTheme.typography.headlineSmall, fontSize = cappedSp(22.sp))
+                Text(S.reviewDetail(names.joinToString(", ")).str(), style = MaterialTheme.typography.bodyMedium, fontSize = cappedSp(15.sp), lineHeight = cappedSp(20.sp), color = K.Text, maxLines = 3, overflow = TextOverflow.Ellipsis)
             }
         }
         BigButton(text = S.reviewStart.str(), onClick = { vm.startReview(subject) }, icon = KometIcons.Play, modifier = Modifier.fillMaxWidth())
