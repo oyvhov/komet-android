@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -75,21 +76,19 @@ import app.komet.audio.Sfx
 import app.komet.domain.Chapter
 import app.komet.domain.Curriculum
 import app.komet.domain.Progression
-import app.komet.domain.Skill
 import app.komet.domain.ShopSlot
+import app.komet.domain.Skill
 import app.komet.domain.Subject
 import app.komet.domain.Wallet
 import app.komet.ui.KometViewModel
 import app.komet.ui.S
 import app.komet.ui.components.BigButton
 import app.komet.ui.components.CloseButton
-import app.komet.ui.components.NuggetPill
-import app.komet.ui.components.drawNugget
-import app.komet.ui.components.drawRays
 import app.komet.ui.components.Feedback
 import app.komet.ui.components.GameText
 import app.komet.ui.components.KometIcons
 import app.komet.ui.components.LocalFeedback
+import app.komet.ui.components.NuggetPill
 import app.komet.ui.components.Pill
 import app.komet.ui.components.PlanetArt
 import app.komet.ui.components.PressSurface
@@ -97,6 +96,8 @@ import app.komet.ui.components.RocketArt
 import app.komet.ui.components.RoundIconButton
 import app.komet.ui.components.StarRow
 import app.komet.ui.components.cappedSp
+import app.komet.ui.components.drawNugget
+import app.komet.ui.components.drawRays
 import app.komet.ui.components.gloss
 import app.komet.ui.components.shake
 import app.komet.ui.components.str
@@ -350,8 +351,9 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
                 val taken = picked[id]
                 if (id !in waiting && taken == null) continue
                 NuggetPickup(
-                    x = station.x + metrics.unitsOf(layout.medallion * 0.62f),
-                    y = station.y - metrics.unitsOf(layout.medallion * 0.9f),
+                    // Up and to the right of the level, clear of its stars.
+                    x = station.x + metrics.unitsOf(layout.medallion * 0.85f),
+                    y = station.y - metrics.unitsOf(layout.medallion * 1.2f),
                     size = (layout.medallion * 0.62f).coerceAtLeast(44.dp),
                     time = time,
                     takenAt = taken,
@@ -550,10 +552,12 @@ private fun NamePlate(text: String, face: Color, top: Color) {
         fontSize = cappedSp(22.sp),
         maxLines = 1,
         autoFit = true,
+        // As wide as the name, and only smaller when the bar has no room for it.
         modifier = Modifier
+            .width(IntrinsicSize.Max)
             .border(2.dp, K.Outline, RoundedCornerShape(50))
             .gloss(face, RoundedCornerShape(50), top = top)
-            .padding(horizontal = 18.dp, vertical = 6.dp),
+            .padding(horizontal = 14.dp, vertical = 6.dp),
     )
 }
 

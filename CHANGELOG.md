@@ -11,6 +11,10 @@
   knappar til astronautbyggjaren, butikken og byte av spelar.
 - **Raud X-knapp** øvst til høgre på alt som kan lukkast: dialogar, bobler, butikken, astronautbyggjaren,
   oppgåver, rakettløp, resultat og skjermane som blir opna frå kartet.
+- Butikkorta viser hovudet på nært hald, så antenner, hjelmar, visir og pynt er lette å skilje. Visira har
+  ein farga kant, sløyfa og skjerfet synest under hjelmen, og Bolt står på scena i Bolt-hylla.
+- På nettbrett som står, får astronauten i butikken den ekstra plassen. Planetnamn, tal og
+  «ikkje nok gullklumpar» får plass òg med svært stor skrift.
 
 ## 2.0.0-beta1 · 14. september 2026 · testutgåve av Komet-eventyret
 

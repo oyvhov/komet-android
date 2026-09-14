@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.komet.domain.Subject
 import app.komet.ui.theme.K
 
@@ -135,7 +136,8 @@ fun Pill(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null,
     ) {
         if (star) StarGlyph(true, Modifier.size(20.dp))
         if (icon != null) Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(20.dp))
-        Text(text, color = K.Text, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.ExtraBold)
+        // Short numbers beside an icon; they follow big system text only part of the way so bars keep their room.
+        Text(text, color = K.Text, style = MaterialTheme.typography.labelLarge, fontSize = cappedSp(17.sp), lineHeight = cappedSp(22.sp), fontWeight = FontWeight.ExtraBold, maxLines = 1)
     }
 }
 

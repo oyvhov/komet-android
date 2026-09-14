@@ -228,10 +228,10 @@ internal fun DrawScope.drawBadgeBehind(gear: Gear, t: Float, line: Stroke) {
     if (gear.badge != "badge_scarf") return
     val wave = sin(t * 4f) * 3f
     val tail = Path().apply {
-        moveTo(-18f, -86f)
-        quadraticTo(-32f, -84f + wave, -46f, -74f + wave)
-        lineTo(-42f, -66f + wave)
-        quadraticTo(-30f, -76f + wave, -16f, -78f)
+        moveTo(-18f, -80f)
+        quadraticTo(-32f, -78f + wave, -46f, -68f + wave)
+        lineTo(-42f, -60f + wave)
+        quadraticTo(-30f, -70f + wave, -16f, -72f)
         close()
     }
     drawPath(tail, ScarfRed)
@@ -259,20 +259,23 @@ internal fun DrawScope.drawBadgeChest(gear: Gear) {
 /** Things worn at the collar: the scarf itself or a bow tie. */
 internal fun DrawScope.drawBadgeCollar(gear: Gear, line: Stroke) {
     when (gear.badge) {
+        // Both sit low enough to show under the helmet, which covers the collar itself.
         "badge_scarf" -> {
-            drawRoundRect(ScarfRed, Offset(-25f, -91f), Size(52f, 13f), CornerRadius(6.5f))
-            for (x in listOf(-14f, 0f, 14f)) drawRect(Color.White.copy(alpha = 0.85f), Offset(x, -91f), Size(3.5f, 13f))
-            drawRoundRect(K.Outline, Offset(-25f, -91f), Size(52f, 13f), CornerRadius(6.5f), style = line)
+            drawRoundRect(ScarfRed, Offset(-25f, -83f), Size(52f, 12f), CornerRadius(6f))
+            for (x in listOf(-14f, 0f, 14f)) drawRect(Color.White.copy(alpha = 0.85f), Offset(x, -83f), Size(3.5f, 12f))
+            drawRoundRect(K.Outline, Offset(-25f, -83f), Size(52f, 12f), CornerRadius(6f), style = line)
         }
         "badge_bowtie" -> {
-            val left = Path().apply { moveTo(9f, -79f); lineTo(0f, -85f); lineTo(0f, -73f); close() }
-            val right = Path().apply { moveTo(9f, -79f); lineTo(18f, -85f); lineTo(18f, -73f); close() }
+            // Left of the front arm, which would otherwise hide it.
+            val knot = Offset(-5f, -70f)
+            val left = Path().apply { moveTo(knot.x, knot.y); lineTo(knot.x - 11f, knot.y - 7f); lineTo(knot.x - 11f, knot.y + 7f); close() }
+            val right = Path().apply { moveTo(knot.x, knot.y); lineTo(knot.x + 11f, knot.y - 7f); lineTo(knot.x + 11f, knot.y + 7f); close() }
             for (wing in listOf(left, right)) {
                 drawPath(wing, ScarfRed)
                 drawPath(wing, K.Outline, style = Stroke(2f, join = StrokeJoin.Round))
             }
-            drawCircle(Color(0xFFB8183C), 2.6f, Offset(9f, -79f))
-            drawCircle(K.Outline, 2.6f, Offset(9f, -79f), style = Stroke(1.6f))
+            drawCircle(Color(0xFFB8183C), 3f, knot)
+            drawCircle(K.Outline, 3f, knot, style = Stroke(1.6f))
         }
     }
 }
@@ -382,6 +385,22 @@ internal fun visorBrush(gear: Gear): Brush = when (gear.visor) {
         endX = 36f,
     )
     else -> Brush.verticalGradient(listOf(VisorTop, VisorBottom), startY = -126f, endY = -84f)
+}
+
+/** A coloured rim just inside the glass, so a new visor is easy to spot even though the face fills the middle. */
+internal fun DrawScope.drawVisorRim(gear: Gear, glass: Rect) {
+    val brush = when (gear.visor) {
+        "visor_mint" -> Brush.verticalGradient(listOf(Color(0xFF8CF7D8), Color(0xFF1E9E7E)), startY = glass.top, endY = glass.bottom)
+        "visor_red" -> Brush.verticalGradient(listOf(Color(0xFFFF8F99), Color(0xFFC8243C)), startY = glass.top, endY = glass.bottom)
+        "visor_gold" -> Brush.verticalGradient(listOf(K.GoldTop, K.GoldDeep), startY = glass.top, endY = glass.bottom)
+        "visor_rainbow" -> Brush.sweepGradient(
+            listOf(Color(0xFFFF5A64), Color(0xFFFFB02E), Color(0xFFFFE14D), Color(0xFF4CD97B), Color(0xFF3FA9F5), Color(0xFF9B6BFF), Color(0xFFFF5A64)),
+            center = glass.center,
+        )
+        else -> return
+    }
+    val inset = 2.5f
+    drawOval(brush, Offset(glass.left + inset, glass.top + inset), Size(glass.width - inset * 2, glass.height - inset * 2), style = Stroke(5f))
 }
 
 /** A light tint over the face, so the visor's colour reads while the face stays visible. */

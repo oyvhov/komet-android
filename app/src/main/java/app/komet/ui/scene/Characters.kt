@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
@@ -190,6 +191,7 @@ fun DrawScope.drawAstronaut(suit: Color, skin: Color, hair: Color, hairStyle: In
                 // The visor reflects the sky.
                 drawRect(Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.12f), Color.Transparent), startY = -127f, endY = -100f), Offset(-12f, -128f), Size(48f, 30f))
             }
+            drawVisorRim(gear, visor.getBounds())
             drawPath(visor, K.Outline, style = Stroke(2.6f))
             drawShades(gear)
             drawArc(Color.White.copy(alpha = 0.85f), 200f, 55f, false, Offset(-4f, -121f), Size(30f, 28f), style = Stroke(3f, cap = StrokeCap.Round))
@@ -417,6 +419,25 @@ fun HeroPortrait(look: HeroLook, time: State<Float>, modifier: Modifier = Modifi
         val figure = Size(100f * scale, 150f * scale)
         // Put the figure's feet where the helmet ends up in the middle of the portrait.
         withTransform({ translate(size.width / 2 - 3f * scale - figure.width / 2, size.height / 2 + 108f * scale - figure.height) }) {
+            drawFigureInto(figure, suit, skin, hair, safe.hairStyle, time.value, gear)
+        }
+    }
+}
+
+/** The astronaut from the antenna tip down to the chest, for close-ups of what is worn on the head and at the neck. */
+@Composable
+fun HeroBust(look: HeroLook, time: State<Float>, modifier: Modifier = Modifier, gear: Gear = Gear.None) {
+    val safe = look.safe()
+    val suit = Color(HeroPalette.suits[safe.suit])
+    val skin = Color(HeroPalette.skins[safe.skin])
+    val hair = Color(HeroPalette.hairs[safe.hair])
+    Canvas(modifier.clipToBounds()) {
+        // In figure units above the feet: the tallest antenna reaches 158, a medal hangs down to 54.
+        val top = 160f
+        val bottom = 50f
+        val scale = min(size.height / (top - bottom), size.width / 110f)
+        val figure = Size(100f * scale, 150f * scale)
+        withTransform({ translate(size.width / 2 - figure.width / 2, size.height + bottom * scale - figure.height) }) {
             drawFigureInto(figure, suit, skin, hair, safe.hairStyle, time.value, gear)
         }
     }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -158,8 +159,10 @@ fun ShopScreen(vm: KometViewModel) {
                         shelf(Modifier.weight(1.2f).fillMaxHeight())
                     }
                 } else {
+                    // Tall screens (a tablet standing up) give the extra height to the stage instead of empty shelf.
+                    val stageHeight = if (short) 150.dp else (maxHeight - 540.dp).coerceIn(220.dp, 480.dp)
                     Column(Modifier.fillMaxSize()) {
-                        stage(Modifier.fillMaxWidth().height(if (short) 150.dp else 220.dp))
+                        stage(Modifier.fillMaxWidth().height(stageHeight))
                         shelf(Modifier.weight(1f).fillMaxWidth())
                     }
                 }
@@ -213,7 +216,8 @@ private fun Stage(slot: ShopSlot, preview: Map<ShopSlot, String>, look: app.kome
             )
         }
         when (slot) {
-            ShopSlot.BOLT -> Bolt(time, Modifier.fillMaxHeight(0.62f).padding(bottom = 16.dp), mood = { BoltMood.HAPPY }, paint = preview[ShopSlot.BOLT])
+            // Bolt's canvas has no size of its own, so it needs a width as well as the height.
+            ShopSlot.BOLT -> Bolt(time, Modifier.fillMaxHeight(0.62f).aspectRatio(1f).padding(bottom = 16.dp), mood = { BoltMood.HAPPY }, paint = preview[ShopSlot.BOLT])
             ShopSlot.ROCKET -> {
                 val paint = rocketPaint(preview[ShopSlot.ROCKET])
                 BoxWithConstraints(Modifier.fillMaxHeight(0.8f)) {
@@ -393,10 +397,8 @@ private fun ItemArt(item: ShopItem?, slot: ShopSlot, look: app.komet.domain.Hero
                 RocketArt(Modifier.size(56.dp, 96.dp), body = paint.body, accent = paint.accent, stripes = paint.stripes)
             }
         }
-        // Things for the head show best in close-up; the rest need the whole figure.
-        ShopSlot.HELMET, ShopSlot.VISOR, ShopSlot.ANTENNA -> Box(modifier, contentAlignment = Alignment.Center) {
-            HeroBadge(look, time, 96.dp, Gear.of(worn))
-        }
+        // Things for the head and neck show best in close-up; the rest need the whole figure.
+        ShopSlot.HELMET, ShopSlot.VISOR, ShopSlot.ANTENNA, ShopSlot.BADGE -> HeroBust(look, time, modifier, Gear.of(worn))
         else -> Box(modifier, contentAlignment = Alignment.BottomCenter) {
             Astronaut(look, time, Modifier.size(72.dp, 108.dp), gear = Gear.of(worn))
         }
@@ -427,12 +429,13 @@ private fun ActionBar(vm: KometViewModel, slot: ShopSlot, chosen: ShopItem?, onB
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                GameText(S.notEnough.str(), style = MaterialTheme.typography.titleLarge, fontSize = cappedSp(20.sp), textAlign = TextAlign.Center)
+                // Kept compact with big system text, so the shelf above still has room.
+                GameText(S.notEnough.str(), style = MaterialTheme.typography.titleLarge, fontSize = cappedSp(20.sp, maxScale = 1.15f), textAlign = TextAlign.Center)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     NuggetGlyph(Modifier.size(22.dp))
-                    Text(S.missing(chosen.price - profile.nuggets).str(), style = MaterialTheme.typography.titleSmall, fontSize = cappedSp(15.sp), color = K.GoldTop, fontWeight = FontWeight.Bold)
+                    Text(S.missing(chosen.price - profile.nuggets).str(), style = MaterialTheme.typography.titleSmall, fontSize = cappedSp(15.sp, maxScale = 1.15f), lineHeight = cappedSp(20.sp, maxScale = 1.15f), color = K.GoldTop, fontWeight = FontWeight.Bold)
                 }
-                Text(S.earnMore.str(), style = MaterialTheme.typography.bodyMedium, fontSize = cappedSp(15.sp), color = K.Muted, textAlign = TextAlign.Center)
+                Text(S.earnMore.str(), style = MaterialTheme.typography.bodyMedium, fontSize = cappedSp(15.sp, maxScale = 1.15f), lineHeight = cappedSp(20.sp, maxScale = 1.15f), color = K.Muted, textAlign = TextAlign.Center)
             }
         }
     }

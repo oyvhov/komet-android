@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import app.komet.ui.S
@@ -191,7 +192,10 @@ fun NuggetPill(count: Int, modifier: Modifier = Modifier, big: Boolean = false) 
             count.toString(),
             color = K.GoldTop,
             style = if (big) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.labelLarge,
+            fontSize = if (big) cappedSp(22.sp) else cappedSp(17.sp),
+            lineHeight = if (big) cappedSp(28.sp) else cappedSp(22.sp),
             fontWeight = FontWeight.ExtraBold,
+            maxLines = 1,
         )
     }
 }

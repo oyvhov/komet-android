@@ -77,15 +77,20 @@ fun GameText(
     val sizePx = with(density) { size.toPx() }
     val rim = (sizePx * 0.15f).coerceIn(with(density) { 2.5.dp.toPx() }, with(density) { 9.dp.toPx() })
     val drop = rim * 0.55f
+    // A smaller size than the style's (for example a capped one) keeps the style's line spacing in proportion.
+    val lineHeight = if (style.lineHeight.isSp && style.fontSize.isSp && size.isSp) (size.value * style.lineHeight.value / style.fontSize.value).sp else style.lineHeight
     val base = style.merge(
         TextStyle(
             fontSize = size,
+            lineHeight = lineHeight,
             fontWeight = style.fontWeight ?: FontWeight.Black,
             textAlign = textAlign ?: style.textAlign,
         ),
     )
     val fill = if (textAlign != null && textAlign != TextAlign.Start) Modifier.fillMaxWidth() else Modifier
-    val fit = if (autoFit) TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = size, stepSize = 1.sp) else null
+    // The smallest size is fixed on screen, so shrinking still works when the system text is very big.
+    val smallest = with(density) { 10.dp.toSp() }.let { if (it.value > size.value) size else it }
+    val fit = if (autoFit) TextAutoSize.StepBased(minFontSize = smallest, maxFontSize = size, stepSize = 1.sp) else null
     Box(modifier, contentAlignment = Alignment.TopStart) {
         BasicText(
             text,
