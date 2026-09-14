@@ -65,7 +65,6 @@ import app.komet.ui.KometViewModel
 import app.komet.ui.S
 import app.komet.ui.Screen
 import app.komet.ui.components.AnswerDisplay
-import app.komet.ui.components.Avatar
 import app.komet.ui.components.BigButton
 import app.komet.ui.components.KometIcons
 import app.komet.ui.components.Keypad
@@ -76,7 +75,7 @@ import app.komet.ui.components.ProgressTrack
 import app.komet.ui.components.ScreenTopBar
 import app.komet.ui.components.SectionTitle
 import app.komet.ui.components.SegmentedChoice
-import app.komet.ui.components.avatarCount
+import app.komet.ui.scene.HeroBadge
 import app.komet.ui.components.str
 import app.komet.ui.components.subjectColors
 import app.komet.ui.theme.K
@@ -170,7 +169,7 @@ private fun ProgressTab(vm: KometViewModel) {
     val minutes = weekStats.sumOf { it.seconds } / 60
 
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Avatar(profile.avatar, size = 48.dp)
+        HeroBadge(profile.hero, size = 48.dp)
         Column(Modifier.weight(1f)) {
             Text(profile.name, style = MaterialTheme.typography.headlineSmall, color = K.Text)
             Text(Progression.rank(profile.totalStars).title.str(), style = MaterialTheme.typography.bodyMedium, color = K.Gold)
@@ -415,7 +414,7 @@ private fun ProfilesTab(vm: KometViewModel) {
         val active = profile.id == vm.profile?.id
         Panel(Modifier.fillMaxWidth(), color = if (active) K.SurfaceHigh else K.Surface) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Avatar(profile.avatar, size = 56.dp)
+                HeroBadge(profile.hero, size = 56.dp)
                 Column(Modifier.weight(1f)) {
                     Text(profile.name, style = MaterialTheme.typography.headlineSmall, color = K.Text)
                     Text(
@@ -465,8 +464,8 @@ private fun ProfilesTab(vm: KometViewModel) {
     editing?.let { profile ->
         EditProfileDialog(
             profile = profile,
-            onSave = { name, avatar ->
-                vm.updateProfile(profile.id) { it.copy(name = name.trim().ifBlank { it.name }.take(20), avatar = avatar) }
+            onSave = { name ->
+                vm.updateProfile(profile.id) { it.copy(name = name.trim().ifBlank { it.name }.take(20)) }
                 editing = null
             },
             onDismiss = { editing = null },
@@ -501,9 +500,8 @@ private fun ConfirmDialog(body: String, confirm: String, onConfirm: () -> Unit, 
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun EditProfileDialog(profile: Profile, onSave: (String, Int) -> Unit, onDismiss: () -> Unit) {
+private fun EditProfileDialog(profile: Profile, onSave: (String) -> Unit, onDismiss: () -> Unit) {
     var name by remember { mutableStateOf(profile.name) }
-    var avatar by remember { mutableIntStateOf(profile.avatar) }
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = K.SurfaceHigh,
@@ -526,24 +524,9 @@ private fun EditProfileDialog(profile: Profile, onSave: (String, Int) -> Unit, o
                         unfocusedTextColor = K.Text,
                     ),
                 )
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    repeat(avatarCount) { index ->
-                        Box(
-                            Modifier
-                                .size(52.dp)
-                                .background(if (index == avatar) K.Gold else Color.Transparent, CircleShape)
-                                .padding(4.dp)
-                                .semantics { contentDescription = "Figur ${index + 1}" }
-                                .clickable(role = Role.RadioButton) { avatar = index },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Avatar(index, size = 44.dp)
-                        }
-                    }
-                }
             }
         },
-        confirmButton = { TextButton(onClick = { onSave(name, avatar) }) { Text(S.done.str(), color = K.Gold, fontWeight = FontWeight.Bold) } },
+        confirmButton = { TextButton(onClick = { onSave(name) }) { Text(S.done.str(), color = K.Gold, fontWeight = FontWeight.Bold) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(S.cancel.str(), color = K.Text) } },
     )
 }

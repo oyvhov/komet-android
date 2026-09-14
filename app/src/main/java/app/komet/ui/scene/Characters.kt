@@ -101,16 +101,17 @@ fun DrawScope.drawAstronaut(suit: Color, skin: Color, hair: Color, hairStyle: In
             bob = -abs(cos(phase)) * 3.5f
         }
         HeroPose.CHEER -> {
+            // Arms out in a V beside the helmet, never across the face.
             bob = -abs(sin(t * 4.6f)) * 12f
-            armFront = 150f + sin(t * 9f) * 10f
-            armBack = -150f - sin(t * 9f) * 10f
+            armFront = 120f + sin(t * 9f) * 10f
+            armBack = -135f - sin(t * 9f) * 10f
             legFront = 10f
             legBack = -10f
             mouthOpen = true
         }
         HeroPose.WAVE -> {
             bob = sin(t * 2.3f) * 1.2f
-            armFront = 140f + sin(t * 10f) * 24f
+            armFront = 112f + sin(t * 10f) * 16f
             armBack = -8f
             mouthOpen = true
         }

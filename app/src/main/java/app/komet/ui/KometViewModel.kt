@@ -17,6 +17,7 @@ import app.komet.data.StateStore
 import app.komet.domain.Answer
 import app.komet.domain.AppState
 import app.komet.domain.Curriculum
+import app.komet.domain.HeroLook
 import app.komet.domain.LetterCase
 import app.komet.domain.Maalform
 import app.komet.domain.Profile
@@ -121,7 +122,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             Screen.Play -> round?.let { musicFor(it.skill.subject) }
             Screen.Collection -> MusicTheme.SPACE
             Screen.RaceMenu, Screen.Race -> MusicTheme.RACE
-            Screen.Result, Screen.ParentGate, Screen.Parent -> null
+            Screen.Result, Screen.ParentGate, Screen.Parent, Screen.HeroEditor -> null
         }
         theme?.let(music::play)
     }
@@ -179,11 +180,12 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     // ── Profiles ───────────────────────────────────────────────────────────────────────────────
 
-    fun createProfile(name: String, avatar: Int, grade: Int, maalform: Maalform, letterCase: LetterCase) {
+    fun createProfile(name: String, hero: HeroLook, grade: Int, maalform: Maalform, letterCase: LetterCase) {
         val profile = Profile(
             id = UUID.randomUUID().toString(),
             name = name.trim().ifBlank { "Romfarar" }.take(20),
-            avatar = avatar,
+            avatar = hero.suit,
+            hero = hero.safe(),
             grade = grade,
             maalform = maalform,
             letterCase = letterCase,
@@ -191,6 +193,11 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         )
         commit(state.copy(profiles = state.profiles + profile, activeProfileId = profile.id))
         goHome()
+    }
+
+    fun updateHero(look: HeroLook) {
+        val current = profile ?: return
+        updateProfile(current.id) { it.copy(hero = look.safe(), avatar = look.suit) }
     }
 
     fun switchProfile(id: String) {
@@ -562,6 +569,8 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             "explore" -> { goHome(); open(Screen.Explore) }
             "english" -> { goHome(); open(Screen.World(Subject.ENGLISH)) }
             "space" -> { goHome(); open(Screen.World(Subject.SPACE)) }
+            "addprofile" -> { goHome(); open(Screen.AddProfile) }
+            "hero" -> { goHome(); open(Screen.HeroEditor) }
         }
         skill?.let(Curriculum::skill)?.let {
             goHome()

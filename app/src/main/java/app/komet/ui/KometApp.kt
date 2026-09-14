@@ -41,6 +41,7 @@ import app.komet.ui.screens.PlayScreen
 import app.komet.ui.screens.RaceMenuScreen
 import app.komet.ui.screens.RaceScreen
 import app.komet.ui.screens.ResultScreen
+import app.komet.ui.scene.HeroEditorScreen
 import app.komet.ui.scene.PlanetScreen
 import app.komet.ui.scene.StarMapScreen
 import app.komet.ui.theme.K
@@ -102,6 +103,7 @@ fun KometApp(vm: KometViewModel) {
                         Screen.Race -> RaceScreen(vm)
                         Screen.ParentGate -> ParentGateScreen(vm)
                         Screen.Parent -> ParentScreen(vm)
+                        Screen.HeroEditor -> HeroEditorScreen(vm)
                     }
                 }
             }

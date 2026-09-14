@@ -36,7 +36,6 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
-import app.komet.domain.asEmoji
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -365,41 +364,6 @@ fun StarGlyph(filled: Boolean, modifier: Modifier = Modifier, color: Color = K.G
             drawPath(path, K.Outline.copy(alpha = 0.4f))
             drawPath(path, Color.White.copy(alpha = 0.2f), style = rim)
         }
-    }
-}
-
-private val avatarEmoji = listOf("🚀", "🤖", "👾", "🦖", "🐉", "🦊", "🐼", "🦁", "🐙", "🦈", "🛸", "🐱")
-private val avatarColors = listOf(
-    Color(0xFFFF6E9C) to Color(0xFF7053D8),
-    Color(0xFF4DD9E8) to Color(0xFF2C5BD8),
-    Color(0xFFE6F57A) to Color(0xFF3FA35B),
-    Color(0xFF3ED67F) to Color(0xFF1E7A8C),
-    Color(0xFFFF8A3D) to Color(0xFFC53F6C),
-    Color(0xFFFFB547) to Color(0xFFCC5A1B),
-    Color(0xFF9FE7FF) to Color(0xFF3D6BD8),
-    Color(0xFFFFD34E) to Color(0xFFD9731B),
-    Color(0xFFFF8FB1) to Color(0xFF8C3FD8),
-    Color(0xFF6FA8FF) to Color(0xFF1E3E9C),
-    Color(0xFF7FD6C2) to Color(0xFF2E6B8C),
-    Color(0xFFFFC2A8) to Color(0xFFD8583D),
-)
-
-val avatarCount: Int get() = avatarEmoji.size
-
-@Composable
-fun Avatar(index: Int, modifier: Modifier = Modifier, size: Dp = 56.dp) {
-    val safe = index.mod(avatarEmoji.size)
-    val (top, bottom) = avatarColors[safe]
-    Box(
-        modifier = modifier
-            .size(size)
-            .border(2.dp, K.Outline, CircleShape)
-            .padding(2.dp)
-            .background(Brush.linearGradient(listOf(top, bottom)), CircleShape)
-            .border((size.value * 0.05f).coerceAtLeast(2f).dp, Color.White.copy(alpha = 0.85f), CircleShape),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(avatarEmoji[safe].asEmoji(), fontSize = (size.value * 0.5f).sp)
     }
 }
 

@@ -55,17 +55,22 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import app.komet.domain.HeroLook
 import app.komet.domain.LetterCase
+import app.komet.ui.scene.Astronaut
+import app.komet.ui.scene.Bolt
+import app.komet.ui.scene.BoltMood
+import app.komet.ui.scene.HeroCreator
+import app.komet.ui.scene.HeroPose
+import app.komet.ui.scene.rememberSceneTime
 import app.komet.domain.Maalform
 import app.komet.ui.KometViewModel
 import app.komet.ui.S
-import app.komet.ui.components.Avatar
 import app.komet.ui.components.BigButton
 import app.komet.ui.components.KometIcons
 import app.komet.ui.components.RocketArt
 import app.komet.ui.components.RoundIconButton
 import app.komet.ui.components.SelectCard
-import app.komet.ui.components.avatarCount
 import app.komet.ui.components.str
 import app.komet.ui.theme.K
 import app.komet.ui.theme.LocalReading
@@ -79,7 +84,11 @@ fun OnboardingScreen(vm: KometViewModel, adding: Boolean) {
     var step by rememberSaveable { mutableIntStateOf(0) }
     var maalform by rememberSaveable { mutableStateOf(vm.profile?.maalform ?: Maalform.NYNORSK) }
     var name by rememberSaveable { mutableStateOf("") }
-    var avatar by rememberSaveable { mutableIntStateOf(0) }
+    var suit by rememberSaveable { mutableIntStateOf(0) }
+    var skin by rememberSaveable { mutableIntStateOf(1) }
+    var hair by rememberSaveable { mutableIntStateOf(1) }
+    var hairStyle by rememberSaveable { mutableIntStateOf(0) }
+    val hero = HeroLook(suit, skin, hair, hairStyle)
     var grade by rememberSaveable { mutableIntStateOf(1) }
     var letterCase by rememberSaveable { mutableStateOf(LetterCase.UPPER) }
 
@@ -90,7 +99,7 @@ fun OnboardingScreen(vm: KometViewModel, adding: Boolean) {
 
     fun advance() {
         if (!canContinue) return
-        if (step < STEPS - 1) step++ else vm.createProfile(name, avatar, grade, maalform, letterCase)
+        if (step < STEPS - 1) step++ else vm.createProfile(name, hero, grade, maalform, letterCase)
     }
 
     CompositionLocalProvider(LocalReading provides ReadingPrefs(maalform, letterCase)) {
@@ -194,33 +203,13 @@ fun OnboardingScreen(vm: KometViewModel, adding: Boolean) {
                                 )
                             }
                             2 -> {
-                                Title(S.avatarTitle.str())
-                                FlowRow(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterHorizontally),
-                                    verticalArrangement = Arrangement.spacedBy(14.dp),
-                                ) {
-                                    repeat(avatarCount) { index ->
-                                        val chosen = index == avatar
-                                        Box(
-                                            Modifier
-                                                .size(84.dp)
-                                                .border(if (chosen) 4.dp else 0.dp, if (chosen) K.Gold else Color.Transparent, CircleShape)
-                                                .padding(6.dp)
-                                                .semantics {
-                                                    selected = chosen
-                                                    contentDescription = "Figur ${index + 1}"
-                                                }
-                                                .clickable(role = Role.RadioButton) {
-                                                    avatar = index
-                                                    vm.feedback.tap()
-                                                },
-                                            contentAlignment = Alignment.Center,
-                                        ) {
-                                            Avatar(index, size = 72.dp)
-                                        }
-                                    }
-                                }
+                                Title(S.heroTitle.str())
+                                HeroCreator(hero, onChange = { look ->
+                                    suit = look.suit
+                                    skin = look.skin
+                                    hair = look.hair
+                                    hairStyle = look.hairStyle
+                                })
                             }
                             3 -> {
                                 Title(S.gradeTitle(name.trim()).str())
@@ -244,14 +233,13 @@ fun OnboardingScreen(vm: KometViewModel, adding: Boolean) {
                             }
                             else -> {
                                 Spacer(Modifier.height(12.dp))
-                                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                    Avatar(avatar, size = 120.dp)
+                                val time = rememberSceneTime()
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.Bottom) {
+                                    Astronaut(hero, time, Modifier.size(120.dp, 180.dp), pose = { HeroPose.CHEER })
+                                    Bolt(time, Modifier.padding(bottom = 90.dp).size(80.dp), mood = { BoltMood.HAPPY })
                                 }
                                 Title(S.readyTitle(name.trim()).str())
                                 Body(S.readyBody.str())
-                                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                    RocketArt(Modifier.size(80.dp, 128.dp))
-                                }
                             }
                         }
                     }

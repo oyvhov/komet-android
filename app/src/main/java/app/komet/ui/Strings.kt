@@ -16,7 +16,12 @@ object S {
     val bokmaalSample = txt("Jeg leser og regner")
     val nameTitle = txt("Kva heiter romfararen?", "Hva heter romfareren?")
     val nameLabel = txt("Namn", "Navn")
-    val avatarTitle = txt("Vel ein figur", "Velg en figur")
+    val heroTitle = txt("Lag astronauten din")
+    val heroSuit = txt("Drakt")
+    val heroSkin = txt("Hud")
+    val heroHair = txt("Hår")
+    val heroHairStyle = txt("Frisyre")
+    val editHero = txt("Endre astronauten")
     fun gradeTitle(name: String) = txt("Kor langt har $name kome?", "Hvor langt har $name kommet?")
     val gradeNames = listOf(txt("5 år – førskule", "5 år – førskole"), txt("1. klasse"), txt("2. klasse"), txt("3. klasse"))
     val gradeDetails = listOf(

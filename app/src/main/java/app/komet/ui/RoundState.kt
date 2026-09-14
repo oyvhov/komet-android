@@ -27,6 +27,7 @@ sealed interface Screen {
     data object Race : Screen
     data object ParentGate : Screen
     data object Parent : Screen
+    data object HeroEditor : Screen
 }
 
 enum class Phase { ANSWERING, CORRECT, REVEALED }

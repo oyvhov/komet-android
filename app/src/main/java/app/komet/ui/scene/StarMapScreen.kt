@@ -32,6 +32,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -276,7 +277,7 @@ fun StarMapScreen(vm: KometViewModel) {
         MapOverlay(
             vm = vm,
             time = time,
-            onProfile = { if (vm.state.profiles.size > 1) picker = true },
+            onProfile = { picker = true },
         )
 
         MissionBubble(
@@ -912,7 +913,7 @@ private fun MapOverlay(vm: KometViewModel, time: State<Float>, onProfile: () -> 
 
 /** The astronaut's face in a round frame. */
 @Composable
-fun HeroBadge(look: app.komet.domain.HeroLook, time: State<Float>, size: androidx.compose.ui.unit.Dp) {
+fun HeroBadge(look: app.komet.domain.HeroLook, time: State<Float> = remember { mutableFloatStateOf(0f) }, size: androidx.compose.ui.unit.Dp) {
     Box(
         Modifier
             .size(size)
@@ -1001,10 +1002,27 @@ private fun ProfilePicker(vm: KometViewModel, time: State<Float>, onClose: () ->
     AlertDialog(
         onDismissRequest = onClose,
         containerColor = K.SurfaceHigh,
-        title = { Text(S.whoPlays.str(), color = K.Text, style = MaterialTheme.typography.headlineSmall) },
+        title = { Text(if (vm.state.profiles.size > 1) S.whoPlays.str() else profile.name, color = K.Text, style = MaterialTheme.typography.headlineSmall) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                vm.state.profiles.forEach { other ->
+                PressSurface(
+                    onClick = {
+                        onClose()
+                        vm.open(Screen.HeroEditor)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    face = K.Cosmos,
+                    edge = K.CosmosDeep,
+                    top = K.CosmosTop,
+                    contentAlignment = Alignment.CenterStart,
+                    contentPadding = PaddingValues(12.dp),
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        HeroBadge(profile.hero, time, 48.dp)
+                        GameText(S.editHero.str(), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                    }
+                }
+                if (vm.state.profiles.size > 1) vm.state.profiles.forEach { other ->
                     PressSurface(
                         onClick = {
                             vm.switchProfile(other.id)
