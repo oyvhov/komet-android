@@ -85,6 +85,15 @@ import app.komet.ui.theme.ReadingFont
 import app.komet.ui.components.TracingPad
 import app.komet.ui.components.fixedSp
 import app.komet.ui.components.subjectTone
+import app.komet.ui.scene.Astronaut
+import app.komet.ui.scene.Bolt
+import app.komet.ui.scene.BoltMood
+import app.komet.ui.scene.BoltReaction
+import app.komet.ui.scene.HeroPose
+import app.komet.ui.scene.JourneyTrack
+import app.komet.ui.scene.SubjectBackdrop
+import app.komet.ui.scene.rememberSceneTime
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import kotlinx.coroutines.delay
@@ -162,7 +171,8 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
     }
 
     Box(Modifier.fillMaxSize()) {
-        BoxWithConstraints(Modifier.fillMaxSize()) {
+        SubjectBackdrop(round.skill.subject)
+        BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding()) {
             val wide = maxWidth >= 840.dp && maxWidth > maxHeight
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                 TopBar(vm, round, accent, onQuit)
@@ -184,6 +194,7 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
                                 .verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
                         ) {
+                            HeroCorner(vm, round)
                             AnswerArea(vm, round, correctText)
                             banner()
                         }
@@ -221,13 +232,62 @@ private fun TopBar(vm: KometViewModel, round: RoundState, accent: Color, onQuit:
     ) {
         RoundIconButton(KometIcons.Close, S.closeRound.str(), onQuit, size = 50.dp)
         val done = round.index + if (round.phase == Phase.ANSWERING) 0 else 1
-        ProgressTrack(done / round.questions.size.toFloat(), Modifier.weight(1f), color = accent, track = K.SurfaceHigh, height = 16.dp)
+        val hero = vm.profile?.hero
+        if (hero != null) {
+            JourneyTrack(done / round.questions.size.toFloat(), accent, hero, Modifier.weight(1f))
+        } else {
+            ProgressTrack(done / round.questions.size.toFloat(), Modifier.weight(1f), color = accent, track = K.SurfaceHigh, height = 16.dp)
+        }
         if (round.question.hint != null && !round.hintShown && round.phase == Phase.ANSWERING) {
             RoundIconButton(KometIcons.Bulb, S.hint.str(), { vm.showHint() }, size = 50.dp, face = K.Gold, edge = K.GoldDeep, tint = K.Ink)
         }
         if (vm.speechAvailable) {
             RoundIconButton(KometIcons.Speaker, S.readQuestion.str(), { vm.readQuestion() }, size = 50.dp)
         }
+    }
+}
+
+/**
+ * On wide screens the astronaut and Bolt keep the child company beside the answers: they cheer at a
+ * right answer and Bolt is surprised for a moment after a miss.
+ */
+@Composable
+private fun HeroCorner(vm: KometViewModel, round: RoundState) {
+    val hero = vm.profile?.hero ?: return
+    val time = rememberSceneTime()
+    var surprised by remember { mutableStateOf(false) }
+    LaunchedEffect(round.shakeCount) {
+        if (round.shakeCount > 0) {
+            surprised = true
+            delay(900)
+            surprised = false
+        }
+    }
+    val phase = round.phase
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        Astronaut(
+            look = hero,
+            time = time,
+            pose = { if (phase == Phase.CORRECT) HeroPose.CHEER else HeroPose.IDLE },
+            modifier = Modifier.size(88.dp, 132.dp),
+        )
+        Bolt(
+            time = time,
+            mood = {
+                when {
+                    phase == Phase.CORRECT -> BoltMood.HAPPY
+                    surprised -> BoltMood.SURPRISED
+                    else -> BoltMood.IDLE
+                }
+            },
+            modifier = Modifier
+                .padding(bottom = 70.dp)
+                .size(62.dp),
+        )
     }
 }
 
@@ -493,14 +553,7 @@ private fun FeedbackBanner(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Box(
-                Modifier
-                    .size(44.dp)
-                    .background(if (correct) K.Good else K.Reveal, CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(if (correct) KometIcons.Check else KometIcons.Info, contentDescription = null, tint = K.Ink, modifier = Modifier.size(28.dp))
-            }
+            BoltReaction(correct, Modifier.size(58.dp))
             Column(Modifier.weight(1f)) {
                 Text(
                     title,

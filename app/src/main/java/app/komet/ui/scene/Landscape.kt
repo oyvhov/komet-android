@@ -173,7 +173,7 @@ private fun smoothstep(edge0: Float, edge1: Float, x: Float): Float {
 }
 
 /** Height of a ridge at [x], from 0 (low) to about 1 (tall). */
-private fun ridge(kind: Ridge, x: Float, seed: Int): Float = when (kind) {
+internal fun ridge(kind: Ridge, x: Float, seed: Int): Float = when (kind) {
     Ridge.HILLS -> Noise.fbm(x * 1.5f, seed)
     Ridge.PEAKS -> {
         val sharp = 1f - abs(Noise.smooth(x * 3.1f, seed + 5) * 2f - 1f)
@@ -435,7 +435,7 @@ fun SceneScope.PlanetForeground(biome: Biome, geometry: PlanetGeometry, time: St
     )
 }
 
-private fun DrawScope.drawSkyObject(biome: Biome, metrics: SceneMetrics, camera: Float, t: Float) {
+internal fun DrawScope.drawSkyObject(biome: Biome, metrics: SceneMetrics, camera: Float, t: Float) {
     val u = metrics.unitPx
     val drift = camera * 0.04f * u
     when (biome.sky) {
