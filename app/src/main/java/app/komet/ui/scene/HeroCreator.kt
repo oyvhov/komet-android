@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,7 +61,7 @@ import app.komet.ui.theme.K
 fun HeroCreator(look: HeroLook, onChange: (HeroLook) -> Unit, modifier: Modifier = Modifier) {
     val time = rememberSceneTime()
     val feedback = LocalFeedback.current
-    var cheerAt by remember { mutableStateOf(-10f) }
+    var cheerAt by remember { mutableFloatStateOf(-10f) }
     fun choose(next: HeroLook) {
         feedback.sfx(Sfx.SPARKLE, 0.5f)
         cheerAt = time.value

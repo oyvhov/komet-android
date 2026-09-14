@@ -83,7 +83,7 @@ fun KometApp(vm: KometViewModel) {
                 label = "screen",
             ) { target ->
                 // Scenes fill the whole screen and keep their own controls clear of the system bars.
-                val scene = target == Screen.Home || target is Screen.World || target == Screen.Play
+                val scene = target == Screen.Home || target is Screen.World || target == Screen.Play || target == Screen.Result
                 Box(
                     Modifier
                         .fillMaxSize()

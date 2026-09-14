@@ -6,6 +6,17 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import app.komet.ui.scene.Astronaut
+import app.komet.ui.scene.Bolt
+import app.komet.ui.scene.BoltMood
+import app.komet.ui.scene.HeroPose
+import app.komet.ui.scene.SubjectBackdrop
+import app.komet.ui.scene.rememberSceneTime
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -75,102 +86,181 @@ fun ResultScreen(vm: KometViewModel) {
         }
     }
 
+    val title = when {
+        info.raceMode != null && outcome.newRecord -> S.newRecord
+        outcome.stars >= 3 -> S.resultGreat
+        outcome.stars == 2 -> S.resultGood
+        outcome.stars == 1 -> S.resultDone
+        else -> S.resultTry
+    }
+    val subject = info.skill?.subject
+
     Box(Modifier.fillMaxSize()) {
-        PageColumn(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Spacer(Modifier.height(12.dp))
-            val title = when {
-                info.raceMode != null && outcome.newRecord -> S.newRecord
-                outcome.stars >= 3 -> S.resultGreat
-                outcome.stars == 2 -> S.resultGood
-                outcome.stars == 1 -> S.resultDone
-                else -> S.resultTry
-            }
-            GameText(title.str(), style = MaterialTheme.typography.displayMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-            Text(
-                (info.skill?.title ?: info.raceMode?.title)?.str().orEmpty(),
-                style = MaterialTheme.typography.titleLarge,
-                color = K.Muted,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.Bottom) {
-                repeat(3) { index ->
-                    val big = index == 1
-                    StarGlyph(
-                        filled = index < outcome.stars,
-                        modifier = Modifier
-                            .size(if (big) 110.dp else 86.dp)
-                            .offset(y = if (big) (-10).dp else 0.dp)
-                            .scale(scales[index].value),
-                    )
-                }
-            }
-
-            GameText(
-                if (info.raceMode != null) S.raceScore(outcome.firstTry).str() else S.score(outcome.firstTry, outcome.total).str(),
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            if (info.raceMode != null) {
-                val best = maxOf(outcome.previousBest, outcome.firstTry)
-                Text(S.record(best).str(), style = MaterialTheme.typography.titleMedium, color = K.Gold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-            }
-
-            outcome.newCards.lastOrNull()?.let { card ->
-                PressSurface(
-                    onClick = { vm.open(Screen.Collection) },
-                    modifier = Modifier.fillMaxWidth(),
-                    face = K.Cards,
-                    edge = K.CardsDeep,
-                    top = K.CardsTop,
-                    depth = 6.dp,
-                    contentAlignment = Alignment.CenterStart,
-                    contentPadding = PaddingValues(14.dp),
+        if (subject != null) SubjectBackdrop(subject)
+        BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding()) {
+            val wide = maxWidth >= 840.dp && maxWidth > maxHeight
+            if (wide) {
+                // Tablet: the celebration fills the left half, what happens next the right.
+                Row(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 32.dp, vertical = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(32.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                        SpaceCardArt(card.art, Modifier.size(76.dp))
-                        Column(Modifier.weight(1f)) {
-                            GameText(S.newCard.str(), style = MaterialTheme.typography.titleMedium)
-                            GameText(card.title.str(), style = MaterialTheme.typography.headlineSmall)
-                        }
-                        GameText(S.seeCard.str(), style = MaterialTheme.typography.labelLarge)
+                    Column(
+                        Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Celebration(vm, outcome.stars, big = true)
+                        ResultStars(outcome.stars, scales, big = true)
+                    }
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterVertically),
+                    ) {
+                        ResultHeadline(title.str(), (info.skill?.title ?: info.raceMode?.title)?.str().orEmpty())
+                        ResultDetails(vm, info)
+                        ResultButtons(vm, info)
                     }
                 }
-            }
-
-            outcome.newRank?.let { rank ->
-                Badge(S.newRank(rank.title.str()).str(), K.Gold)
-            }
-            if (outcome.goalReachedNow) {
-                val streak = outcome.profile.currentStreak(vm.today)
-                Badge(S.goalReached.str() + if (streak > 1) "  🔥 " + S.streak(streak).str() else "", K.Good)
-            }
-
-            Spacer(Modifier.height(4.dp))
-            val next = info.next
-            if (info.raceMode != null) {
-                BigButton(S.playAgain.str(), onClick = { vm.startRace(info.raceMode) }, icon = KometIcons.Refresh, modifier = Modifier.fillMaxWidth())
-            } else if (next != null && next != info.skill && outcome.stars > 0) {
-                BigButton(S.nextLevel.str(), onClick = { vm.startSkill(next) }, icon = KometIcons.Play, modifier = Modifier.fillMaxWidth())
-                BigButton(S.playAgain.str(), onClick = { info.skill?.let(vm::startSkill) }, face = K.SurfaceHigh, edge = K.SurfaceLow, textColor = K.Text, icon = KometIcons.Refresh, modifier = Modifier.fillMaxWidth())
             } else {
-                BigButton(S.playAgain.str(), onClick = { info.skill?.let(vm::startSkill) }, icon = KometIcons.Refresh, modifier = Modifier.fillMaxWidth())
+                PageColumn(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Celebration(vm, outcome.stars, big = false)
+                    ResultHeadline(title.str(), (info.skill?.title ?: info.raceMode?.title)?.str().orEmpty())
+                    ResultStars(outcome.stars, scales, big = false)
+                    ResultDetails(vm, info)
+                    Spacer(Modifier.height(4.dp))
+                    ResultButtons(vm, info)
+                    Spacer(Modifier.height(12.dp))
+                }
             }
-            val toPlanet = vm.resultReturnsToPlanet
-            BigButton(
-                (if (toPlanet) S.toPlanet else S.home).str(),
-                onClick = { vm.leaveResult() },
-                face = K.SurfaceHigh,
-                edge = K.SurfaceLow,
-                textColor = K.Text,
-                icon = if (toPlanet) KometIcons.Rocket else KometIcons.Home,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Spacer(Modifier.height(12.dp))
         }
         if (outcome.stars >= 2 || outcome.newRecord) ConfettiBurst(info, Modifier.fillMaxSize())
+    }
+}
+
+/** The astronaut cheers for any stars and waves otherwise; Bolt is always glad. */
+@Composable
+private fun Celebration(vm: KometViewModel, stars: Int, big: Boolean) {
+    val hero = vm.profile?.hero ?: return
+    val time = rememberSceneTime()
+    Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+        Astronaut(
+            look = hero,
+            time = time,
+            pose = { if (stars > 0) HeroPose.CHEER else HeroPose.WAVE },
+            modifier = if (big) Modifier.size(170.dp, 255.dp) else Modifier.size(84.dp, 126.dp),
+        )
+        Bolt(
+            time = time,
+            mood = { BoltMood.HAPPY },
+            modifier = Modifier
+                .padding(bottom = if (big) 140.dp else 64.dp)
+                .size(if (big) 96.dp else 58.dp),
+        )
+    }
+}
+
+@Composable
+private fun ResultHeadline(title: String, subtitle: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
+        GameText(title, style = MaterialTheme.typography.displayMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        Text(subtitle, style = MaterialTheme.typography.titleLarge, color = K.Muted, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+    }
+}
+
+@Composable
+private fun ResultStars(stars: Int, scales: List<Animatable<Float, *>>, big: Boolean) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.Bottom) {
+        repeat(3) { index ->
+            val middle = index == 1
+            val size = if (middle) 110.dp else 86.dp
+            StarGlyph(
+                filled = index < stars,
+                modifier = Modifier
+                    .size(if (big) size * 1.2f else size)
+                    .offset(y = if (middle) (-10).dp else 0.dp)
+                    .scale(scales[index].value),
+            )
+        }
+    }
+}
+
+@Composable
+private fun ResultDetails(vm: KometViewModel, info: app.komet.ui.ResultInfo) {
+    val outcome = info.outcome
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.fillMaxWidth()) {
+        GameText(
+            if (info.raceMode != null) S.raceScore(outcome.firstTry).str() else S.score(outcome.firstTry, outcome.total).str(),
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        if (info.raceMode != null) {
+            val best = maxOf(outcome.previousBest, outcome.firstTry)
+            Text(S.record(best).str(), style = MaterialTheme.typography.titleMedium, color = K.Gold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        }
+
+        outcome.newCards.lastOrNull()?.let { card ->
+            PressSurface(
+                onClick = { vm.open(Screen.Collection) },
+                modifier = Modifier.fillMaxWidth(),
+                face = K.Cards,
+                edge = K.CardsDeep,
+                top = K.CardsTop,
+                depth = 6.dp,
+                contentAlignment = Alignment.CenterStart,
+                contentPadding = PaddingValues(14.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    SpaceCardArt(card.art, Modifier.size(76.dp))
+                    Column(Modifier.weight(1f)) {
+                        GameText(S.newCard.str(), style = MaterialTheme.typography.titleMedium)
+                        GameText(card.title.str(), style = MaterialTheme.typography.headlineSmall)
+                    }
+                    GameText(S.seeCard.str(), style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        }
+
+        outcome.newRank?.let { rank ->
+            Badge(S.newRank(rank.title.str()).str(), K.Gold)
+        }
+        if (outcome.goalReachedNow) {
+            val streak = outcome.profile.currentStreak(vm.today)
+            Badge(S.goalReached.str() + if (streak > 1) "  🔥 " + S.streak(streak).str() else "", K.Good)
+        }
+    }
+}
+
+@Composable
+private fun ResultButtons(vm: KometViewModel, info: app.komet.ui.ResultInfo) {
+    val outcome = info.outcome
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.fillMaxWidth()) {
+        val next = info.next
+        if (info.raceMode != null) {
+            BigButton(S.playAgain.str(), onClick = { vm.startRace(info.raceMode) }, icon = KometIcons.Refresh, modifier = Modifier.fillMaxWidth())
+        } else if (next != null && next != info.skill && outcome.stars > 0) {
+            BigButton(S.nextLevel.str(), onClick = { vm.startSkill(next) }, icon = KometIcons.Play, modifier = Modifier.fillMaxWidth())
+            BigButton(S.playAgain.str(), onClick = { info.skill?.let(vm::startSkill) }, face = K.SurfaceHigh, edge = K.SurfaceLow, textColor = K.Text, icon = KometIcons.Refresh, modifier = Modifier.fillMaxWidth())
+        } else {
+            BigButton(S.playAgain.str(), onClick = { info.skill?.let(vm::startSkill) }, icon = KometIcons.Refresh, modifier = Modifier.fillMaxWidth())
+        }
+        val toPlanet = vm.resultReturnsToPlanet
+        BigButton(
+            (if (toPlanet) S.toPlanet else S.home).str(),
+            onClick = { vm.leaveResult() },
+            face = K.SurfaceHigh,
+            edge = K.SurfaceLow,
+            textColor = K.Text,
+            icon = if (toPlanet) KometIcons.Rocket else KometIcons.Home,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 

@@ -3,6 +3,10 @@ package app.komet.audio
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
+import android.os.Process
+import java.io.File
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.EnumMap
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
@@ -12,16 +16,26 @@ import kotlin.concurrent.thread
  * seam; switching place fades the old music out and the new one in. Music sits under speech: while the
  * narrator talks it is ducked, and during tasks it plays softer.
  */
-class MusicPlayer {
+class MusicPlayer(cacheDir: File) {
 
     private val control = Executors.newSingleThreadExecutor { runnable -> Thread(runnable, "komet-music").apply { isDaemon = true } }
     private val cache = EnumMap<MusicTheme, ShortArray>(MusicTheme::class.java)
+    private val directory = File(cacheDir, "music")
+    private val locks: Map<MusicTheme, Any> = MusicTheme.entries.associateWith { Any() }
 
     @Volatile private var playing: Playing? = null
     @Volatile private var wanted: MusicTheme? = null
     @Volatile private var paused = false
     @Volatile private var ducked = false
     @Volatile private var quiet = false
+
+    init {
+        // Composing takes a moment on a slow tablet, so every loop is made once, in the background,
+        // and kept on the device. Later starts only read the files.
+        thread(name = "komet-music-prepare", isDaemon = true, priority = Thread.MIN_PRIORITY) {
+            MusicTheme.entries.forEach { runCatching { loop(it) } }
+        }
+    }
 
     /** Parents can switch music off; effects and speech are separate. */
     @Volatile
@@ -46,7 +60,7 @@ class MusicPlayer {
             if (playing?.theme == theme && playing?.running == true) return@execute
             stopCurrent(fade = true)
             if (wanted != theme || !enabled) return@execute
-            val pcm = cache.getOrPut(theme) { MusicComposer.render(theme) }
+            val pcm = loop(theme)
             start(theme, pcm)
         }
     }
@@ -87,6 +101,28 @@ class MusicPlayer {
         control.shutdown()
     }
 
+    /** The loop for [theme]: from memory, from the device, or composed now and saved for next time. */
+    private fun loop(theme: MusicTheme): ShortArray = synchronized(locks.getValue(theme)) {
+        synchronized(cache) { cache[theme] }?.let { return it }
+        val file = File(directory, "${theme.name.lowercase()}-v$VERSION.pcm")
+        val stored = runCatching {
+            val bytes = file.readBytes()
+            ShortArray(bytes.size / 2).also { ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(it) }
+        }.getOrNull()?.takeIf { it.isNotEmpty() }
+        val pcm = stored ?: MusicComposer.render(theme).also { rendered ->
+            runCatching {
+                directory.mkdirs()
+                val buffer = ByteBuffer.allocate(rendered.size * 2).order(ByteOrder.LITTLE_ENDIAN)
+                buffer.asShortBuffer().put(rendered)
+                val temporary = File(directory, file.name + ".tmp")
+                temporary.writeBytes(buffer.array())
+                temporary.renameTo(file)
+            }
+        }
+        synchronized(cache) { cache[theme] = pcm }
+        pcm
+    }
+
     private fun targetLevel(): Float {
         val base = if (quiet) VOLUME * 0.6f else VOLUME
         return if (ducked) base * 0.35f else base
@@ -118,6 +154,7 @@ class MusicPlayer {
         if (!paused) runCatching { track.play() }
         playing = current
         current.writer = thread(name = "komet-music-writer", isDaemon = true) {
+            runCatching { Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO) }
             var position = 0
             val chunk = 2048
             while (current.running) {
@@ -163,5 +200,8 @@ class MusicPlayer {
 
     private companion object {
         const val VOLUME = 0.5f
+
+        /** Bump when [MusicComposer] changes, so stored loops are composed again. */
+        const val VERSION = 1
     }
 }

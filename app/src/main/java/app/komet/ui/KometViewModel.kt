@@ -49,7 +49,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     val speaker = Speaker(application)
     private val sounds = SoundFx(application)
-    private val music = MusicPlayer()
+    private val music = MusicPlayer(application.cacheDir)
     val updater = AppUpdater(application, viewModelScope)
 
     var state by mutableStateOf(store.load())
