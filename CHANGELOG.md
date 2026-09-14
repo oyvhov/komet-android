@@ -1,6 +1,6 @@
 # Endringslogg
 
-## 1.2.0 · under arbeid
+## 1.2.0 · 14. september 2026
 
 - **Nytt utsjånad:** same romtema, men djupare fargar, blanke 3D-knappar, kvit spelskrift med kontur,
   blanke stjerner, rangmerke på figuren og oppdragskort der planeten bryt ut av ramma.

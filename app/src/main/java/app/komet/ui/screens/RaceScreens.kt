@@ -55,6 +55,8 @@ import app.komet.ui.components.VisualState
 import app.komet.ui.components.fixedSp
 import app.komet.ui.components.str
 import app.komet.ui.theme.K
+import app.komet.ui.components.gloss
+import androidx.compose.foundation.border
 
 @Composable
 fun RaceMenuScreen(vm: KometViewModel) {
@@ -65,7 +67,7 @@ fun RaceMenuScreen(vm: KometViewModel) {
             RocketArt(Modifier.size(64.dp, 100.dp))
             Text(S.raceRules.str(), style = MaterialTheme.typography.titleLarge, color = K.Muted, modifier = Modifier.weight(1f))
         }
-        Text(S.chooseRace.str(), style = MaterialTheme.typography.headlineSmall, color = K.Text)
+        app.komet.ui.components.GameText(S.chooseRace.str(), style = MaterialTheme.typography.headlineSmall)
         RaceMode.entries.forEach { mode ->
             val best = profile.raceBest[mode] ?: 0
             PressSurface(
@@ -82,12 +84,13 @@ fun RaceMenuScreen(vm: KometViewModel) {
                     Box(
                         Modifier
                             .size(58.dp)
-                            .background(K.Race, RoundedCornerShape(18.dp)),
+                            .border(2.dp, K.Outline, RoundedCornerShape(18.dp))
+                            .then(Modifier.gloss(K.Race, RoundedCornerShape(18.dp), top = K.RaceTop)),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(mode.symbol, color = K.Ink, fontSize = fixedSp(30.dp), fontWeight = FontWeight.Black)
+                        app.komet.ui.components.GameText(mode.symbol, style = MaterialTheme.typography.headlineMedium, fontSize = fixedSp(28.dp), maxLines = 1)
                     }
-                    Text(mode.title.str(), style = MaterialTheme.typography.titleLarge, color = K.Text, modifier = Modifier.weight(1f))
+                    app.komet.ui.components.GameText(mode.title.str(), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                     if (best > 0) Pill(S.record(best).str())
                 }
             }
@@ -134,11 +137,11 @@ fun RaceScreen(vm: KometViewModel) {
                     contentAlignment = Alignment.Center,
                 ) {
                     if (race.phase == RacePhase.COUNTDOWN) {
-                        Text(
+                        app.komet.ui.components.GameText(
                             if (race.countdown > 0) race.countdown.toString() else S.go.str(),
-                            color = K.Race,
+                            style = MaterialTheme.typography.displayLarge,
+                            color = K.RaceTop,
                             fontSize = fixedSp(120.dp),
-                            fontWeight = FontWeight.Black,
                         )
                     } else {
                         TaskVisual(race.question.visual, VisualState(speechAvailable = vm.speechAvailable), onListen = {}, modifier = Modifier.padding(16.dp))

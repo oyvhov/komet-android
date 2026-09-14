@@ -274,12 +274,10 @@ fun OnboardingScreen(vm: KometViewModel, adding: Boolean) {
 
 @Composable
 private fun Title(text: String, small: Boolean = false) {
-    Text(
+    app.komet.ui.components.GameText(
         text,
         style = if (small) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displaySmall,
-        color = K.Text,
         textAlign = TextAlign.Center,
-        fontWeight = FontWeight.ExtraBold,
         modifier = Modifier.fillMaxWidth(),
     )
 }

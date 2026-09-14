@@ -282,14 +282,17 @@ private fun NodeRow(
                     contentPadding = PaddingValues(0.dp),
                 ) {
                     if (unlocked) {
-                        Text(
-                            skill.symbol,
-                            color = K.Ink,
-                            fontSize = fixedSp(if (skill.symbol.length <= 2) 30.dp else if (skill.symbol.length <= 3) 23.dp else 17.dp),
-                            fontFamily = if (skill.subject == Subject.READING) ReadingFont else null,
-                            fontWeight = FontWeight.Black,
-                            maxLines = 1,
-                        )
+                        val size = fixedSp(if (skill.symbol.length <= 2) 30.dp else if (skill.symbol.length <= 3) 23.dp else 17.dp)
+                        if (skill.symbol.any { Character.isSurrogate(it) || (it.code in 0x2190..0x2BFF && it.code !in 0x2200..0x22FF) }) {
+                            Text(skill.symbol, fontSize = size, maxLines = 1)
+                        } else {
+                            GameText(
+                                skill.symbol,
+                                style = MaterialTheme.typography.headlineMedium.copy(fontFamily = if (skill.subject == Subject.READING) ReadingFont else null),
+                                fontSize = size,
+                                maxLines = 1,
+                            )
+                        }
                     } else {
                         Icon(KometIcons.Lock, contentDescription = null, tint = K.Faint, modifier = Modifier.size(30.dp))
                     }

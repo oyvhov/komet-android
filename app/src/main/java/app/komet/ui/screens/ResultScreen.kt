@@ -35,6 +35,7 @@ import app.komet.ui.S
 import app.komet.ui.Screen
 import app.komet.ui.components.BigButton
 import app.komet.ui.components.ConfettiBurst
+import app.komet.ui.components.GameText
 import app.komet.ui.components.KometIcons
 import app.komet.ui.components.LocalFeedback
 import app.komet.ui.components.PageColumn
@@ -84,7 +85,7 @@ fun ResultScreen(vm: KometViewModel) {
                 outcome.stars == 1 -> S.resultDone
                 else -> S.resultTry
             }
-            Text(title.str(), style = MaterialTheme.typography.displayMedium, color = K.Text, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            GameText(title.str(), style = MaterialTheme.typography.displayMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             Text(
                 (info.skill?.title ?: info.raceMode?.title)?.str().orEmpty(),
                 style = MaterialTheme.typography.titleLarge,
@@ -106,10 +107,9 @@ fun ResultScreen(vm: KometViewModel) {
                 }
             }
 
-            Text(
+            GameText(
                 if (info.raceMode != null) S.raceScore(outcome.firstTry).str() else S.score(outcome.firstTry, outcome.total).str(),
                 style = MaterialTheme.typography.headlineSmall,
-                color = K.Text,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -124,16 +124,18 @@ fun ResultScreen(vm: KometViewModel) {
                     modifier = Modifier.fillMaxWidth(),
                     face = K.Cards,
                     edge = K.CardsDeep,
+                    top = K.CardsTop,
+                    depth = 6.dp,
                     contentAlignment = Alignment.CenterStart,
                     contentPadding = PaddingValues(14.dp),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                        SpaceCardArt(card.art, Modifier.size(72.dp))
+                        SpaceCardArt(card.art, Modifier.size(76.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(S.newCard.str(), style = MaterialTheme.typography.labelLarge, color = K.Ink)
-                            Text(card.title.str(), style = MaterialTheme.typography.headlineSmall, color = K.Ink)
+                            GameText(S.newCard.str(), style = MaterialTheme.typography.titleMedium)
+                            GameText(card.title.str(), style = MaterialTheme.typography.headlineSmall)
                         }
-                        Text(S.seeCard.str(), style = MaterialTheme.typography.labelLarge, color = K.Ink)
+                        GameText(S.seeCard.str(), style = MaterialTheme.typography.labelLarge)
                     }
                 }
             }
@@ -175,7 +177,7 @@ private fun Badge(text: String, color: Color) {
             ) {
                 Icon(KometIcons.Star, contentDescription = null, tint = K.Ink, modifier = Modifier.size(20.dp))
             }
-            Text(text, style = MaterialTheme.typography.titleLarge, color = K.Text, modifier = Modifier.padding(end = 4.dp))
+            GameText(text, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(end = 4.dp))
         }
     }
 }
