@@ -1,5 +1,18 @@
 # Endringslogg
 
+## Under arbeid · 2.0 Komet-eventyret
+
+- **Stjernekartet** er ny heimeskjerm: sola, ein planet for kvart fag, rakettbana, romkort og Utforsk.
+  Dra for å sjå rundt; raketten flyg dit du trykkjer.
+- **Planetane** er stader å gå på: eit eige landskap per fag med sti, skilt for kvart kapittel,
+  øvingsverkstad og små innbyggjarar. Astronauten går til nivået du vel, og held fram til neste etter
+  ei fullført runde.
+- **Astronauten din og roboten Bolt:** lag astronauten i oppstarten (drakt, hud, hår og frisyre) og endre
+  han seinare frå profilmenyen. Bolt les nivånamn høgt.
+- **Musikk:** eigen melodi for kartet, kvart fag og rakettløpet, laga i appen. Kan slåast av på
+  foreldresida. Nye lydar for rakett, steg og innbyggjarar.
+- Fyller heile skjermen på mobil og nettbrett, både ståande og liggjande.
+
 ## 1.2.0 · 14. september 2026
 
 - **Nytt utsjånad:** same romtema, men djupare fargar, blanke 3D-knappar, kvit spelskrift med kontur,

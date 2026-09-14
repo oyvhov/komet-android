@@ -15,4 +15,6 @@ Les `docs/AI_INSTRUCTIONS.md` før arbeid i prosjektet. Innhaldslista med alle n
 - Alt barnet ser, skal finnast på både nynorsk og bokmål (`Txt(nn, nb)`).
 - Nytt innhald skal ha einingstest som viser at rett svar faktisk er rett.
 - Design: same retning som appen har (romtema, planetar, blanke 3D-knappar, `GameText`). Ikkje HUD/sci-fi-grensesnitt.
+- Eventyret (stjernekart, planetar, astronaut og Bolt) ligg i `ui/scene/`. Grafikk og musikk er laga i kode,
+  og scenene skal fylle skjermen på mobil og nettbrett, ståande og liggjande.
 - Prioriteringar og status ligg i `ROADMAP.md`.

@@ -7,11 +7,15 @@ pakke, nøkkel og emulator.
 ## 1. Produktet og faste føringar
 
 Komet er ein app der barn øver på matte, norsk, engelsk og verdsrommet. Temaet er verdsrommet:
-planetar er kapittel, stjerner er framgang, og romkort er premien.
+kvart fag er ein planet å gå på, stjerner er framgang, og romkort er premien. Sidan 2.0 er appen eit
+eventyr: stjernekartet er heimeskjermen, og barnet reiser med sin eigen astronaut og roboten Bolt.
 
 - **Som eit kult spel, ikkje ein barnsleg app – og ikkje HUD.** Mørkt romtema, planetar og blanke 3D-knappar
   (`PressSurface` + `gloss`), djupe fargar per fag (`Tones`), kvit spelskrift med mørk kontur (`GameText`).
-  Ingen flate pastellflater, ingen sci-fi-grensesnitt med kanta panel. Ingen maskot som snakkar.
+  Ingen flate pastellflater, ingen sci-fi-grensesnitt med kanta panel.
+- **Eventyrscener frå kant til kant.** Stjernekartet og planetane er fullskjermscener (`ui/scene/`) som
+  fyller mobil og nettbrett i begge retningar. All grafikk og musikk er laga i kode; ingen biletfiler.
+  Bolt snakkar berre når barnet trykkjer på han – ingen mas.
 - **Lett å bruke utan å kunne lese.** Oppgåvene blir lesne høgt (norsk talemotor), knappane er minst
   64 dp og nesten alle svar er eitt trykk.
 - **Aldri straff.** Feil svar gir «Prøv igjen». Etter to bom blir rett svar vist med ei forklaring.
@@ -34,8 +38,9 @@ planetar er kapittel, stjerner er framgang, og romkort er premien.
 | --- | --- |
 | `domain/` | Rein Kotlin utan Android: oppgåvemodell, generatorar per fag (`MathSkills`, `ReadingSkills`, `EnglishSkills`, `SpaceSkills`), ordbank, oppgåvetypar (`Topics`), strekdata for skriving (`Strokes`), framgang, romkort. |
 | `data/` | `StateStore` – éi JSON-fil, atomisk skriving, knekt fil blir lagt til side. |
-| `audio/` | `Speaker` (norsk TTS, og engelsk for tekst merkt `{en:…}`), `Synth` (lydeffektar laga i kode) og `SoundFx`. |
+| `audio/` | `Speaker` (norsk TTS, og engelsk for tekst merkt `{en:…}`), `Synth` (lydeffektar laga i kode), `SoundFx`, `MusicComposer` (loopmusikk laga i kode) og `MusicPlayer`. |
 | `ui/` | ViewModel, navigasjon (`Screen`), tekstar (`Strings.kt`), tema, komponentar og skjermar. |
+| `ui/scene/` | Eventyret: scenemotor (`Scene.kt`), figurar (`Characters.kt`), landskap og pynt (`Landscape.kt`, `Props.kt`), `StarMapScreen`, `PlanetScreen` og astronautbyggjaren. |
 
 Dataflyt: `Skill.generate(QuestionContext)` → `Curriculum.round()` → `RoundState` i
 `KometViewModel` → `PlayScreen`. Når runden er ferdig: `Progression.applyRound()` → `StateStore`.
@@ -84,13 +89,15 @@ adb -s emulator-5580 shell am start -f 0x20000000 -n app.komet.debug/app.komet.M
 | Ekstra | Verknad |
 | --- | --- |
 | `--es skill <id>` | Startar nivået (id-ar i `docs/INNHALD.md`) |
-| `--es screen home\|math\|reading\|cards\|race\|parent` | Opnar skjermen (foreldresida utan lås) |
+| `--es screen home\|math\|reading\|english\|space\|cards\|race\|explore\|parent` | Opnar skjermen (foreldresida utan lås) |
+| `--es screen addprofile\|hero` | Opnar oppstarten for ny profil eller astronautbyggjaren |
 | `--ei solve <n>` | Svarar rett på dei neste n oppgåvene |
 | `--ei miss <n>` | Bommar n gonger på gjeldande oppgåve |
 | `--ei stars <n>` | Set stjerner (for romkort og rang) |
 | `--ez unlockAll true` | Opnar alle nivå |
 | `--es maalform nn\|nb`, `--es case upper\|lower` | Byter målform og bokstavar |
 | `--es speech on\|off` | Slår opplesing av/på |
+| `--es music on\|off` | Slår musikken av/på (greitt å slå av under test) |
 
 Skjermbilete: `adb -s emulator-5580 exec-out screencap -p > bilete.png`. Første oppstart av
 debug-bygget på emulator utan GPU tek 10–15 sekund; vent før du tek bilete.

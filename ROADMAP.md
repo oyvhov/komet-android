@@ -42,18 +42,29 @@ lærer undervegs. Alt fyller skjermen på både mobil og nettbrett, med grafikk,
 
 **Fasar**
 
-- [ ] **1. Fullskjerm og scenemotor.** Scener i lag med parallakse, animasjon og overgangar. Felles
+- [x] **1. Fullskjerm og scenemotor.** Scener i lag med parallakse, animasjon og overgangar. Felles
       oppsett for mobil og nettbrett i ståande og liggjande format.
+      *Gjort:* `ui/scene/Scene.kt` – kamera i scene-einingar, drag og kast, parallakse, tolerer stor
+      skrift og avslåtte animasjonar.
 - [ ] **2. Helten og venen.** Hovudfigur og ein følgjesven som guidar, snakkar (opplesing) og reagerer
       på svar, med animasjonar for kvile, gå, hoppe og juble.
-- [ ] **3. Stjernekartet.** Eit stort, levande solsystem å dra rundt i. Raketten flyg mellom planetane,
+      *Gjort:* astronauten (kvile, gå, vinke, juble) med astronautbyggjar i oppstarten og roboten Bolt
+      som les nivånamn høgt. *Att:* Bolt reagerer på svar (kjem med fase 7).
+- [x] **3. Stjernekartet.** Eit stort, levande solsystem å dra rundt i. Raketten flyg mellom planetane,
       og låste område ligg i tåke.
+      *Gjort:* sola, fire fag-planetar, rakettbana, romkort og Utforsk; raketten flyg med hale. Ingen
+      område er låste i dag (første nivå i kvart kapittel er alltid ope), så tåka ventar til historia.
 - [ ] **4. Planetane som stader.** Kvar fag-planet får ein illustrert overflate med landemerke,
       innbyggjarar med oppdrag og nivå som ting i verda (steinar, dører, skilt).
+      *Gjort:* fire landskap (Talplaneten, Bokstavplaneten, Engelskplaneten, Rombasen) med sti, skilt for
+      kapittel, øvingsverkstad, landingsplass, mål og innbyggjarar som hoppar. *Att:* oppdrag frå
+      innbyggjarane.
 - [ ] **5. Historia.** Hovudforteljing i kapittel, oppdragsbok, korte animerte mellomscener med
       opplesing, og løningar som endrar verda.
-- [ ] **6. Musikk og lydar.** Eigen musikk for kvart område, lydar for det barnet trykkjer på, stemmer til
+- [x] **6. Musikk og lydar.** Eigen musikk for kvart område, lydar for det barnet trykkjer på, stemmer til
       figurane og innstilling for musikk av/på.
+      *Gjort:* seks melodiar laga i kode, sus, steg, boing, pip og glitter, demping under opplesing og
+      brytar på foreldresida.
 - [ ] **7. Oppgåvene inne i eventyret.** Oppgåveskjermen blir ei scene med figurane til stades og animert
       respons; på nettbrett står scena og oppgåva side om side.
 - [ ] **8. Heimebasen.** Ein eigen base å pynte med ting barnet vinn.
