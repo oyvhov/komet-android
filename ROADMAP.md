@@ -72,6 +72,7 @@ lærer undervegs. Alt fyller skjermen på både mobil og nettbrett, med grafikk,
       *Gjort:* planetbakgrunn, astronauten på framdriftslinja, Bolt i svarbanneret, astronaut og Bolt
       ved svara på nettbrett, og resultatet som feiring. *Att:* rakettløpet og romkorta i same stil.
 - [ ] **8. Heimebasen.** Ein eigen base å pynte med ting barnet vinn.
+      *Gjort:* gullklumpar og butikk der astronauten, Bolt og raketten kan pyntast. *Att:* sjølve basen.
 - [ ] **9. Pussing og test.** Yting på eldre nettbrett, test på fysisk nettbrett, release 2.0.
 
 Første leveranse er ein heil smakebit: stjernekartet i fullskjerm med rakett, éin planet ferdig

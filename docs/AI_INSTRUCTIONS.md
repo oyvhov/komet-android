@@ -13,6 +13,11 @@ eventyr: stjernekartet er heimeskjermen, og barnet reiser med sin eigen astronau
 - **Som eit kult spel, ikkje ein barnsleg app – og ikkje HUD.** Mørkt romtema, planetar og blanke 3D-knappar
   (`PressSurface` + `gloss`), djupe fargar per fag (`Tones`), kvit spelskrift med mørk kontur (`GameText`).
   Ingen flate pastellflater, ingen sci-fi-grensesnitt med kanta panel.
+- **Raud X lukkar alt.** Alt som legg seg over noko (dialogar, bobler, butikk, astronautbyggjar, oppgåver,
+  resultat og skjermar opna frå kartet) har `CloseButton` øvst til høgre. Nye dialogar bruker `KometDialog`
+  eller `ConfirmPopup`, aldri `AlertDialog`.
+- **Gullklumpar er berre spelepengar.** Dei blir tente i spelet (`Wallet` i `domain/Shop.kt`) og brukte i
+  butikken. Aldri ekte pengar, kjøp i appen eller reklame. Kjøp skal alltid stadfestast.
 - **Eventyrscener frå kant til kant.** Stjernekartet og planetane er fullskjermscener (`ui/scene/`) som
   fyller mobil og nettbrett i begge retningar. All grafikk og musikk er laga i kode; ingen biletfiler.
   Bolt snakkar berre når barnet trykkjer på han – ingen mas.
@@ -90,7 +95,7 @@ adb -s emulator-5580 shell am start -f 0x20000000 -n app.komet.debug/app.komet.M
 | --- | --- |
 | `--es skill <id>` | Startar nivået (id-ar i `docs/INNHALD.md`) |
 | `--es screen home\|math\|reading\|english\|space\|cards\|race\|explore\|parent` | Opnar skjermen (foreldresida utan lås) |
-| `--es screen addprofile\|hero` | Opnar oppstarten for ny profil eller astronautbyggjaren |
+| `--es screen addprofile\|hero\|shop` | Opnar oppstarten for ny profil, astronautbyggjaren eller butikken |
 | `--ei solve <n>` | Svarar rett på dei neste n oppgåvene |
 | `--ei miss <n>` | Bommar n gonger på gjeldande oppgåve |
 | `--ei stars <n>` | Set stjerner (for romkort og rang) |

@@ -403,8 +403,9 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
             Box(
                 Modifier
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-                    .padding(start = 14.dp, end = 14.dp, top = 76.dp)
-                    .widthIn(max = 400.dp),
+                    // Narrow enough that its X never sits right under the X that leaves the planet.
+                    .padding(start = 14.dp, end = 14.dp, top = 84.dp)
+                    .widthIn(max = 300.dp),
             ) {
                 SpeechBubble(
                     Modifier

@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -62,7 +63,7 @@ import app.komet.ui.theme.K
 fun ProfileWindow(vm: KometViewModel, time: State<Float>, onClose: () -> Unit) {
     val profile = vm.profile ?: return
     var choosing by remember { mutableStateOf(false) }
-    KometDialog(onClose = onClose, maxWidth = 560.dp) {
+    KometDialog(onClose = onClose, maxWidth = 880.dp) {
         if (choosing) {
             GameText(S.whoPlays.str(), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(end = 24.dp))
             vm.state.profiles.forEach { other ->
@@ -88,100 +89,125 @@ fun ProfileWindow(vm: KometViewModel, time: State<Float>, onClose: () -> Unit) {
             return@KometDialog
         }
 
-        // The astronaut on a glowing stage, with Bolt
-        Box(Modifier.fillMaxWidth().height(230.dp), contentAlignment = Alignment.BottomCenter) {
-            Canvas(Modifier.fillMaxWidth().height(230.dp)) {
-                val c = Offset(size.width / 2, size.height * 0.6f)
-                drawCircle(Brush.radialGradient(listOf(K.Cosmos.copy(alpha = 0.5f), Color.Transparent), c, size.height * 0.62f), size.height * 0.62f, c)
-                // The stage sits under the astronaut, who stands left of centre to make room for Bolt.
-                val stageCenter = size.width / 2 - 33.dp.toPx()
-                val stageWidth = 150.dp.toPx()
-                drawOval(Brush.verticalGradient(listOf(Color(0xFF3A4BB0), Color(0xFF151C5C)), startY = size.height - 30.dp.toPx(), endY = size.height), Offset(stageCenter - stageWidth / 2, size.height - 30.dp.toPx()), Size(stageWidth, 26.dp.toPx()))
-            }
-            Row(verticalAlignment = Alignment.Bottom) {
-                Astronaut(
-                    look = profile.hero,
-                    time = time,
-                    pose = { HeroPose.WAVE },
-                    gear = Gear.of(profile.equipped),
-                    modifier = Modifier.padding(bottom = 10.dp).size(136.dp, 204.dp),
-                )
-                Bolt(time, Modifier.padding(bottom = 120.dp).size(66.dp), mood = { BoltMood.HAPPY }, paint = profile.equipped[ShopSlot.BOLT])
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            // Wide screens put the astronaut beside the numbers and doors, so nothing needs scrolling.
+            if (maxWidth >= 680.dp) {
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        ProfileHeader(vm, time)
+                    }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        ProfileDoors(vm, onClose, onChoose = { choosing = true })
+                    }
+                }
+            } else {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    ProfileHeader(vm, time)
+                    ProfileDoors(vm, onClose, onChoose = { choosing = true })
+                }
             }
         }
+    }
+}
 
-        GameText(profile.name, style = MaterialTheme.typography.displaySmall, fontSize = cappedSp(34.sp), textAlign = TextAlign.Center, maxLines = 1, autoFit = true, modifier = Modifier.fillMaxWidth())
-
-        // Rank and how far to the next one
-        val rank = Progression.rank(profile.totalStars)
-        val next = Progression.nextRank(profile.totalStars)
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Box(
-                Modifier
-                    .size(38.dp)
-                    .border(2.dp, K.Outline, CircleShape)
-                    .background(Brush.verticalGradient(listOf(K.GoldTop, K.Gold, K.GoldDeep)), CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                GameText((Progression.ranks.indexOf(rank) + 1).toString(), style = MaterialTheme.typography.titleMedium, fontSize = fixedSp(18.dp))
-            }
-            GameText(rank.title.str(), style = MaterialTheme.typography.headlineSmall, color = K.GoldTop, fontSize = cappedSp(24.sp))
+/** The astronaut on a glowing stage with Bolt, the name, the rank and how far it is to the next. */
+@Composable
+private fun ProfileHeader(vm: KometViewModel, time: State<Float>) {
+    val profile = vm.profile ?: return
+    Box(Modifier.fillMaxWidth().height(230.dp), contentAlignment = Alignment.BottomCenter) {
+        Canvas(Modifier.fillMaxWidth().height(230.dp)) {
+            val c = Offset(size.width / 2, size.height * 0.6f)
+            drawCircle(Brush.radialGradient(listOf(K.Cosmos.copy(alpha = 0.5f), Color.Transparent), c, size.height * 0.62f), size.height * 0.62f, c)
+            // The stage sits under the astronaut, who stands left of centre to make room for Bolt.
+            val stageCenter = size.width / 2 - 33.dp.toPx()
+            val stageWidth = 150.dp.toPx()
+            drawOval(Brush.verticalGradient(listOf(Color(0xFF3A4BB0), Color(0xFF151C5C)), startY = size.height - 30.dp.toPx(), endY = size.height), Offset(stageCenter - stageWidth / 2, size.height - 30.dp.toPx()), Size(stageWidth, 26.dp.toPx()))
         }
-        if (next != null) {
-            val span = (next.minStars - rank.minStars).coerceAtLeast(1)
-            ProgressTrack((profile.totalStars - rank.minStars) / span.toFloat(), Modifier.fillMaxWidth(), color = K.Gold, track = K.SurfaceLow, height = 16.dp)
-            Text(
-                S.starsToRank(next.minStars - profile.totalStars, next.title.str()).str(),
-                style = MaterialTheme.typography.titleSmall,
-                fontSize = cappedSp(15.sp),
-                color = K.Muted,
-                fontWeight = FontWeight.Bold,
+        Row(verticalAlignment = Alignment.Bottom) {
+            Astronaut(
+                look = profile.hero,
+                time = time,
+                pose = { HeroPose.WAVE },
+                gear = Gear.of(profile.equipped),
+                modifier = Modifier.padding(bottom = 10.dp).size(136.dp, 204.dp),
             )
-        } else {
-            Text(S.topRank.str(), style = MaterialTheme.typography.titleSmall, color = K.GoldTop, fontWeight = FontWeight.Bold)
+            Bolt(time, Modifier.padding(bottom = 120.dp).size(66.dp), mood = { BoltMood.HAPPY }, paint = profile.equipped[ShopSlot.BOLT])
         }
+    }
 
-        // What the child has gathered
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            StatTile(profile.totalStars.toString(), S.totalStars.str()) { StarGlyph(true, Modifier.size(34.dp)) }
-            StatTile(profile.nuggets.toString(), S.nuggets.str()) { NuggetGlyph(Modifier.size(34.dp)) }
-            StatTile(profile.currentStreak(vm.today).toString(), S.daysInRow.str()) {
-                Icon(KometIcons.Flame, contentDescription = null, tint = Color(0xFFFF8A3D), modifier = Modifier.size(32.dp))
-            }
+    GameText(profile.name, style = MaterialTheme.typography.displaySmall, fontSize = cappedSp(34.sp), textAlign = TextAlign.Center, maxLines = 1, autoFit = true, modifier = Modifier.fillMaxWidth())
+
+    val rank = Progression.rank(profile.totalStars)
+    val next = Progression.nextRank(profile.totalStars)
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Box(
+            Modifier
+                .size(38.dp)
+                .border(2.dp, K.Outline, CircleShape)
+                .background(Brush.verticalGradient(listOf(K.GoldTop, K.Gold, K.GoldDeep)), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            GameText((Progression.ranks.indexOf(rank) + 1).toString(), style = MaterialTheme.typography.titleMedium, fontSize = fixedSp(18.dp))
         }
+        GameText(rank.title.str(), style = MaterialTheme.typography.headlineSmall, color = K.GoldTop, fontSize = cappedSp(24.sp))
+    }
+    if (next != null) {
+        val span = (next.minStars - rank.minStars).coerceAtLeast(1)
+        ProgressTrack((profile.totalStars - rank.minStars) / span.toFloat(), Modifier.fillMaxWidth(), color = K.Gold, track = K.SurfaceLow, height = 16.dp)
+        Text(
+            S.starsToRank(next.minStars - profile.totalStars, next.title.str()).str(),
+            style = MaterialTheme.typography.titleSmall,
+            fontSize = cappedSp(15.sp),
+            color = K.Muted,
+            fontWeight = FontWeight.Bold,
+        )
+    } else {
+        Text(S.topRank.str(), style = MaterialTheme.typography.titleSmall, color = K.GoldTop, fontWeight = FontWeight.Bold)
+    }
+}
 
+/** What the child has gathered, and the big doors onwards. */
+@Composable
+private fun ProfileDoors(vm: KometViewModel, onClose: () -> Unit, onChoose: () -> Unit) {
+    val profile = vm.profile ?: return
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        StatTile(profile.totalStars.toString(), S.totalStars.str()) { StarGlyph(true, Modifier.size(34.dp)) }
+        StatTile(profile.nuggets.toString(), S.nuggets.str()) { NuggetGlyph(Modifier.size(34.dp)) }
+        StatTile(profile.currentStreak(vm.today).toString(), S.daysInRow.str()) {
+            Icon(KometIcons.Flame, contentDescription = null, tint = Color(0xFFFF8A3D), modifier = Modifier.size(32.dp))
+        }
+    }
+    BigButton(
+        S.editHero.str(),
+        onClick = {
+            onClose()
+            vm.open(Screen.HeroEditor)
+        },
+        face = K.Cosmos,
+        edge = K.CosmosDeep,
+        top = K.CosmosTop,
+        icon = KometIcons.Shirt,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    BigButton(
+        S.shop.str(),
+        onClick = {
+            onClose()
+            vm.open(Screen.Shop)
+        },
+        icon = KometIcons.Bag,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    if (vm.state.profiles.size > 1) {
         BigButton(
-            S.editHero.str(),
-            onClick = {
-                onClose()
-                vm.open(Screen.HeroEditor)
-            },
-            face = K.Cosmos,
-            edge = K.CosmosDeep,
-            top = K.CosmosTop,
-            icon = KometIcons.Shirt,
+            S.switchPlayer.str(),
+            onClick = onChoose,
+            face = K.SurfaceHigh,
+            edge = K.SurfaceLow,
+            textColor = K.Text,
+            icon = KometIcons.Swap,
             modifier = Modifier.fillMaxWidth(),
         )
-        BigButton(
-            S.shop.str(),
-            onClick = {
-                onClose()
-                vm.open(Screen.Shop)
-            },
-            icon = KometIcons.Bag,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        if (vm.state.profiles.size > 1) {
-            BigButton(
-                S.switchPlayer.str(),
-                onClick = { choosing = true },
-                face = K.SurfaceHigh,
-                edge = K.SurfaceLow,
-                textColor = K.Text,
-                icon = KometIcons.Swap,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
     }
 }
 
@@ -198,6 +224,6 @@ private fun RowScope.StatTile(value: String, label: String, icon: @Composable ()
     ) {
         icon()
         GameText(value, style = MaterialTheme.typography.headlineSmall, fontSize = cappedSp(24.sp), maxLines = 1)
-        Text(label, style = MaterialTheme.typography.labelMedium, fontSize = cappedSp(13.sp), color = K.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
+        Text(label, style = MaterialTheme.typography.labelMedium, fontSize = cappedSp(13.sp, maxScale = 1.1f), color = K.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
     }
 }

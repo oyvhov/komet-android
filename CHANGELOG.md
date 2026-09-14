@@ -1,5 +1,17 @@
 # Endringslogg
 
+## Under arbeid · 2.0.0-beta2
+
+- **Gullklumpar:** éin for kvar stjerne i ein runde, bonus for dagens oppdrag og nye rekordar i
+  rakettløpet, og ein klump å plukke opp ved kvart fullført nivå på planetane. Eldre profilar får ei
+  startgåve etter stjernene sine.
+- **Butikken:** 32 ting å kjøpe for gullklumpar – hjelmar, visir, mønster, kappe, jetpakke og vengjer,
+  antenner, pynt og fargar på Bolt og raketten. Prøv på før du kjøper; kjøp må alltid stadfestast.
+- **Nytt profilvindauge** når du trykkjer på profilbiletet: astronauten, rang, stjerner, gullklumpar og store
+  knappar til astronautbyggjaren, butikken og byte av spelar.
+- **Raud X-knapp** øvst til høgre på alt som kan lukkast: dialogar, bobler, butikken, astronautbyggjaren,
+  oppgåver, rakettløp, resultat og skjermane som blir opna frå kartet.
+
 ## 2.0.0-beta1 · 14. september 2026 · testutgåve av Komet-eventyret
 
 - **Stjernekartet** er ny heimeskjerm: sola, ein planet for kvart fag, rakettbana, romkort og Utforsk.
