@@ -42,6 +42,17 @@ Kommando: `gradlew testDebugUnitTest assembleRelease lintRelease` – grønt.
 - Skriftstorleik 2.0: Heim, Utforsk og ei engelsk fraseoppgåve. «Neste oppdrag» og rangmerket er retta. Flistitlane krympar no automatisk til dei passar, kontrollert med «Verdensrommet» på bokmål ved vanleg skrift. Ved 2.0 fall emulatoren ut før nytt bilete kunne takast, så krympinga ved 2.0 er ikkje sett på skjerm etter rettinga.
 - Nettbrett liggjande (2560 × 1600): skriving med biletord til høgre, og Heim med fire fag på rad.
 
+## Release på GitHub
+
+- Release: <https://github.com/oyvhov/komet-android/releases/tag/v1.2.0>, publisert som «latest», ikkje prerelease.
+- Kjelde: tag `v1.2.0`, commit `3bcd886383721b91993cb105fdcc8890ad618917`. Koden er identisk med byggjecommiten
+  `c3ba0f0`; berre denne rapporten er endra i mellomtida.
+- Vedlegg: éin APK (`Komet-v1.2.0.apk`, 2 285 318 byte), `SHA256SUMS.txt`, `mapping-v1.2.0.txt` og `SOURCE_COMMIT.txt`.
+- GitHub-API-et utan token (same kall som appen gjer): `draft=false`, APK-en har `state=uploaded` og
+  `digest=sha256:3a9d5f4335622a52f1fe3a5edde0f236cc58e12009bc3df2f864210d43277ca0`, lik den lokale hashen.
+  `releases/latest` peikar på `v1.2.0`. 1.1.0 (versjonskode 2) ser derfor 1.2.0 (versjonskode 3) som ny versjon.
+- CI «Bygg og test» (einingstestar, lint og debug-bygg på Ubuntu): grøn på `main` (køyring 34810559845) og på taggen `v1.2.0` (køyring 34810559866).
+
 ## Ikkje testa
 
 - Oppdatering gjennom appen frå 1.1.0 til 1.2.0 på ei eining (skjer når releasen er publisert).

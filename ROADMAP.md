@@ -1,6 +1,6 @@
 # Komet — vegkart
 
-Oppdatert 13. september 2026. Publisert: **1.1.0** (versjonskode 2). Neste: **1.2.0**.
+Oppdatert 14. september 2026. Publisert: **1.2.0** (versjonskode 3).
 
 Retning frå eigaren: appen skal sjå ut som eit skikkeleg kult spel og ikkje som ein barnsleg, fargerik
 barneapp. Han skal passe for litt større barn. Barnet skal kunne finne oppgåvetypane han likar, uavhengig
@@ -12,7 +12,7 @@ Rekkjefølgja under er prioritert. Kryss av når eit punkt er ferdig og testa.
 
 - [x] **Barneskrift.** Andika (SIL, OFL) for all lesetekst, med «a» og «g» slik skulen lærer dei.
 - [x] **Strekdata for skriving.** Stavskrift-rekkjefølgje for A–Å, a–å og 0–9, med testar og kontrollark.
-- [x] **Design som eit kult spel, i same retning som før (IKKJE HUD/sci-fi-grensesnitt).** *Gjort på alle skjermar; ventar på eigarens syn.* Behald romtema,
+- [x] **Design som eit kult spel, i same retning som før (IKKJE HUD/sci-fi-grensesnitt).** *Godkjent av eigaren.* Behald romtema,
       planetar, rakett, runde former og 3D-knappar. Byt flate pastellfargar med djupe, metta gradientar
       med lys og skugge, feit kvit tekst med mørk kontur, glans på knappar og stjerner og meir liv i
       løningar (stjerner, romkort). Vis heimeskjermen til eigaren før resten blir endra.
@@ -23,7 +23,7 @@ Rekkjefølgja under er prioritert. Kryss av når eit punkt er ferdig og testa.
 - [x] **Engelsk.** Ord og fraser med engelsk opplesing: fargar, tal, dyr, mat, kropp, helsingar.
 - [x] **Verdsrommet.** Kunnskapsmodul om sola, planetane, månen, romfart og stjernene.
 - [x] **Repetisjon.** Ein runde med det barnet har bomma mest på.
-- [ ] Testar, lint, signert APK, dokumentasjon og verifikasjon. Publiser berre etter ja frå eigaren.
+- [x] Testar, lint, signert APK, dokumentasjon og verifikasjon. Publisert 14. september 2026 etter ja frå eigaren.
 
 ## Seinare
 
