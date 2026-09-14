@@ -40,6 +40,22 @@ Kommando: `gradlew testDebugUnitTest assembleDebug assembleRelease lintRelease` 
 - Musikk: AudioTrack startar for kartet, alle seks melodiane blir lagra i `cache/music`, og seinare start
   les filene.
 
+## Release på GitHub
+
+- Release: <https://github.com/oyvhov/komet-android/releases/tag/v2.0.0-beta1>, publisert som testutgåve
+  (prerelease), ikkje «latest».
+- Kjelde: tag `v2.0.0-beta1`, commit `eb07cfca28e280820c06b6fe5555317248d04e66`. Koden er identisk med
+  byggjecommiten `a0be3f0`; berre denne rapporten er lagd til.
+- Vedlegg: éin APK (`Komet-v2.0.0-beta1.apk`, 2 383 630 byte), `SHA256SUMS.txt`,
+  `mapping-v2.0.0-beta1.txt` og `SOURCE_COMMIT.txt`.
+- GitHub-API-et utan token (same kall som appen gjer): `draft=false`, `prerelease=true`, APK-en har
+  `state=uploaded` og `digest=sha256:0b848ae340fa789f63a28631f12d3344172a3a1fae78cfbf06d5e75ae79f59aa`, lik den
+  lokale hashen. `releases/latest` peikar framleis på `v1.2.0`, så appen tilbyr 2.0.0-beta1 berre når
+  «Testutgåver» er slått på.
+- APK-en er ikkje lasta ned att frå GitHub; sjekksummen frå API-et er samanlikna med den lokale fila.
+- CI «Bygg og test» (einingstestar, lint og debug-bygg på Ubuntu): grøn på `main` (køyring 34829412989) og
+  på taggen `v2.0.0-beta1` (køyring 34829413034).
+
 ## Ikkje testa
 
 - Utgåvebygget (R8) er ikkje starta på emulator eller eining før publisering; emulatoren var stoppa, og
