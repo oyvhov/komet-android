@@ -15,6 +15,17 @@ data class DayStats(
     val firstTry: Int = 0,
 )
 
+/** A round that was left before the end. Its answers are already counted in the statistics. */
+data class ActiveRound(
+    val skillId: String,
+    /** Tasks answered so far. */
+    val done: Int,
+    /** How many of those were right on the first try. */
+    val firstTry: Int,
+    val total: Int,
+    val updatedAt: Long = 0L,
+)
+
 data class Profile(
     val id: String,
     val name: String,
@@ -37,6 +48,10 @@ data class Profile(
     /** How many unlocked cards the child has already opened the collection for. */
     val seenCards: Int = 0,
     val createdAt: Long = 0L,
+    /** The round to pick up again, saved after every answer. */
+    val activeRound: ActiveRound? = null,
+    /** Levels the child has marked with a heart, in the order they were added. */
+    val favorites: List<String> = emptyList(),
 ) {
     fun stars(skillId: String): Int = skills[skillId]?.bestStars ?: 0
 

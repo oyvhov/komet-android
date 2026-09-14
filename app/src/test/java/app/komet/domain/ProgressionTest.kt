@@ -130,6 +130,64 @@ class ProgressionTest {
     }
 
     @Test
+    fun `every answer is saved at once and a left round can be picked up`() {
+        val skill = skill("m_add10")
+        val today = 30_000L
+        var p = profile()
+        p = Progression.applyAnswer(p, skill, rightFirstTime = true, done = 1, roundFirstTry = 1, total = 8, seconds = 12, today = today, now = 10L)
+        p = Progression.applyAnswer(p, skill, rightFirstTime = false, done = 2, roundFirstTry = 1, total = 8, seconds = 900, today = today, now = 20L)
+        assertEquals(2, p.skills[skill.id]!!.answered)
+        assertEquals(1, p.skills[skill.id]!!.firstTry)
+        assertEquals(2, p.today(today).answered)
+        assertEquals("a forgotten tablet does not count as practice", 12 + Progression.MAX_TASK_SECONDS, p.today(today).seconds)
+        assertEquals(0, p.today(today).rounds)
+        assertEquals(ActiveRound(skill.id, 2, 1, 8, 20L), p.activeRound)
+        val (resumeSkill, active) = Progression.resumable(p)!!
+        assertEquals(skill, resumeSkill)
+        assertEquals(2, active.done)
+        // The level itself is not finished, so it earns no stars yet.
+        assertEquals(0, p.stars(skill.id))
+    }
+
+    @Test
+    fun `finishing a round whose answers were saved does not count them twice`() {
+        val skill = skill("m_add10")
+        val today = 30_001L
+        var p = profile()
+        repeat(8) { index ->
+            p = Progression.applyAnswer(p, skill, rightFirstTime = true, done = index + 1, roundFirstTry = index + 1, total = 8, seconds = 10, today = today, now = index.toLong())
+        }
+        assertNull("the last answer ends the saved round", p.activeRound)
+        val outcome = Progression.applyRound(p, skill, firstTry = 8, total = 8, seconds = 80, today = today, dailyGoal = 3, now = 99L, answersCounted = true)
+        val stats = outcome.profile.skills[skill.id]!!
+        assertEquals(8, stats.answered)
+        assertEquals(8, stats.firstTry)
+        assertEquals(1, stats.plays)
+        assertEquals(3, stats.bestStars)
+        assertEquals(8, outcome.profile.today(today).answered)
+        assertEquals(80, outcome.profile.today(today).seconds)
+        assertEquals(1, outcome.profile.today(today).rounds)
+        assertNull(outcome.profile.activeRound)
+    }
+
+    @Test
+    fun `a saved round that cannot be finished is ignored`() {
+        assertNull(Progression.resumable(profile().copy(activeRound = ActiveRound("gone_skill", 2, 2, 8))))
+        assertNull(Progression.resumable(profile().copy(activeRound = ActiveRound("m_add10", 0, 0, 8))))
+        assertNull(Progression.resumable(profile().copy(activeRound = ActiveRound("m_add10", 8, 8, 8))))
+    }
+
+    @Test
+    fun `favourites toggle and keep their order`() {
+        var p = profile()
+        p = Progression.toggleFavorite(p, "m_add10")
+        p = Progression.toggleFavorite(p, "r_rhyme")
+        assertEquals(listOf("m_add10", "r_rhyme"), p.favorites)
+        p = Progression.toggleFavorite(p, "m_add10")
+        assertEquals(listOf("r_rhyme"), p.favorites)
+    }
+
+    @Test
     fun `next level in chapter respects locks`() {
         val p = profile(grade = 0)
         val count5 = skill("m_count5")

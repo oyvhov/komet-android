@@ -1,5 +1,6 @@
 package app.komet.data
 
+import app.komet.domain.ActiveRound
 import app.komet.domain.AppState
 import app.komet.domain.DayStats
 import app.komet.domain.LetterCase
@@ -36,6 +37,8 @@ class StateStoreTest {
                 lastSubject = Subject.READING,
                 seenCards = 5,
                 createdAt = 1234L,
+                activeRound = ActiveRound("m_add10", done = 3, firstTry = 2, total = 8, updatedAt = 77L),
+                favorites = listOf("r_rhyme", "m_add10"),
             ),
             Profile(id = "b", name = "Bror", avatar = 0, grade = 0),
         ),
@@ -59,6 +62,14 @@ class StateStoreTest {
         assertEquals(3, profile.grade)
         assertEquals(3, profile.stars("m_add5"))
         assertTrue(profile.raceBest.isEmpty())
+    }
+
+    @Test
+    fun `a damaged saved round is dropped instead of breaking the profile`() {
+        val json = JSONObject("""{"profiles":[{"id":"x","activeRound":{"skillId":"m_add10","done":9,"total":8},"favorites":["m_add10","","m_add10"]}]}""")
+        val profile = StateStore.decode(json).profiles.single()
+        assertEquals(null, profile.activeRound)
+        assertEquals(listOf("m_add10"), profile.favorites)
     }
 
     @Test

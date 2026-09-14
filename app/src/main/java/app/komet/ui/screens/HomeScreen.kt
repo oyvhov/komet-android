@@ -82,6 +82,7 @@ fun HomeScreen(vm: KometViewModel) {
     val profile = vm.profile ?: return
     val today = vm.today
     val recommended = remember(profile) { Progression.recommended(profile) }
+    val resume = remember(profile) { Progression.resumable(profile) }
     val chapter = Curriculum.chapterOf(recommended)
     val tone = subjectTone(recommended.subject)
     val rank = Progression.rank(profile.totalStars)
@@ -139,14 +140,31 @@ fun HomeScreen(vm: KometViewModel) {
             }
         }
 
-        MissionCard(
-            label = S.nextMission.str(),
-            title = recommended.title.str(),
-            detail = (if (recommended.subject == Subject.MATH) S.math else S.reading).str() + " · " + chapter.title.str(),
-            tone = tone,
-            onStart = { vm.startSkill(recommended) },
-        ) {
-            PlanetArt(chapter.look, Modifier.size(150.dp))
+        if (resume != null) {
+            // A round that was left comes first: finishing it is what earns the stars.
+            val (skill, active) = resume
+            MissionCard(
+                label = S.resumeLabel.str(),
+                title = skill.title.str(),
+                detail = S.resumeDetail(active.done, active.total).str(),
+                tone = subjectTone(skill.subject),
+                button = S.resume.str(),
+                progress = active.done / active.total.toFloat(),
+                onStart = { vm.resumeRound() },
+            ) {
+                PlanetArt(Curriculum.chapterOf(skill).look, Modifier.size(150.dp))
+            }
+        } else {
+            MissionCard(
+                label = S.nextMission.str(),
+                title = recommended.title.str(),
+                detail = (if (recommended.subject == Subject.MATH) S.math else S.reading).str() + " · " + chapter.title.str(),
+                tone = tone,
+                button = S.start.str(),
+                onStart = { vm.startSkill(recommended) },
+            ) {
+                PlanetArt(chapter.look, Modifier.size(150.dp))
+            }
         }
 
         Panel(Modifier.fillMaxWidth(), color = K.Surface) {
@@ -303,7 +321,9 @@ private fun MissionCard(
     title: String,
     detail: String,
     tone: Tone,
+    button: String,
     onStart: () -> Unit,
+    progress: Float? = null,
     art: @Composable () -> Unit,
 ) {
     val shape = RoundedCornerShape(30.dp)
@@ -324,12 +344,24 @@ private fun MissionCard(
                 .padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 20.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text(label.uppercase(), style = MaterialTheme.typography.labelLarge, color = tone.top, letterSpacing = 1.5.sp, fontWeight = FontWeight.Black)
+            Text(
+                label.uppercase(),
+                style = MaterialTheme.typography.labelLarge,
+                color = tone.top,
+                letterSpacing = 1.5.sp,
+                fontWeight = FontWeight.Black,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(end = 120.dp),
+            )
             GameText(title, style = MaterialTheme.typography.displaySmall, modifier = Modifier.padding(end = 110.dp), maxLines = 2)
             Text(detail, style = MaterialTheme.typography.titleSmall, color = K.Muted)
+            if (progress != null) {
+                ProgressTrack(progress, Modifier.fillMaxWidth().padding(top = 8.dp, end = 110.dp), color = tone.top, track = K.SurfaceLow, height = 12.dp)
+            }
             Spacer(Modifier.height(12.dp))
             BigButton(
-                text = S.start.str(),
+                text = button,
                 onClick = onStart,
                 icon = KometIcons.Play,
                 face = K.Gold,

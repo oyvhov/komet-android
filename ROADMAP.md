@@ -16,7 +16,7 @@ Rekkjefølgja under er prioritert. Kryss av når eit punkt er ferdig og testa.
       planetar, rakett, runde former og 3D-knappar. Byt flate pastellfargar med djupe, metta gradientar
       med lys og skugge, feit kvit tekst med mørk kontur, glans på knappar og stjerner og meir liv i
       løningar (stjerner, romkort). Vis heimeskjermen til eigaren før resten blir endra.
-- [ ] **Lagring etter kvart svar.** Kvart svar blir lagra med ein gong, og ein avbroten runde kan haldast fram.
+- [x] **Lagring etter kvart svar.** Kvart svar blir lagra med ein gong, og ein avbroten runde kan haldast fram.
 - [ ] **Utforsk og favorittar.** Bla i oppgåvetypar (pluss, minus, klokka, rim …) på tvers av trinn og
       merk nivå som favorittar.
 - [ ] **Skriv med kometen.** Spor bokstavar og tal med fingeren: nytt kapittel i lesing og tal i matte.

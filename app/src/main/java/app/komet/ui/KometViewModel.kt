@@ -186,8 +186,24 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
     fun startSkill(skill: Skill) {
         val current = profile ?: return
         val context = QuestionContext(Random(System.nanoTime()), current.maalform, current.letterCase)
+        // A new round replaces one that was left earlier; its answers are already counted.
+        if (current.activeRound != null) updateProfile(current.id) { it.copy(activeRound = null) }
         round = RoundState(skill, Curriculum.round(skill, context))
         if (screen == Screen.Result || screen == Screen.Play) replaceTop(Screen.Play) else open(Screen.Play)
+    }
+
+    /** Picks up the round that was left, at the task after the last one answered. */
+    fun resumeRound() {
+        val current = profile ?: return
+        val (skill, active) = Progression.resumable(current) ?: return
+        val context = QuestionContext(Random(System.nanoTime()), current.maalform, current.letterCase)
+        round = RoundState(skill, Curriculum.round(skill, context, count = active.total), startIndex = active.done, startFirstTry = active.firstTry)
+        if (screen == Screen.Result || screen == Screen.Play) replaceTop(Screen.Play) else open(Screen.Play)
+    }
+
+    fun toggleFavorite(skillId: String) {
+        val current = profile ?: return
+        commit(state.withProfile(Progression.toggleFavorite(current, skillId)))
     }
 
     fun readQuestion() {
@@ -254,10 +270,32 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun markCorrect(current: RoundState) {
         current.phase = Phase.CORRECT
-        if (current.misses == 0) current.firstTry++
+        val firstTime = current.misses == 0
+        if (firstTime) current.firstTry++
         current.praise = Random.nextInt(S.praise.size)
         sounds.play(Sfx.CORRECT)
         current.question.reward?.let(::say)
+        recordAnswer(current, firstTime)
+    }
+
+    /** Saves the answer straight away, so a round that is left early still counts and can be picked up. */
+    private fun recordAnswer(current: RoundState, rightFirstTime: Boolean) {
+        val player = profile ?: return
+        val now = System.currentTimeMillis()
+        val seconds = ((now - current.lastAnswerAt) / 1000).toInt()
+        current.lastAnswerAt = now
+        val updated = Progression.applyAnswer(
+            profile = player,
+            skill = current.skill,
+            rightFirstTime = rightFirstTime,
+            done = current.index + 1,
+            roundFirstTry = current.firstTry,
+            total = current.questions.size,
+            seconds = seconds,
+            today = today,
+            now = now,
+        )
+        commit(state.withProfile(updated))
     }
 
     private fun markMiss(current: RoundState, target: Int) {
@@ -272,6 +310,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         val answer = current.question.answer
         if (answer is Answer.Build) current.placed.clear()
         current.question.reward?.let(::say)
+        recordAnswer(current, rightFirstTime = false)
     }
 
     fun next() {
@@ -302,6 +341,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             today = today,
             dailyGoal = state.settings.dailyGoal,
             now = System.currentTimeMillis(),
+            answersCounted = true,
         )
         commit(state.withProfile(outcome.profile))
         result = ResultInfo(

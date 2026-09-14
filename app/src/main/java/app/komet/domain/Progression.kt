@@ -109,6 +109,52 @@ object Progression {
 
     fun completed(profile: Profile, skills: List<Skill>): Int = skills.count { profile.stars(it.id) > 0 }
 
+    /** Longest time one task may add to the day, so a tablet left on the table does not count as practice. */
+    const val MAX_TASK_SECONDS = 180
+
+    /**
+     * Counts one answered task at once, so nothing is lost when a round is left early, and remembers
+     * where the round stands so it can be picked up again. [done] and [roundFirstTry] include this task.
+     */
+    fun applyAnswer(
+        profile: Profile,
+        skill: Skill,
+        rightFirstTime: Boolean,
+        done: Int,
+        roundFirstTry: Int,
+        total: Int,
+        seconds: Int,
+        today: Long,
+        now: Long,
+    ): Profile {
+        val first = if (rightFirstTime) 1 else 0
+        val old = profile.skills[skill.id] ?: SkillStats()
+        val stats = old.copy(answered = old.answered + 1, firstTry = old.firstTry + first, lastPlayed = now)
+        val day = profile.today(today)
+        val updatedDay = day.copy(
+            answered = day.answered + 1,
+            firstTry = day.firstTry + first,
+            seconds = day.seconds + seconds.coerceIn(0, MAX_TASK_SECONDS),
+        )
+        return profile.copy(
+            skills = profile.skills + (skill.id to stats),
+            days = (profile.days + (today to updatedDay)).filterKeys { it > today - KEEP_DAYS },
+            lastSubject = skill.subject,
+            activeRound = if (done < total) ActiveRound(skill.id, done, roundFirstTry, total, now) else null,
+        )
+    }
+
+    /** The saved round and its level, if there is one that can still be finished. */
+    fun resumable(profile: Profile): Pair<Skill, ActiveRound>? {
+        val active = profile.activeRound ?: return null
+        val skill = Curriculum.skill(active.skillId) ?: return null
+        return if (active.done in 1 until active.total) skill to active else null
+    }
+
+    /**
+     * Stars, level, day and goal for a finished round. When the answers were already saved one by one
+     * with [applyAnswer], [answersCounted] keeps them from being counted twice.
+     */
     fun applyRound(
         profile: Profile,
         skill: Skill,
@@ -118,22 +164,27 @@ object Progression {
         today: Long,
         dailyGoal: Int,
         now: Long,
+        answersCounted: Boolean = false,
     ): RoundOutcome {
         val stars = stars(firstTry, total)
         val old = profile.skills[skill.id] ?: SkillStats()
         val updatedSkill = old.copy(
             bestStars = max(old.bestStars, stars),
             plays = old.plays + 1,
-            answered = old.answered + total,
-            firstTry = old.firstTry + firstTry,
+            answered = old.answered + if (answersCounted) 0 else total,
+            firstTry = old.firstTry + if (answersCounted) 0 else firstTry,
             lastPlayed = now,
         )
         val base = profile.copy(
             skills = profile.skills + (skill.id to updatedSkill),
             lastSubject = skill.subject,
+            activeRound = null,
         )
-        return finish(profile, base, stars, firstTry, total, seconds, today, dailyGoal)
+        return finish(profile, base, stars, firstTry, total, seconds, today, dailyGoal, countAnswers = !answersCounted)
     }
+
+    fun toggleFavorite(profile: Profile, skillId: String): Profile =
+        profile.copy(favorites = if (skillId in profile.favorites) profile.favorites - skillId else profile.favorites + skillId)
 
     fun applyRace(
         profile: Profile,
@@ -161,14 +212,19 @@ object Progression {
         seconds: Int,
         today: Long,
         dailyGoal: Int,
+        countAnswers: Boolean = true,
     ): RoundOutcome {
         val day = base.today(today)
-        val updatedDay = day.copy(
-            rounds = day.rounds + 1,
-            seconds = day.seconds + seconds.coerceIn(0, 60 * 30),
-            answered = day.answered + total,
-            firstTry = day.firstTry + firstTry,
-        )
+        val updatedDay = if (countAnswers) {
+            day.copy(
+                rounds = day.rounds + 1,
+                seconds = day.seconds + seconds.coerceIn(0, 60 * 30),
+                answered = day.answered + total,
+                firstTry = day.firstTry + firstTry,
+            )
+        } else {
+            day.copy(rounds = day.rounds + 1)
+        }
         val reachedNow = day.rounds < dailyGoal && updatedDay.rounds >= dailyGoal
         val streak = when {
             !reachedNow -> base.streak

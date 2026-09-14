@@ -40,6 +40,9 @@ object S {
     fun hello(name: String) = txt("Hei, $name!")
     val nextMission = txt("Neste oppdrag")
     val start = txt("Start")
+    val resumeLabel = txt("Uferdig runde")
+    fun resumeDetail(done: Int, total: Int) = txt("$done av $total oppgåver er gjort", "$done av $total oppgaver er gjort")
+    val resume = txt("Hald fram", "Fortsett")
     val dailyMission = txt("Dagens oppdrag")
     fun roundsOf(done: Int, goal: Int) = txt("$done av $goal rundar", "$done av $goal runder")
     val goalDone = txt("Fullført! Bra jobba i dag.", "Fullført! Bra jobbet i dag.")
@@ -63,7 +66,7 @@ object S {
 
     // Runde
     val quitTitle = txt("Vil du avslutte runden?")
-    val quitBody = txt("Stjernene frå denne runden blir ikkje lagra.", "Stjernene fra denne runden blir ikke lagret.")
+    val quitBody = txt("Svara dine er lagra. Du kan halde fram seinare frå heimeskjermen.", "Svarene dine er lagret. Du kan fortsette senere fra hjemskjermen.")
     val quit = txt("Avslutt")
     val keepGoing = txt("Hald fram", "Fortsett")
     val praise = listOf(

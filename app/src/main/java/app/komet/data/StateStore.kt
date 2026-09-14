@@ -1,5 +1,6 @@
 package app.komet.data
 
+import app.komet.domain.ActiveRound
 import app.komet.domain.AppState
 import app.komet.domain.DayStats
 import app.komet.domain.LetterCase
@@ -97,6 +98,16 @@ class StateStore(private val file: File) {
                 }
             })
             put("raceBest", JSONObject().apply { profile.raceBest.forEach { (mode, best) -> put(mode.name, best) } })
+            profile.activeRound?.let { round ->
+                put("activeRound", JSONObject().apply {
+                    put("skillId", round.skillId)
+                    put("done", round.done)
+                    put("firstTry", round.firstTry)
+                    put("total", round.total)
+                    put("updatedAt", round.updatedAt)
+                })
+            }
+            put("favorites", JSONArray().apply { profile.favorites.forEach { put(it) } })
         }
 
         fun decode(json: JSONObject): AppState {
@@ -149,6 +160,21 @@ class StateStore(private val file: File) {
             val raceBest = raceJson.keys().asSequence().mapNotNull { key ->
                 enumOrNull<RaceMode>(key)?.let { it to raceJson.optInt(key, 0) }
             }.toMap()
+            val activeRound = json.optJSONObject("activeRound")?.let { round ->
+                val skillId = round.optString("skillId", "").ifBlank { return@let null }
+                val total = round.optInt("total", 0)
+                val done = round.optInt("done", 0)
+                if (total <= 0 || done !in 1 until total) return@let null
+                ActiveRound(
+                    skillId = skillId,
+                    done = done,
+                    firstTry = round.optInt("firstTry", 0).coerceIn(0, done),
+                    total = total,
+                    updatedAt = round.optLong("updatedAt", 0L),
+                )
+            }
+            val favoritesJson = json.optJSONArray("favorites") ?: JSONArray()
+            val favorites = (0 until favoritesJson.length()).mapNotNull { favoritesJson.optString(it, "").ifBlank { null } }.distinct()
             return Profile(
                 id = id,
                 name = json.optString("name", "").ifBlank { "Romfarar" },
@@ -166,6 +192,8 @@ class StateStore(private val file: File) {
                 lastSubject = enumOrNull<Subject>(json.optString("lastSubject", "")),
                 seenCards = json.optInt("seenCards", 0),
                 createdAt = json.optLong("createdAt", 0L),
+                activeRound = activeRound,
+                favorites = favorites,
             )
         }
 

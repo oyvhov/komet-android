@@ -29,9 +29,12 @@ sealed interface Screen {
 
 enum class Phase { ANSWERING, CORRECT, REVEALED }
 
-/** Everything the task screen needs about the round in progress. Lives in the ViewModel. */
-class RoundState(val skill: Skill, val questions: List<Question>) {
-    var index by mutableIntStateOf(0)
+/**
+ * Everything the task screen needs about the round in progress. Lives in the ViewModel. A round picked
+ * up again starts at [startIndex] with the first-try count it had when it was left.
+ */
+class RoundState(val skill: Skill, val questions: List<Question>, startIndex: Int = 0, startFirstTry: Int = 0) {
+    var index by mutableIntStateOf(startIndex)
     var phase by mutableStateOf(Phase.ANSWERING)
     /** Misses on the current task. */
     var misses by mutableIntStateOf(0)
@@ -43,9 +46,11 @@ class RoundState(val skill: Skill, val questions: List<Question>) {
     /** Bumped on every miss so the screen can shake the element at [shakeTarget]. */
     var shakeCount by mutableIntStateOf(0)
     var shakeTarget by mutableIntStateOf(-1)
-    var firstTry by mutableIntStateOf(0)
+    var firstTry by mutableIntStateOf(startFirstTry)
     var praise by mutableIntStateOf(0)
     val startedAt: Long = System.currentTimeMillis()
+    /** When the last task was answered, so practice time is counted task by task. */
+    var lastAnswerAt: Long = startedAt
 
     val question: Question get() = questions[index]
     val isLast: Boolean get() = index == questions.lastIndex
