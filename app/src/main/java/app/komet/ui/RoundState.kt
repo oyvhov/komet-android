@@ -21,6 +21,8 @@ sealed interface Screen {
     data object Play : Screen
     data object Result : Screen
     data object Collection : Screen
+    data object Explore : Screen
+    data class Topic(val topic: app.komet.domain.Topic) : Screen
     data object RaceMenu : Screen
     data object Race : Screen
     data object ParentGate : Screen

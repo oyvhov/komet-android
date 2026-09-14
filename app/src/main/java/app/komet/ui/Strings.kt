@@ -58,6 +58,14 @@ object S {
     val whoPlays = txt("Kven skal spele?", "Hvem skal spille?")
     val newBadge = txt("Nytt!")
     fun nextRank(title: String) = txt("Neste rang: $title")
+    val explore = txt("Utforsk")
+    val exploreDetail = txt("Finn oppgåvene du likar best", "Finn oppgavene du liker best")
+    val favorites = txt("Favorittane dine", "Favorittene dine")
+    val favoritesHint = txt("Trykk på hjartet ved eit nivå for å leggje det her.", "Trykk på hjertet ved et nivå for å legge det her.")
+    val addFavorite = txt("Legg til i favorittar", "Legg til i favoritter")
+    val removeFavorite = txt("Fjern frå favorittar", "Fjern fra favoritter")
+    fun levelCount(count: Int) = txt("$count nivå")
+    val gradeShort = listOf(txt("Førskule", "Førskole"), txt("1. klasse"), txt("2. klasse"), txt("3. klasse"))
 
     // Kart
     fun levels(done: Int, total: Int) = txt("$done av $total nivå")

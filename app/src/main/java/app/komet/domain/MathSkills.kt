@@ -45,6 +45,32 @@ private fun math(
     generate: (QuestionContext) -> Question,
 ) = Skill(id, Subject.MATH, title, detail, grade, symbol, length, generate)
 
+private val numberWords = listOf(
+    txt("null"), txt("ein", "en"), txt("to"), txt("tre"), txt("fire"), txt("fem"),
+    txt("seks"), txt("sju"), txt("åtte"), txt("ni"),
+)
+
+/** Write digits with a finger; the picture shows as many things as the digit means. */
+private fun writeDigitsSkill(id: String, title: Txt, digits: List<Int>) = math(
+    id = id,
+    title = title,
+    detail = txt(digits.joinToString(", ")),
+    grade = 0,
+    symbol = "✎" + digits.first(),
+    length = 5,
+) { ctx ->
+    val r = ctx.random
+    val digit = r.pick(digits)
+    Question(
+        key = digit.toString(),
+        prompt = txt("Skriv talet", "Skriv tallet"),
+        visual = if (digit > 0) Visual.Objects(r.pick(countables), digit) else Visual.None,
+        answer = Answer.Trace(digit.toString()),
+        speech = txt("Skriv talet $digit. Start ved den grøne prikken.", "Skriv tallet $digit. Start ved den grønne prikken."),
+        reward = numberWords[digit].map { "$it." },
+    )
+}
+
 // ── Word problems ──────────────────────────────────────────────────────────────────────────────
 
 private data class Kid(val name: String, val girl: Boolean) {
@@ -297,6 +323,7 @@ object MathCurriculum {
                         explanation = txt("Det er $n."),
                     )
                 },
+                writeDigitsSkill("m_write1", txt("Skriv tal 1–5", "Skriv tall 1–5"), listOf(1, 2, 3, 4, 5)),
                 math("m_count10", txt("Tel til 10", "Tell til 10"), txt("Tel ting", "Tell ting"), 0, "10") { ctx ->
                     val r = ctx.random
                     val n = r.between(4, 10)
@@ -310,6 +337,7 @@ object MathCurriculum {
                         hint = Visual.TenFrames(n),
                     )
                 },
+                writeDigitsSkill("m_write2", txt("Skriv tal 6–9 og 0", "Skriv tall 6–9 og 0"), listOf(6, 7, 8, 9, 0)),
                 math("m_next10", txt("Før og etter"), txt("Tal frå 0 til 10", "Tall fra 0 til 10"), 0, "→") { ctx ->
                     val r = ctx.random
                     val after = r.nextBoolean()

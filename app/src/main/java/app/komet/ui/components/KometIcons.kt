@@ -174,6 +174,26 @@ object KometIcons {
     val Stop = icon("Stop") {
         moveTo(7f, 7f); lineTo(17f, 7f); lineTo(17f, 17f); lineTo(7f, 17f); close()
     }
+
+    private fun PathBuilder.heart() {
+        moveTo(12f, 20.5f)
+        curveTo(5f, 15.6f, 2.5f, 12.2f, 2.5f, 8.6f)
+        curveTo(2.5f, 5.7f, 4.8f, 3.5f, 7.5f, 3.5f)
+        curveTo(9.4f, 3.5f, 11f, 4.6f, 12f, 6.3f)
+        curveTo(13f, 4.6f, 14.6f, 3.5f, 16.5f, 3.5f)
+        curveTo(19.2f, 3.5f, 21.5f, 5.7f, 21.5f, 8.6f)
+        curveTo(21.5f, 12.2f, 19f, 15.6f, 12f, 20.5f)
+        close()
+    }
+
+    val Heart = icon("Heart", filled = true) { heart() }
+
+    val HeartOutline = icon("HeartOutline") { heart() }
+
+    val Compass = icon("Compass") {
+        circle(12f, 12f, 9f)
+        moveTo(15.8f, 8.2f); lineTo(13.4f, 13.4f); lineTo(8.2f, 15.8f); lineTo(10.6f, 10.6f); close()
+    }
 }
 
 /** Five-pointed star around ([cx], [cy]) pointing up. Shared by icons and canvas art. */

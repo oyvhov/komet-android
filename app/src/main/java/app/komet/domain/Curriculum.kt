@@ -38,6 +38,7 @@ object Curriculum {
         return when {
             left is Answer.NumberInput && right is Answer.NumberInput -> left.correct == right.correct
             left is Answer.Choice && right is Answer.Choice -> left.options[left.correct] == right.options[right.correct]
+            left is Answer.Trace && right is Answer.Trace -> left.symbol == right.symbol
             else -> false
         }
     }

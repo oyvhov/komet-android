@@ -27,6 +27,7 @@ object QuestionChecks {
                 }
             }
             is Answer.NumberInput -> assertTrue("$where expects ${answer.correct}", answer.correct in 0..999)
+            is Answer.Trace -> assertTrue("$where asks to write «${answer.symbol}», which has no strokes", Strokes.glyph(answer.symbol) != null)
             is Answer.Build -> {
                 assertTrue("$where has nothing to build", answer.target.isNotEmpty())
                 val tiles = answer.tiles.groupingBy { it }.eachCount()
@@ -49,7 +50,7 @@ object QuestionChecks {
     fun correctNumber(answer: Answer): Int? = when (answer) {
         is Answer.NumberInput -> answer.correct
         is Answer.Choice -> (answer.options[answer.correct] as? Option.Label)?.text?.nn?.takeWhile { it.isDigit() }?.toIntOrNull()
-        is Answer.Build -> null
+        is Answer.Build, is Answer.Trace -> null
     }
 
     fun correctLabel(answer: Answer): String? =

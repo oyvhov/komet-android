@@ -53,7 +53,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import app.komet.domain.Answer
+import app.komet.domain.Strokes
 import app.komet.domain.Subject
+import app.komet.domain.inCase
 import app.komet.domain.Token
 import app.komet.domain.Visual
 import app.komet.ui.KometViewModel
@@ -77,8 +79,14 @@ import app.komet.ui.components.answerText
 import app.komet.ui.components.str
 import app.komet.ui.components.subjectColors
 import app.komet.ui.theme.K
+import app.komet.ui.theme.LocalReading
 import app.komet.ui.theme.LocalVisualBox
 import app.komet.ui.theme.ReadingFont
+import app.komet.ui.components.TracingPad
+import app.komet.ui.components.fixedSp
+import app.komet.ui.components.subjectTone
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import kotlinx.coroutines.delay
 
 @Composable
@@ -266,6 +274,11 @@ private fun Visual.hasBlank(): Boolean = when (this) {
 @Composable
 private fun TaskCard(vm: KometViewModel, round: RoundState, state: VisualState, modifier: Modifier) {
     val question = round.question
+    val trace = question.answer as? Answer.Trace
+    if (trace != null) {
+        TracingCard(vm, round, trace, modifier)
+        return
+    }
     if (question.visual == Visual.None && !round.hintShown && question.answer !is Answer.Build) {
         Box(modifier)
         return
@@ -360,6 +373,8 @@ private fun ColumnScope.AnswerArea(vm: KometViewModel, round: RoundState, correc
                 )
             }
         }
+        // Writing happens on the card; down here is the picture word or the things to count.
+        is Answer.Trace -> TraceExample(question.visual, subjectTone(round.skill.subject).top)
         // The slots live on the task card; only the tiles are down here, and they leave once the word is done.
         is Answer.Build -> if (answering) {
             BuildTiles(
@@ -373,6 +388,75 @@ private fun ColumnScope.AnswerArea(vm: KometViewModel, round: RoundState, correc
                 modifier = Modifier.padding(bottom = 16.dp),
             )
         }
+    }
+}
+
+/** The writing pad on its paper card. */
+@Composable
+private fun TracingCard(vm: KometViewModel, round: RoundState, answer: Answer.Trace, modifier: Modifier) {
+    val glyph = remember(answer.symbol) { Strokes.glyph(answer.symbol) }
+    val description = round.question.prompt.str() + " " + answer.symbol
+    Box(
+        modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(30.dp))
+            .background(K.Paper),
+    ) {
+        if (glyph != null) {
+            TracingPad(
+                glyph = glyph,
+                resetKey = round to round.index,
+                accent = subjectTone(round.skill.subject).face,
+                finished = round.phase != Phase.ANSWERING,
+                description = description,
+                onStroke = vm::traceStroke,
+                onDone = vm::traceFinished,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
+            )
+        }
+    }
+}
+
+/** A word that starts with the letter, first letter lit, or as many things as the digit says. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TraceExample(visual: Visual, accent: Color) {
+    val prefs = LocalReading.current
+    when (visual) {
+        is Visual.Picture -> Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(visual.emoji, fontSize = fixedSp(48.dp))
+            visual.word?.inCase(prefs.letterCase)?.let { word ->
+                Text(
+                    buildAnnotatedString {
+                        withStyle(SpanStyle(color = accent)) { append(word.take(1)) }
+                        append(word.drop(1))
+                    },
+                    color = K.Text,
+                    fontFamily = ReadingFont,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = fixedSp(42.dp),
+                    maxLines = 1,
+                )
+            }
+        }
+        is Visual.Objects -> FlowRow(
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            repeat(visual.count) { Text(visual.emoji, fontSize = fixedSp(32.dp)) }
+        }
+        else -> Unit
     }
 }
 

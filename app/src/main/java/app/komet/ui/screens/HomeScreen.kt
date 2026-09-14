@@ -23,6 +23,12 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import app.komet.ui.components.fixedSp
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -249,6 +255,48 @@ fun HomeScreen(vm: KometViewModel) {
                         row.forEach { tile -> tile(Modifier.weight(1f).fillMaxHeight()) }
                     }
                 }
+                GameTile(
+                    title = S.explore.str(),
+                    detail = S.exploreDetail.str(),
+                    tone = Tones.Explore,
+                    onClick = { vm.open(Screen.Explore) },
+                    modifier = Modifier.fillMaxWidth(),
+                    minHeight = 120.dp,
+                ) { Text("🔭", fontSize = fixedSp(58.dp)) }
+            }
+        }
+
+        val favorites = profile.favorites.mapNotNull(Curriculum::skill)
+        if (favorites.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                GameText(S.favorites.str(), style = MaterialTheme.typography.titleLarge)
+                Row(
+                    Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    favorites.forEach { skill ->
+                        PressSurface(
+                            onClick = { vm.startSkill(skill) },
+                            modifier = Modifier.width(132.dp),
+                            face = K.Surface,
+                            edge = K.SurfaceLow,
+                            contentPadding = PaddingValues(10.dp),
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                LevelMedallion(skill, 54.dp)
+                                Text(
+                                    skill.title.str(),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = K.Text,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
         Spacer(Modifier.heightIn(min = 8.dp))
@@ -384,11 +432,12 @@ private fun GameTile(
     detail: String? = null,
     stars: String? = null,
     badge: String? = null,
+    minHeight: Dp = 164.dp,
     art: @Composable () -> Unit,
 ) {
     PressSurface(
         onClick = onClick,
-        modifier = modifier.heightIn(min = 164.dp),
+        modifier = modifier.heightIn(min = minHeight),
         face = tone.face,
         edge = tone.edge,
         // Deep colour with only a hint of light on top: rich, not candy.

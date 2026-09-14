@@ -92,6 +92,9 @@ sealed interface Answer {
      * [tiles] contains every target value plus distractors. Equal tiles are interchangeable.
      */
     data class Build(val target: List<String>, val tiles: List<String>, val kind: GlyphKind) : Answer
+
+    /** Write [symbol] with a finger, stroke by stroke in writing order; see [Strokes]. Always counts as right when done. */
+    data class Trace(val symbol: String) : Answer
 }
 
 data class Question(

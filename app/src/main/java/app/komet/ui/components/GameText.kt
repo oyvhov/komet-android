@@ -37,6 +37,7 @@ object Tones {
     val Cards = Tone(K.CardsTop, K.Cards, K.CardsDeep)
     val Gold = Tone(K.GoldTop, K.Gold, K.GoldDeep)
     val Good = Tone(K.GoodTop, K.Good, K.GoodDeep)
+    val Explore = Tone(K.ExploreTop, K.Explore, K.ExploreDeep)
     val Dark = Tone(K.SurfaceHigh, K.Surface, K.SurfaceLow, K.Text)
 }
 

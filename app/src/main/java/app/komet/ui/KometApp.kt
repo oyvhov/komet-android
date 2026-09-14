@@ -32,6 +32,8 @@ import app.komet.ui.components.LocalFeedback
 import app.komet.ui.components.SpaceBackground
 import app.komet.ui.components.str
 import app.komet.ui.screens.CollectionScreen
+import app.komet.ui.screens.ExploreScreen
+import app.komet.ui.screens.TopicScreen
 import app.komet.ui.screens.HomeScreen
 import app.komet.ui.screens.OnboardingScreen
 import app.komet.ui.screens.ParentGateScreen
@@ -91,6 +93,8 @@ fun KometApp(vm: KometViewModel) {
                         Screen.Play -> PlayScreen(vm, onQuit = { confirmQuit = true })
                         Screen.Result -> ResultScreen(vm)
                         Screen.Collection -> CollectionScreen(vm)
+                        Screen.Explore -> ExploreScreen(vm)
+                        is Screen.Topic -> TopicScreen(vm, target.topic)
                         Screen.RaceMenu -> RaceMenuScreen(vm)
                         Screen.Race -> RaceScreen(vm)
                         Screen.ParentGate -> ParentGateScreen(vm)

@@ -264,6 +264,18 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** One stroke of a letter or digit is written. */
+    fun traceStroke() {
+        sounds.play(Sfx.TAP)
+    }
+
+    /** The whole letter or digit is written; writing has no wrong answers, only practice. */
+    fun traceFinished() {
+        val current = round ?: return
+        if (current.question.answer !is Answer.Trace || current.phase != Phase.ANSWERING) return
+        markCorrect(current)
+    }
+
     fun showHint() {
         round?.let { it.hintShown = true }
     }
@@ -465,6 +477,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             "cards" -> { goHome(); open(Screen.Collection) }
             "race" -> { goHome(); open(Screen.RaceMenu) }
             "parent" -> { goHome(); open(Screen.Parent) }
+            "explore" -> { goHome(); open(Screen.Explore) }
         }
         skill?.let(Curriculum::skill)?.let {
             goHome()
@@ -484,6 +497,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
                 submitNumber()
             }
             is Answer.Build -> answer.tiles.indices.firstOrNull { answer.tiles[it] != answer.target[current.placed.size] }?.let(::placeTile)
+            is Answer.Trace -> Unit
         }
     }
 
@@ -499,6 +513,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
                 is Answer.Build -> answer.target.forEach { value ->
                     answer.tiles.indices.firstOrNull { it !in current.placed && answer.tiles[it] == value }?.let(::placeTile)
                 }
+                is Answer.Trace -> traceFinished()
             }
         }
         next()

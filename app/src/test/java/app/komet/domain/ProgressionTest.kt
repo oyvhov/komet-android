@@ -30,12 +30,14 @@ class ProgressionTest {
         val p = profile(grade = 1)
         Curriculum.chapters.forEach { chapter -> assertTrue(Progression.isUnlocked(p, chapter, 0)) }
         val tal = Curriculum.chapters.first { it.id == "m_tal" }
-        assertTrue(Progression.isUnlocked(p, tal, 3)) // grade 0
-        assertTrue(Progression.isUnlocked(p, tal, 4)) // first grade-1 level
-        assertFalse(Progression.isUnlocked(p, tal, 5)) // second grade-1 level waits
+        val firstGradeOne = tal.skills.indexOfFirst { it.grade == 1 }
+        assertEquals("m_count20", tal.skills[firstGradeOne].id)
+        assertTrue(Progression.isUnlocked(p, tal, firstGradeOne - 1)) // grade 0
+        assertTrue(Progression.isUnlocked(p, tal, firstGradeOne)) // first grade-1 level
+        assertFalse(Progression.isUnlocked(p, tal, firstGradeOne + 1)) // second grade-1 level waits
         val played = p.copy(skills = mapOf("m_count20" to SkillStats(bestStars = 1)))
-        assertTrue(Progression.isUnlocked(played, tal, 5))
-        assertTrue(Progression.isUnlocked(p.copy(unlockAll = true), tal, 9))
+        assertTrue(Progression.isUnlocked(played, tal, firstGradeOne + 1))
+        assertTrue(Progression.isUnlocked(p.copy(unlockAll = true), tal, tal.skills.lastIndex))
     }
 
     @Test
@@ -193,6 +195,6 @@ class ProgressionTest {
         val count5 = skill("m_count5")
         assertNull(Progression.nextInChapter(p, count5))
         val played = p.copy(skills = mapOf("m_count5" to SkillStats(bestStars = 2)))
-        assertEquals("m_count10", Progression.nextInChapter(played, count5)?.id)
+        assertEquals("counting to five leads to writing those digits", "m_write1", Progression.nextInChapter(played, count5)?.id)
     }
 }

@@ -100,6 +100,38 @@ private fun firstSoundSkill(id: String, hard: Boolean) = reading(
 
 private val lastSoundExcluded = listOf("ND", "LD", "RD", "NG", "RT", "RN", "RS", "RL")
 
+/** Write the letters of one letter set with a finger, with a picture word that starts with the letter. */
+private fun writeLettersSkill(index: Int, id: String, grade: Int): Skill {
+    val set = WordBank.letterSets[index]
+    return reading(
+        id = id,
+        title = txt("Skriv bokstavar ${index + 1}", "Skriv bokstaver ${index + 1}"),
+        detail = txt(set.joinToString(", ")),
+        grade = grade,
+        symbol = "✎" + set.first(),
+        length = 5,
+    ) { ctx ->
+        val r = ctx.random
+        val m = ctx.maalform
+        val letter = r.pick(set)
+        val small = ctx.letterCase == LetterCase.LOWER
+        val examples = WordBank.words.filter { !it.irregularStart && it.text(m).startsWith(letter) && it.text(m).length <= 7 }
+        val example = if (examples.isEmpty()) null else r.pick(examples)
+        Question(
+            key = letter,
+            prompt = txt("Skriv bokstaven"),
+            visual = example?.let { Visual.Picture(it.emoji, word = it.text(m)) } ?: Visual.None,
+            answer = Answer.Trace(if (small) letter.lowerNo() else letter),
+            speech = if (small) {
+                txt("Skriv vesle $letter. Start ved den grøne prikken.", "Skriv lille $letter. Start ved den grønne prikken.")
+            } else {
+                txt("Skriv $letter. Start ved den grøne prikken.", "Skriv $letter. Start ved den grønne prikken.")
+            },
+            reward = example?.let { txt("$letter som i ${lower(it.text(m))}.") } ?: txt("$letter."),
+        )
+    }
+}
+
 object ReadingCurriculum {
 
     val chapters: List<Chapter> = listOf(
@@ -172,6 +204,19 @@ object ReadingCurriculum {
                     )
                 },
                 lettersSkill(4, "r_letters5", 2),
+            ),
+        ),
+        Chapter(
+            id = "r_skriv",
+            subject = Subject.READING,
+            title = txt("Skriv bokstavar", "Skriv bokstaver"),
+            look = PlanetLook(0xFFFFB86B, 0xFFFFE6C2, 0xFFC7672A, ring = true, craters = true),
+            skills = listOf(
+                writeLettersSkill(0, "r_write1", 0),
+                writeLettersSkill(1, "r_write2", 0),
+                writeLettersSkill(2, "r_write3", 1),
+                writeLettersSkill(3, "r_write4", 1),
+                writeLettersSkill(4, "r_write5", 2),
             ),
         ),
         Chapter(

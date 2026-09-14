@@ -186,6 +186,7 @@ fun answerText(answer: Answer): String? = when (answer) {
         is Option.Claps -> option.count.toString()
         is Option.Shape, is Option.Clock -> null
     }
+    is Answer.Trace -> answer.symbol
     is Answer.Build -> {
         val prefs = LocalReading.current
         if (answer.kind == GlyphKind.LETTER) {
