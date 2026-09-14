@@ -52,6 +52,22 @@ Den signerte APK-en er installert over ein gammal lokal 1.0.0 (versionCode 1) p�
 - Andre start: ingen ANR og ingen krasj. Kartet, profilvindauget og butikken fungerer i R8-bygget, og den
   gamle profilen fekk startgåva (15 gullklumpar) og standardastronauten.
 
+## Release på GitHub
+
+- Release: <https://github.com/oyvhov/komet-android/releases/tag/v2.0.0-beta2>, publisert som testutgåve
+  (prerelease), ikkje «latest».
+- Kjelde: tag `v2.0.0-beta2`, commit `725b9a68c78a943d402dd0f3b94ba4b3273a7f4c`. Koden er identisk med
+  byggjecommiten `8dc2613`; berre denne rapporten er lagd til.
+- Vedlegg: éin APK (`Komet-v2.0.0-beta2.apk`, 2 413 062 byte), `SHA256SUMS.txt`,
+  `mapping-v2.0.0-beta2.txt` og `SOURCE_COMMIT.txt`.
+- GitHub-API-et utan token (same kall som appen gjer): `draft=false`, `prerelease=true`, APK-en har
+  `state=uploaded` og `digest=sha256:e7a6aa687d0a076910388b9c6be1727d2176cd27964c5ab50cd7217f52969625`, lik den
+  lokale hashen. `releases/latest` peikar framleis på `v1.2.0`, så appen tilbyr 2.0.0-beta2 berre når
+  «Testutgåver» er slått på.
+- APK-en er ikkje lasta ned att frå GitHub; sjekksummen frå API-et er samanlikna med den lokale fila.
+- CI «Bygg og test» (einingstestar, lint og debug-bygg på Ubuntu): grøn på `main` (køyring 34846152786) og
+  på taggen `v2.0.0-beta2` (køyring 34846152815).
+
 ## Ikkje testa
 
 - Oppdatering gjennom appen frå 2.0.0-beta1 (krev «Testutgåver» på foreldresida). `adb install -r` er ikkje
