@@ -21,7 +21,7 @@ Rekkjefølgja under er prioritert. Kryss av når eit punkt er ferdig og testa.
       merk nivå som favorittar.
 - [x] **Skriv med kometen.** Spor bokstavar og tal med fingeren: nytt kapittel i lesing og tal i matte.
 - [x] **Engelsk.** Ord og fraser med engelsk opplesing: fargar, tal, dyr, mat, kropp, helsingar.
-- [ ] **Verdsrommet.** Kunnskapsmodul om sola, planetane, månen, romfart og stjernene.
+- [x] **Verdsrommet.** Kunnskapsmodul om sola, planetane, månen, romfart og stjernene.
 - [ ] **Repetisjon.** Ein runde med det barnet har bomma mest på.
 - [ ] Testar, lint, signert APK, dokumentasjon og verifikasjon. Publiser berre etter ja frå eigaren.
 

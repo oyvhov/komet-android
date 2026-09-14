@@ -50,7 +50,7 @@ enum class OptionLook { NORMAL, WRONG, CORRECT, FADED }
 private fun Option.isCompact(): Boolean = when (this) {
     is Option.Label -> kind == GlyphKind.NUMBER || kind == GlyphKind.LETTER || kind == GlyphKind.EXACT ||
         (kind == GlyphKind.PLAIN && text.nn.length <= 7 && text.nb.length <= 7)
-    is Option.Shape, is Option.Verdict, is Option.Claps, is Option.Clock, is Option.Picture, is Option.Color -> true
+    is Option.Shape, is Option.Verdict, is Option.Claps, is Option.Clock, is Option.Picture, is Option.Color, is Option.Art -> true
 }
 
 /** Grid of large answer buttons. Long words get one full-width row each on a phone. */
@@ -173,6 +173,12 @@ fun OptionContent(option: Option, ink: Color) {
             Text("👏".repeat(option.count), fontSize = fixedSp(18.dp))
         }
         is Option.Color -> PaintBlob(option.color, Modifier.size(76.dp))
+        is Option.Art -> Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            SpaceCardArt(option.art, Modifier.size(82.dp), emojiSize = 54.dp)
+            option.caption?.let {
+                Text(it.str(), color = ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.Center, maxLines = 1)
+            }
+        }
     }
 }
 
@@ -186,6 +192,7 @@ fun answerText(answer: Answer): String? = when (answer) {
         is Option.Verdict -> (if (option.truth) S.trueLabel else S.falseLabel).str()
         is Option.Claps -> option.count.toString()
         is Option.Shape, is Option.Clock, is Option.Color -> null
+        is Option.Art -> option.caption?.str()
     }
     is Answer.Trace -> answer.symbol
     is Answer.Build -> {

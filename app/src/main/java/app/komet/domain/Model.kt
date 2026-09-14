@@ -2,7 +2,7 @@ package app.komet.domain
 
 import kotlin.random.Random
 
-enum class Subject { MATH, READING, ENGLISH }
+enum class Subject { MATH, READING, ENGLISH, SPACE }
 
 /** How a piece of text in a task is drawn. Reading kinds follow the profile's [LetterCase]. */
 enum class GlyphKind {
@@ -69,6 +69,8 @@ sealed interface Visual {
     data class Compare(val a: Int, val b: Int) : Visual
     /** A big blob of paint in [color] (ARGB). */
     data class ColorBlob(val color: Long) : Visual
+    /** A planet, the sun or another space picture, drawn like the space cards. */
+    data class Art(val art: CardArt) : Visual
 }
 
 sealed interface Option {
@@ -80,6 +82,8 @@ sealed interface Option {
     data class Claps(val count: Int) : Option
     /** A paint swatch in [color] (ARGB). */
     data class Color(val color: Long) : Option
+    /** A space picture with its name underneath. */
+    data class Art(val art: CardArt, val caption: Txt? = null) : Option
 }
 
 sealed interface Answer {

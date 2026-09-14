@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.komet.domain.Curriculum
+import app.komet.domain.SpaceContent
 import app.komet.domain.Progression
 import app.komet.domain.SpaceCards
 import app.komet.domain.Subject
@@ -220,6 +221,15 @@ fun HomeScreen(vm: KometViewModel) {
                         onClick = { vm.open(Screen.World(Subject.ENGLISH)) },
                         modifier = m,
                     ) { Text("🇬🇧", fontSize = fixedSp(54.dp)) }
+                },
+                { m ->
+                    GameTile(
+                        title = S.space.str(),
+                        stars = starsText(vm, Subject.SPACE),
+                        tone = Tones.Space,
+                        onClick = { vm.open(Screen.World(Subject.SPACE)) },
+                        modifier = m,
+                    ) { PlanetArt(SpaceContent.planets.first { it.id == "saturn" }.art.let { (it as app.komet.domain.CardArt.Planet).look }, Modifier.size(88.dp), glow = false) }
                 },
                 { m ->
                     GameTile(
@@ -471,7 +481,13 @@ private fun GameTile(
                 Spacer(Modifier.weight(1f))
                 Box(Modifier.heightIn(min = 72.dp), contentAlignment = Alignment.Center) { art() }
             }
-            GameText(title, style = MaterialTheme.typography.headlineMedium, maxLines = 1)
+            // Long names such as «Verdensrommet» step down in size instead of being cut off.
+            val titleSize = when {
+                title.length > 11 -> 20.sp
+                title.length > 8 -> 23.sp
+                else -> 26.sp
+            }
+            GameText(title, style = MaterialTheme.typography.headlineMedium, fontSize = titleSize, maxLines = 1)
             if (stars != null) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     StarGlyph(filled = true, modifier = Modifier.size(20.dp))

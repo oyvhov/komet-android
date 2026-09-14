@@ -125,6 +125,7 @@ fun TaskVisual(
             }
             is Visual.Compare -> CompareView(visual.a, visual.b)
             is Visual.ColorBlob -> PaintBlob(visual.color, Modifier.size(minOf(180.dp, LocalVisualBox.current.height * 0.8f)))
+            is Visual.Art -> SpaceCardArt(visual.art, Modifier.size(minOf(240.dp, LocalVisualBox.current.height * 0.85f, LocalVisualBox.current.width)), emojiSize = 140.dp)
         }
     }
 }

@@ -479,6 +479,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             "parent" -> { goHome(); open(Screen.Parent) }
             "explore" -> { goHome(); open(Screen.Explore) }
             "english" -> { goHome(); open(Screen.World(app.komet.domain.Subject.ENGLISH)) }
+            "space" -> { goHome(); open(Screen.World(app.komet.domain.Subject.SPACE)) }
         }
         skill?.let(Curriculum::skill)?.let {
             goHome()

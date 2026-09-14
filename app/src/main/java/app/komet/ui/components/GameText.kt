@@ -39,6 +39,7 @@ object Tones {
     val Good = Tone(K.GoodTop, K.Good, K.GoodDeep)
     val Explore = Tone(K.ExploreTop, K.Explore, K.ExploreDeep)
     val English = Tone(K.EnglishTop, K.English, K.EnglishDeep)
+    val Space = Tone(K.CosmosTop, K.Cosmos, K.CosmosDeep)
     val Dark = Tone(K.SurfaceHigh, K.Surface, K.SurfaceLow, K.Text)
 }
 
@@ -46,6 +47,7 @@ fun subjectTone(subject: Subject): Tone = when (subject) {
     Subject.MATH -> Tones.Math
     Subject.READING -> Tones.Reading
     Subject.ENGLISH -> Tones.English
+    Subject.SPACE -> Tones.Space
 }
 
 /**

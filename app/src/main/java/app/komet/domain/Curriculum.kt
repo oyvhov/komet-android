@@ -1,7 +1,7 @@
 package app.komet.domain
 
 object Curriculum {
-    val chapters: List<Chapter> = MathCurriculum.chapters + ReadingCurriculum.chapters + EnglishCurriculum.chapters
+    val chapters: List<Chapter> = MathCurriculum.chapters + ReadingCurriculum.chapters + EnglishCurriculum.chapters + SpaceCurriculum.chapters
 
     val skills: List<Skill> = chapters.flatMap { it.skills }
 
@@ -37,7 +37,9 @@ object Curriculum {
         val right = b.answer
         return when {
             left is Answer.NumberInput && right is Answer.NumberInput -> left.correct == right.correct
-            left is Answer.Choice && right is Answer.Choice -> left.options[left.correct] == right.options[right.correct]
+            // «Sant» twice in a row is normal; only a repeated number or word looks like a bug.
+            left is Answer.Choice && right is Answer.Choice ->
+                left.options[left.correct] !is Option.Verdict && left.options[left.correct] == right.options[right.correct]
             left is Answer.Trace && right is Answer.Trace -> left.symbol == right.symbol
             else -> false
         }

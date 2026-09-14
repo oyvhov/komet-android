@@ -26,6 +26,10 @@ enum class Topic(val subject: Subject, val title: Txt, val icon: String) {
     EN_COLOURS_NUMBERS(Subject.ENGLISH, txt("Fargar og tal", "Farger og tall"), "🎨"),
     EN_WORDS(Subject.ENGLISH, txt("Engelske ord"), "🐶"),
     EN_SPELL(Subject.ENGLISH, txt("Stav på engelsk"), "ABC"),
+    SP_SUN_MOON(Subject.SPACE, txt("Sola og månen", "Solen og månen"), "☀️"),
+    SP_PLANETS(Subject.SPACE, txt("Planetane", "Planetene"), "🪐"),
+    SP_TRAVEL(Subject.SPACE, txt("Romfart"), "🚀"),
+    SP_SKY(Subject.SPACE, txt("Stjernehimmelen"), "✨"),
 }
 
 object Topics {
@@ -53,6 +57,10 @@ object Topics {
         put(Topic.EN_COLOURS_NUMBERS, "e_colours_listen", "e_colours_read", "e_numbers5", "e_numbers10", "e_numbers_read")
         put(Topic.EN_WORDS, "e_animals_listen", "e_animals_read", "e_animals_translate", "e_food_listen", "e_food_read", "e_body_listen", "e_family_listen", "e_clothes_listen", "e_me_read", "e_things_listen", "e_things_translate")
         put(Topic.EN_SPELL, "e_spell3", "e_spell5")
+        put(Topic.SP_SUN_MOON, "s_basics", "s_sun_facts", "s_moon_facts")
+        put(Topic.SP_PLANETS, "s_planet_names", "s_planet_clues", "s_planet_size", "s_planet_order")
+        put(Topic.SP_TRAVEL, "s_travel_things", "s_travel_facts")
+        put(Topic.SP_SKY, "s_sky_things", "s_sky_facts", "s_quiz")
     }
 
     fun of(skill: Skill): Topic? = bySkill[skill.id]

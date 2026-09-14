@@ -66,9 +66,13 @@ object K {
     val Race = Color(0xFFE02A50)
     val RaceTop = Color(0xFFFF7D8C)
     val RaceDeep = Color(0xFF951636)
-    val Cards = Color(0xFF6C3FF0)
-    val CardsTop = Color(0xFFB38FFF)
-    val CardsDeep = Color(0xFF4222B0)
+    // Space cards are treasure, so they are gold; the violet belongs to the Space world.
+    val Cards = Color(0xFFE39400)
+    val CardsTop = Color(0xFFFFD34E)
+    val CardsDeep = Color(0xFF955100)
+    val Cosmos = Color(0xFF6C3FF0)
+    val CosmosTop = Color(0xFFB38FFF)
+    val CosmosDeep = Color(0xFF4222B0)
 
     val English = Color(0xFF23A049)
     val EnglishTop = Color(0xFF6EE58E)

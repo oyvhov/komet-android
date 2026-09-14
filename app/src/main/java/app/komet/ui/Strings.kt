@@ -49,10 +49,12 @@ object S {
     val math = txt("Matte")
     val reading = txt("Norsk")
     val english = txt("Engelsk")
+    val space = txt("Verdsrommet", "Verdensrommet")
     fun subject(subject: app.komet.domain.Subject) = when (subject) {
         app.komet.domain.Subject.MATH -> math
         app.komet.domain.Subject.READING -> reading
         app.komet.domain.Subject.ENGLISH -> english
+        app.komet.domain.Subject.SPACE -> space
     }
     val race = txt("Rakettløp")
     val raceDetail = txt("Rekn så fort du kan", "Regn så fort du kan")
