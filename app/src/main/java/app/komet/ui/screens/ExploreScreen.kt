@@ -257,7 +257,6 @@ fun LevelRow(skill: Skill, stars: Int, favorite: Boolean, onPlay: () -> Unit, on
 @Composable
 fun LevelMedallion(skill: Skill, size: Dp) {
     val tone = subjectTone(skill.subject)
-    val symbol = skill.symbol
     Box(
         Modifier
             .size(size)
@@ -265,18 +264,25 @@ fun LevelMedallion(skill: Skill, size: Dp) {
             .gloss(tone.face, CircleShape, top = tone.top),
         contentAlignment = Alignment.Center,
     ) {
-        val fontSize = fixedSp(size * (if (symbol.length <= 2) 0.4f else if (symbol.length <= 3) 0.3f else 0.22f))
-        if (isPictograph(symbol)) {
-            // Emoji and signs have their own colours; a text outline would only smudge them.
-            Text(symbol, fontSize = fontSize, color = Color.White, maxLines = 1)
-        } else {
-            GameText(
-                symbol,
-                style = MaterialTheme.typography.titleLarge.copy(fontFamily = if (skill.subject == Subject.READING) ReadingFont else null),
-                fontSize = fontSize,
-                maxLines = 1,
-            )
-        }
+        LevelSymbol(skill, size)
+    }
+}
+
+/** The level's symbol sized for a coin of [size]: game lettering, or the sign itself for pictographs. */
+@Composable
+fun LevelSymbol(skill: Skill, size: Dp) {
+    val symbol = skill.symbol
+    val fontSize = fixedSp(size * (if (symbol.length <= 2) 0.4f else if (symbol.length <= 3) 0.3f else 0.22f))
+    if (isPictograph(symbol)) {
+        // Emoji and signs have their own colours; a text outline would only smudge them.
+        Text(symbol, fontSize = fontSize, color = Color.White, maxLines = 1)
+    } else {
+        GameText(
+            symbol,
+            style = MaterialTheme.typography.titleLarge.copy(fontFamily = if (skill.subject == Subject.READING) ReadingFont else null),
+            fontSize = fontSize,
+            maxLines = 1,
+        )
     }
 }
 

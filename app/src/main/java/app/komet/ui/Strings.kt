@@ -119,6 +119,7 @@ object S {
     val nextLevel = txt("Neste nivå")
     val playAgain = txt("Spel igjen", "Spill igjen")
     val home = txt("Heim", "Hjem")
+    val toPlanet = txt("Til planeten")
     val newCard = txt("Nytt romkort!")
     fun newRank(title: String) = txt("Ny rang: $title")
     val goalReached = txt("Dagens oppdrag er fullført!")

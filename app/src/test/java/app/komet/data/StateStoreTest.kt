@@ -3,6 +3,8 @@ package app.komet.data
 import app.komet.domain.ActiveRound
 import app.komet.domain.AppState
 import app.komet.domain.DayStats
+import app.komet.domain.HeroLook
+import app.komet.domain.HeroPalette
 import app.komet.domain.LetterCase
 import app.komet.domain.Maalform
 import app.komet.domain.Profile
@@ -39,6 +41,7 @@ class StateStoreTest {
                 createdAt = 1234L,
                 activeRound = ActiveRound("m_add10", done = 3, firstTry = 2, total = 8, updatedAt = 77L),
                 favorites = listOf("r_rhyme", "m_add10"),
+                hero = HeroLook(suit = 4, skin = 5, hair = 3, hairStyle = 2),
             ),
             Profile(id = "b", name = "Bror", avatar = 0, grade = 0),
         ),
@@ -62,6 +65,17 @@ class StateStoreTest {
         assertEquals(3, profile.grade)
         assertEquals(3, profile.stars("m_add5"))
         assertTrue(profile.raceBest.isEmpty())
+    }
+
+    @Test
+    fun `a profile from before astronauts gets a look from its figure, and odd looks are kept in range`() {
+        val old = StateStore.decode(JSONObject("""{"profiles":[{"id":"x","avatar":9}]}""")).profiles.single()
+        assertEquals(HeroLook.fromAvatar(9), old.hero)
+        val odd = StateStore.decode(JSONObject("""{"profiles":[{"id":"y","hero":{"suit":99,"skin":-1,"hair":6,"hairStyle":4}}]}""")).profiles.single()
+        assertTrue(odd.hero.suit in HeroPalette.suits.indices)
+        assertTrue(odd.hero.skin in HeroPalette.skins.indices)
+        assertTrue(odd.hero.hair in HeroPalette.hairs.indices)
+        assertTrue(odd.hero.hairStyle in 0 until HeroPalette.HAIR_STYLES)
     }
 
     @Test

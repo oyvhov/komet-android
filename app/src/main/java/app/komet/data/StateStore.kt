@@ -3,6 +3,7 @@ package app.komet.data
 import app.komet.domain.ActiveRound
 import app.komet.domain.AppState
 import app.komet.domain.DayStats
+import app.komet.domain.HeroLook
 import app.komet.domain.LetterCase
 import app.komet.domain.Maalform
 import app.komet.domain.Profile
@@ -109,6 +110,12 @@ class StateStore(private val file: File) {
                 })
             }
             put("favorites", JSONArray().apply { profile.favorites.forEach { put(it) } })
+            put("hero", JSONObject().apply {
+                put("suit", profile.hero.suit)
+                put("skin", profile.hero.skin)
+                put("hair", profile.hero.hair)
+                put("hairStyle", profile.hero.hairStyle)
+            })
         }
 
         fun decode(json: JSONObject): AppState {
@@ -177,10 +184,19 @@ class StateStore(private val file: File) {
             }
             val favoritesJson = json.optJSONArray("favorites") ?: JSONArray()
             val favorites = (0 until favoritesJson.length()).mapNotNull { favoritesJson.optString(it, "").ifBlank { null } }.distinct()
+            val avatar = json.optInt("avatar", 0)
+            val hero = json.optJSONObject("hero")?.let { look ->
+                HeroLook(
+                    suit = look.optInt("suit", 0),
+                    skin = look.optInt("skin", 1),
+                    hair = look.optInt("hair", 1),
+                    hairStyle = look.optInt("hairStyle", 0),
+                ).safe()
+            } ?: HeroLook.fromAvatar(avatar)
             return Profile(
                 id = id,
                 name = json.optString("name", "").ifBlank { "Romfarar" },
-                avatar = json.optInt("avatar", 0),
+                avatar = avatar,
                 grade = json.optInt("grade", 1).coerceIn(0, 3),
                 maalform = enumOrNull<Maalform>(json.optString("maalform", "")) ?: Maalform.NYNORSK,
                 letterCase = enumOrNull<LetterCase>(json.optString("letterCase", "")) ?: LetterCase.UPPER,
@@ -196,6 +212,7 @@ class StateStore(private val file: File) {
                 createdAt = json.optLong("createdAt", 0L),
                 activeRound = activeRound,
                 favorites = favorites,
+                hero = hero,
             )
         }
 

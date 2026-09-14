@@ -49,11 +49,11 @@ import app.komet.ui.theme.K
 
 /** Sound and vibration for controls, provided once from the root so buttons stay plain composables. */
 interface Feedback {
-    fun sfx(effect: Sfx)
+    fun sfx(effect: Sfx, volume: Float = 0.9f)
     fun tap() = sfx(Sfx.TAP)
 }
 
-val LocalFeedback = staticCompositionLocalOf<Feedback> { object : Feedback { override fun sfx(effect: Sfx) = Unit } }
+val LocalFeedback = staticCompositionLocalOf<Feedback> { object : Feedback { override fun sfx(effect: Sfx, volume: Float) = Unit } }
 
 /**
  * Paints a shape the way game buttons are painted: a gradient from a lighter top, a soft gloss over

@@ -7,7 +7,7 @@ import kotlin.math.exp
 import kotlin.math.min
 import kotlin.math.sin
 
-enum class Sfx { TAP, CORRECT, WRONG, STAR, COMPLETE, UNLOCK, TICK, GO }
+enum class Sfx { TAP, CORRECT, WRONG, STAR, COMPLETE, UNLOCK, TICK, GO, WHOOSH, STEP, BOING, BEEP, SPARKLE }
 
 /**
  * Every sound in Komet is synthesised here: short bell tones with a soft attack, so feedback is
@@ -59,9 +59,23 @@ object Synth {
         }
         Sfx.TICK -> listOf(Tone(880.0, 0.0, 0.06, 0.3, soft, decay = 50.0))
         Sfx.GO -> listOf(Tone(1318.5, 0.0, 0.35, 0.4), Tone(1760.0, 0.0, 0.35, 0.28))
+        Sfx.WHOOSH -> emptyList()
+        Sfx.STEP -> listOf(Tone(150.0, 0.0, 0.07, 0.5, soft, decay = 38.0, slideTo = 95.0))
+        Sfx.BOING -> listOf(
+            Tone(260.0, 0.0, 0.16, 0.45, soft, decay = 5.0, slideTo = 540.0),
+            Tone(540.0, 0.14, 0.26, 0.4, soft, decay = 7.0, slideTo = 380.0),
+        )
+        Sfx.BEEP -> listOf(
+            Tone(1174.66, 0.0, 0.08, 0.35, soft, decay = 18.0),
+            Tone(1567.98, 0.09, 0.12, 0.35, soft, decay = 14.0, slideTo = 1975.5),
+        )
+        Sfx.SPARKLE -> listOf(2093.0, 2637.0, 3136.0, 3520.0, 4186.0).mapIndexed { index, frequency ->
+            Tone(frequency, index * 0.05, 0.4, 0.22, decay = 7.0)
+        }
     }
 
     fun render(sfx: Sfx): FloatArray {
+        if (sfx == Sfx.WHOOSH) return whoosh()
         val tones = tones(sfx)
         val seconds = tones.maxOf { it.start + it.duration } + 0.02
         val out = FloatArray((seconds * SAMPLE_RATE).toInt())
@@ -90,6 +104,30 @@ object Synth {
             val scale = 0.8f / peak
             for (i in out.indices) out[i] *= scale
         }
+        return out
+    }
+
+    /** Rushing air for the rocket: noise through a filter that opens and closes as it passes. */
+    private fun whoosh(): FloatArray {
+        val seconds = 0.95
+        val out = FloatArray((seconds * SAMPLE_RATE).toInt())
+        val random = java.util.Random(7)
+        var low = 0.0
+        var band = 0.0
+        for (i in out.indices) {
+            val progress = i.toDouble() / out.size
+            val swell = sin(PI * progress)
+            val envelope = swell * swell * min(1.0, (out.size - i) / (0.05 * SAMPLE_RATE))
+            val cutoff = 250.0 + 2400.0 * swell
+            val f = 2.0 * sin(PI * cutoff / SAMPLE_RATE)
+            val noise = random.nextDouble() * 2.0 - 1.0
+            low += f * band
+            val high = noise - low - 0.6 * band
+            band += f * high
+            out[i] = (band * envelope).toFloat()
+        }
+        val peak = out.maxOfOrNull { abs(it) } ?: 0f
+        if (peak > 0f) for (i in out.indices) out[i] *= 0.7f / peak
         return out
     }
 

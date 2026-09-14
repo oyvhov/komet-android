@@ -29,6 +29,8 @@ import app.komet.domain.SpaceCards
 import app.komet.domain.Subject
 import app.komet.domain.Txt
 import app.komet.ui.components.Feedback
+import app.komet.ui.scene.MapPlace
+import app.komet.ui.scene.mapPlaceOf
 import app.komet.update.AppUpdater
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -63,10 +65,13 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
     var result by mutableStateOf<ResultInfo?>(null)
         private set
 
+    /** Where the rocket is parked on the star map. Starts at the planet played last. */
+    var mapPlace by mutableStateOf(state.activeProfile?.lastSubject?.let(::mapPlaceOf) ?: MapPlace.MATH)
+
     private var raceJob: Job? = null
 
     val feedback = object : Feedback {
-        override fun sfx(effect: Sfx) = sounds.play(effect)
+        override fun sfx(effect: Sfx, volume: Float) = sounds.play(effect, volume)
     }
 
     init {
@@ -159,6 +164,14 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         stack += if (state.profiles.isEmpty()) Screen.Onboarding else Screen.Home
     }
 
+    /** A result goes back to the planet its level came from; anything else goes home. */
+    val resultReturnsToPlanet: Boolean
+        get() = stack.size >= 2 && stack[stack.lastIndex - 1] is Screen.World
+
+    fun leaveResult() {
+        if (resultReturnsToPlanet) back() else goHome()
+    }
+
     private fun replaceTop(target: Screen) {
         speaker.stop()
         if (stack.isEmpty()) stack += target else stack[stack.lastIndex] = target
@@ -181,7 +194,9 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun switchProfile(id: String) {
-        if (state.profiles.any { it.id == id }) commit(state.copy(activeProfileId = id))
+        if (state.profiles.none { it.id == id }) return
+        commit(state.copy(activeProfileId = id))
+        mapPlace = profile?.lastSubject?.let(::mapPlaceOf) ?: MapPlace.MATH
     }
 
     fun deleteProfile(id: String) {

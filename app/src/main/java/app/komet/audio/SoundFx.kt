@@ -10,7 +10,7 @@ import kotlin.concurrent.thread
 /** Plays the synthesised effects. Rendering happens once per install, on a background thread. */
 class SoundFx(context: Context) {
     private val pool = SoundPool.Builder()
-        .setMaxStreams(4)
+        .setMaxStreams(6)
         .setAudioAttributes(
             AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_GAME)
@@ -48,6 +48,6 @@ class SoundFx(context: Context) {
 
     private companion object {
         /** Bump when [Synth] changes so cached files are rendered again. */
-        const val VERSION = 1
+        const val VERSION = 2
     }
 }

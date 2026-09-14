@@ -52,6 +52,8 @@ data class Profile(
     val activeRound: ActiveRound? = null,
     /** Levels the child has marked with a heart, in the order they were added. */
     val favorites: List<String> = emptyList(),
+    /** The child's astronaut. */
+    val hero: HeroLook = HeroLook.fromAvatar(avatar),
 ) {
     fun stars(skillId: String): Int = skills[skillId]?.bestStars ?: 0
 

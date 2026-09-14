@@ -158,7 +158,16 @@ fun ResultScreen(vm: KometViewModel) {
             } else {
                 BigButton(S.playAgain.str(), onClick = { info.skill?.let(vm::startSkill) }, icon = KometIcons.Refresh, modifier = Modifier.fillMaxWidth())
             }
-            BigButton(S.home.str(), onClick = { vm.goHome() }, face = K.SurfaceHigh, edge = K.SurfaceLow, textColor = K.Text, icon = KometIcons.Home, modifier = Modifier.fillMaxWidth())
+            val toPlanet = vm.resultReturnsToPlanet
+            BigButton(
+                (if (toPlanet) S.toPlanet else S.home).str(),
+                onClick = { vm.leaveResult() },
+                face = K.SurfaceHigh,
+                edge = K.SurfaceLow,
+                textColor = K.Text,
+                icon = if (toPlanet) KometIcons.Rocket else KometIcons.Home,
+                modifier = Modifier.fillMaxWidth(),
+            )
             Spacer(Modifier.height(12.dp))
         }
         if (outcome.stars >= 2 || outcome.newRecord) ConfettiBurst(info, Modifier.fillMaxSize())

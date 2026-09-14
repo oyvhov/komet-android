@@ -34,7 +34,6 @@ import app.komet.ui.components.str
 import app.komet.ui.screens.CollectionScreen
 import app.komet.ui.screens.ExploreScreen
 import app.komet.ui.screens.TopicScreen
-import app.komet.ui.screens.HomeScreen
 import app.komet.ui.screens.OnboardingScreen
 import app.komet.ui.screens.ParentGateScreen
 import app.komet.ui.screens.ParentScreen
@@ -42,7 +41,8 @@ import app.komet.ui.screens.PlayScreen
 import app.komet.ui.screens.RaceMenuScreen
 import app.komet.ui.screens.RaceScreen
 import app.komet.ui.screens.ResultScreen
-import app.komet.ui.screens.WorldScreen
+import app.komet.ui.scene.PlanetScreen
+import app.komet.ui.scene.StarMapScreen
 import app.komet.ui.theme.K
 import app.komet.ui.theme.LocalReading
 import app.komet.ui.theme.ReadingPrefs
@@ -72,7 +72,7 @@ fun KometApp(vm: KometViewModel) {
 
         SpaceBackground(
             modifier = Modifier.fillMaxSize(),
-            twinkle = screen != Screen.Play && screen != Screen.Race,
+            twinkle = screen == Screen.Onboarding || screen == Screen.AddProfile || screen == Screen.Result || screen == Screen.Collection,
         ) {
             AnimatedContent(
                 targetState = screen,
@@ -81,16 +81,18 @@ fun KometApp(vm: KometViewModel) {
                 },
                 label = "screen",
             ) { target ->
+                // Scenes fill the whole screen and keep their own controls clear of the system bars.
+                val scene = target == Screen.Home || target is Screen.World
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .safeDrawingPadding(),
+                        .then(if (scene) Modifier else Modifier.safeDrawingPadding()),
                 ) {
                     when (target) {
                         Screen.Onboarding -> OnboardingScreen(vm, adding = false)
                         Screen.AddProfile -> OnboardingScreen(vm, adding = true)
-                        Screen.Home -> HomeScreen(vm)
-                        is Screen.World -> WorldScreen(vm, target.subject)
+                        Screen.Home -> StarMapScreen(vm)
+                        is Screen.World -> PlanetScreen(vm, target.subject)
                         Screen.Play -> PlayScreen(vm, onQuit = { confirmQuit = true })
                         Screen.Result -> ResultScreen(vm)
                         Screen.Collection -> CollectionScreen(vm)
