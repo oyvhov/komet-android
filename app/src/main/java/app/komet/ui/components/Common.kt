@@ -31,7 +31,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -46,8 +48,8 @@ import app.komet.ui.theme.K
 
 val MaxContentWidth = 720.dp
 
-fun subjectColors(subject: Subject): Pair<Color, Color> =
-    if (subject == Subject.MATH) K.Math to K.MathDeep else K.Reading to K.ReadingDeep
+/** The bright accent and the dark edge of a subject; see [subjectTone] for the full set. */
+fun subjectColors(subject: Subject): Pair<Color, Color> = subjectTone(subject).let { it.accent to it.edge }
 
 /** One readable, centred column. Wide windows get margins instead of stretched content. */
 @Composable
@@ -111,10 +113,12 @@ fun Panel(
     padding: Dp = 18.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val shape = RoundedCornerShape(26.dp)
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(26.dp))
-            .background(color)
+            .clip(shape)
+            .background(Brush.verticalGradient(listOf(lerp(color, Color.White, 0.05f), lerp(color, K.SpaceTop, 0.25f))))
+            .border(1.5.dp, Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.13f), Color.White.copy(alpha = 0.02f))), shape)
             .padding(padding),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         content = content,
@@ -125,7 +129,8 @@ fun Panel(
 fun Pill(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null, iconTint: Color = K.Gold, star: Boolean = false) {
     Row(
         modifier = modifier
-            .background(K.SurfaceHigh.copy(alpha = 0.85f), RoundedCornerShape(50))
+            .background(K.SurfaceLow.copy(alpha = 0.9f), RoundedCornerShape(50))
+            .border(1.5.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(50))
             .padding(horizontal = 12.dp, vertical = 7.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -139,19 +144,24 @@ fun Pill(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null,
 @Composable
 fun ProgressTrack(progress: Float, modifier: Modifier = Modifier, color: Color = K.Gold, track: Color = K.SurfaceLow, height: Dp = 12.dp) {
     val animated by animateFloatAsState(progress.coerceIn(0f, 1f), tween(500), label = "progress")
+    // A sunken groove with a glossy bar in it, like a health bar in a game.
     Box(
         modifier = modifier
             .height(height)
             .clip(RoundedCornerShape(50))
-            .background(track),
+            .background(Brush.verticalGradient(listOf(lerp(track, Color.Black, 0.35f), track)))
+            .border(1.dp, K.Outline.copy(alpha = 0.5f), RoundedCornerShape(50)),
     ) {
-        Box(
-            Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(animated)
-                .clip(RoundedCornerShape(50))
-                .background(color),
-        )
+        if (animated > 0f) {
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(animated)
+                    .clip(RoundedCornerShape(50))
+                    .background(Brush.verticalGradient(listOf(lerp(color, Color.White, 0.35f), color, lerp(color, Color.Black, 0.15f))))
+                    .border(1.dp, K.Outline.copy(alpha = 0.35f), RoundedCornerShape(50)),
+            )
+        }
     }
 }
 
@@ -168,11 +178,16 @@ fun SegmentedChoice(options: List<String>, selected: Int, onSelect: (Int) -> Uni
                     .heightIn(min = 56.dp),
                 face = if (active) K.Gold else K.SurfaceHigh,
                 edge = if (active) K.GoldDeep else K.SurfaceLow,
+                top = if (active) K.GoldTop else lerp(K.SurfaceHigh, Color.White, 0.2f),
                 depth = 4.dp,
                 shape = RoundedCornerShape(16.dp),
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 8.dp),
             ) {
-                Text(label, color = if (active) K.Ink else K.Text, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
+                if (active) {
+                    GameText(label, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
+                } else {
+                    Text(label, color = K.Text, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
+                }
             }
         }
     }

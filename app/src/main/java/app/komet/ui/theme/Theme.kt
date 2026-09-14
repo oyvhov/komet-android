@@ -31,40 +31,50 @@ import app.komet.domain.Maalform
  * colour per world so a child learns where they are from colour alone.
  */
 object K {
-    val SpaceTop = Color(0xFF0A0F2E)
-    val SpaceBottom = Color(0xFF1E1850)
-    val Nebula = Color(0xFF3B2A8C)
+    val SpaceTop = Color(0xFF060A24)
+    val SpaceBottom = Color(0xFF141A4E)
+    val Nebula = Color(0xFF3A2F9A)
 
-    val Surface = Color(0xFF1A2052)
-    val SurfaceHigh = Color(0xFF262E6E)
-    val SurfaceLow = Color(0xFF131940)
-    val Line = Color(0xFF39428C)
+    val Surface = Color(0xFF1A2361)
+    val SurfaceHigh = Color(0xFF28327D)
+    val SurfaceLow = Color(0xFF0F153E)
+    val Line = Color(0xFF36428F)
+
+    /** The dark rim around game text, buttons and stars. */
+    val Outline = Color(0xFF070A22)
 
     val Text = Color(0xFFF7F8FF)
-    val Muted = Color(0xFFB7BEE8)
-    val Faint = Color(0xFF8189BD)
+    val Muted = Color(0xFFB4BCEB)
+    val Faint = Color(0xFF7F88C0)
 
     val Paper = Color(0xFFFFFBF3)
     val PaperShade = Color(0xFFF1EADB)
     val Ink = Color(0xFF1B1744)
     val InkMuted = Color(0xFF5D5A84)
 
-    val Gold = Color(0xFFFFD34E)
-    val GoldDeep = Color(0xFFD69A00)
+    val Gold = Color(0xFFFFC21A)
+    val GoldTop = Color(0xFFFFE27A)
+    val GoldDeep = Color(0xFFC27400)
 
-    val Math = Color(0xFFFFA64D)
-    val MathDeep = Color(0xFFCC6E1B)
-    val Reading = Color(0xFF4DD9E8)
-    val ReadingDeep = Color(0xFF1B98AD)
-    val Race = Color(0xFFFF6E9C)
-    val RaceDeep = Color(0xFFC53F6C)
-    val Cards = Color(0xFFAB8CFF)
-    val CardsDeep = Color(0xFF7053D8)
+    // Each world has a deep, saturated face, a light top for the gloss and a dark edge underneath.
+    val Math = Color(0xFFF26A0F)
+    val MathTop = Color(0xFFFFB347)
+    val MathDeep = Color(0xFFA9420A)
+    val Reading = Color(0xFF1684E6)
+    val ReadingTop = Color(0xFF52D5FF)
+    val ReadingDeep = Color(0xFF0B4FA8)
+    val Race = Color(0xFFE02A50)
+    val RaceTop = Color(0xFFFF7D8C)
+    val RaceDeep = Color(0xFF951636)
+    val Cards = Color(0xFF6C3FF0)
+    val CardsTop = Color(0xFFB38FFF)
+    val CardsDeep = Color(0xFF4222B0)
 
-    val Good = Color(0xFF3ED67F)
-    val GoodDeep = Color(0xFF1E9C55)
-    val Bad = Color(0xFFFF6B6B)
-    val BadDeep = Color(0xFFC64141)
+    val Good = Color(0xFF28CC5E)
+    val GoodTop = Color(0xFF7DF29B)
+    val GoodDeep = Color(0xFF14853A)
+    val Bad = Color(0xFFFF5A64)
+    val BadDeep = Color(0xFFB8303D)
     val Reveal = Color(0xFFFFB547)
 
     val Key = Color(0xFFFFFFFF)

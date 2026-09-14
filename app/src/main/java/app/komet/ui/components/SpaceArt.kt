@@ -31,6 +31,11 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.padding
 import app.komet.domain.asEmoji
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -346,12 +351,19 @@ fun StarGlyph(filled: Boolean, modifier: Modifier = Modifier, color: Color = K.G
             if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
         }
         path.close()
+        val rim = Stroke(width = size.minDimension * 0.065f, join = StrokeJoin.Round)
         if (filled) {
-            drawPath(path, color)
-            drawPath(path, Color.White.copy(alpha = 0.25f), style = Stroke(width = size.minDimension * 0.04f))
+            // A dark drop, a gold body lit from above, a rim and a spark of shine: a star worth earning.
+            translate(0f, size.minDimension * 0.05f) { drawPath(path, K.Outline.copy(alpha = 0.55f)) }
+            drawPath(
+                path,
+                Brush.verticalGradient(listOf(lerp(color, Color.White, 0.6f), color, lerp(color, Color(0xFFB34700), 0.45f)), startY = cy - outer, endY = cy + outer),
+            )
+            drawPath(path, K.Outline.copy(alpha = 0.6f), style = rim)
+            drawCircle(Color.White.copy(alpha = 0.8f), radius = size.minDimension * 0.06f, center = Offset(cx - outer * 0.2f, cy - outer * 0.3f))
         } else {
-            drawPath(path, Color.White.copy(alpha = 0.12f))
-            drawPath(path, Color.White.copy(alpha = 0.3f), style = Stroke(width = size.minDimension * 0.05f))
+            drawPath(path, K.Outline.copy(alpha = 0.4f))
+            drawPath(path, Color.White.copy(alpha = 0.2f), style = rim)
         }
     }
 }
@@ -381,7 +393,10 @@ fun Avatar(index: Int, modifier: Modifier = Modifier, size: Dp = 56.dp) {
     Box(
         modifier = modifier
             .size(size)
-            .background(Brush.linearGradient(listOf(top, bottom)), CircleShape),
+            .border(2.dp, K.Outline, CircleShape)
+            .padding(2.dp)
+            .background(Brush.linearGradient(listOf(top, bottom)), CircleShape)
+            .border((size.value * 0.05f).coerceAtLeast(2f).dp, Color.White.copy(alpha = 0.85f), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         Text(avatarEmoji[safe].asEmoji(), fontSize = (size.value * 0.5f).sp)

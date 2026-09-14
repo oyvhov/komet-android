@@ -1,19 +1,26 @@
 package app.komet.ui.screens
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -29,13 +36,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.komet.domain.Curriculum
 import app.komet.domain.Progression
 import app.komet.domain.SpaceCards
@@ -45,6 +58,7 @@ import app.komet.ui.S
 import app.komet.ui.Screen
 import app.komet.ui.components.Avatar
 import app.komet.ui.components.BigButton
+import app.komet.ui.components.GameText
 import app.komet.ui.components.KometIcons
 import app.komet.ui.components.PageColumn
 import app.komet.ui.components.Panel
@@ -56,9 +70,12 @@ import app.komet.ui.components.RocketArt
 import app.komet.ui.components.RoundIconButton
 import app.komet.ui.components.SpaceCardArt
 import app.komet.ui.components.StarGlyph
+import app.komet.ui.components.Tone
+import app.komet.ui.components.Tones
 import app.komet.ui.components.str
-import app.komet.ui.components.subjectColors
+import app.komet.ui.components.subjectTone
 import app.komet.ui.theme.K
+import app.komet.ui.theme.LocalMotion
 
 @Composable
 fun HomeScreen(vm: KometViewModel) {
@@ -66,8 +83,9 @@ fun HomeScreen(vm: KometViewModel) {
     val today = vm.today
     val recommended = remember(profile) { Progression.recommended(profile) }
     val chapter = Curriculum.chapterOf(recommended)
-    val (accent, accentDeep) = subjectColors(recommended.subject)
+    val tone = subjectTone(recommended.subject)
     val rank = Progression.rank(profile.totalStars)
+    val rankNumber = Progression.ranks.indexOf(rank) + 1
     val nextRank = Progression.nextRank(profile.totalStars)
     val streak = profile.currentStreak(today)
     val roundsToday = profile.today(today).rounds
@@ -77,18 +95,19 @@ fun HomeScreen(vm: KometViewModel) {
 
     val switchLabel = S.switchProfile.str()
 
-    PageColumn {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    PageColumn(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             Box(
                 Modifier
                     .semantics { contentDescription = switchLabel }
                     .clickable(role = Role.Button, enabled = vm.state.profiles.size > 1) { picker = true },
             ) {
-                Avatar(profile.avatar, size = 60.dp)
+                Avatar(profile.avatar, size = 68.dp)
+                RankBadge(rankNumber, Modifier.align(Alignment.BottomEnd).offset(x = 6.dp, y = 6.dp))
             }
             Column(Modifier.weight(1f)) {
-                Text(S.hello(profile.name).str(), style = MaterialTheme.typography.headlineMedium, color = K.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(rank.title.str(), style = MaterialTheme.typography.titleMedium, color = K.Gold)
+                GameText(profile.name, style = MaterialTheme.typography.headlineMedium, maxLines = 1)
+                GameText(rank.title.str(), style = MaterialTheme.typography.titleMedium, color = K.Gold, maxLines = 1)
             }
             // A waiting update is for the parents, so it shows as a quiet dot on their door only.
             Box {
@@ -98,137 +117,117 @@ fun HomeScreen(vm: KometViewModel) {
                         Modifier
                             .align(Alignment.TopEnd)
                             .size(14.dp)
+                            .border(2.dp, K.Outline, CircleShape)
                             .background(K.Gold, CircleShape),
                     )
                 }
             }
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Pill(profile.totalStars.toString(), star = true)
-            if (streak > 0) Pill(S.streak(streak).str(), icon = KometIcons.Flame, iconTint = Color(0xFFFF8A3D))
-            Spacer(Modifier.weight(1f))
-        }
-        if (nextRank != null) {
-            val span = (nextRank.minStars - rank.minStars).coerceAtLeast(1)
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(S.nextRank(nextRank.title.str()).str(), style = MaterialTheme.typography.labelLarge, color = K.Muted, modifier = Modifier.weight(1f))
-                    Text("${profile.totalStars} / ${nextRank.minStars}", style = MaterialTheme.typography.labelLarge, color = K.Muted)
-                    StarGlyph(filled = true, modifier = Modifier.padding(start = 4.dp).size(16.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Pill(profile.totalStars.toString(), star = true)
+                if (streak > 0) Pill(S.streak(streak).str(), icon = KometIcons.Flame, iconTint = Color(0xFFFF8A3D))
+                Spacer(Modifier.weight(1f))
+                if (nextRank != null) {
+                    Text(S.nextRank(nextRank.title.str()).str(), style = MaterialTheme.typography.labelLarge, color = K.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-                ProgressTrack((profile.totalStars - rank.minStars) / span.toFloat(), Modifier.fillMaxWidth(), color = K.Gold, track = K.SurfaceHigh, height = 10.dp)
+            }
+            if (nextRank != null) {
+                val span = (nextRank.minStars - rank.minStars).coerceAtLeast(1)
+                ProgressTrack((profile.totalStars - rank.minStars) / span.toFloat(), Modifier.fillMaxWidth(), color = K.Gold, track = K.SurfaceLow, height = 14.dp)
             }
         }
 
-        // Neste oppdrag
+        MissionCard(
+            label = S.nextMission.str(),
+            title = recommended.title.str(),
+            detail = (if (recommended.subject == Subject.MATH) S.math else S.reading).str() + " · " + chapter.title.str(),
+            tone = tone,
+            onStart = { vm.startSkill(recommended) },
+        ) {
+            PlanetArt(chapter.look, Modifier.size(150.dp))
+        }
+
         Panel(Modifier.fillMaxWidth(), color = K.Surface) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                PlanetArt(chapter.look, Modifier.size(96.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(S.nextMission.str().uppercase(), style = MaterialTheme.typography.labelMedium, color = accent)
-                    Text(recommended.title.str(), style = MaterialTheme.typography.headlineMedium, color = K.Text)
-                    Text(
-                        (if (recommended.subject == Subject.MATH) S.math else S.reading).str() + " · " + chapter.title.str(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = K.Muted,
-                    )
-                }
-            }
-            BigButton(
-                text = S.start.str(),
-                onClick = { vm.startSkill(recommended) },
-                icon = KometIcons.Play,
-                face = accent,
-                edge = accentDeep,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-
-        // Dagens oppdrag
-        Panel(Modifier.fillMaxWidth(), color = K.SurfaceLow.copy(alpha = 0.8f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text(S.dailyMission.str(), style = MaterialTheme.typography.titleLarge, color = K.Text)
+                    GameText(S.dailyMission.str(), style = MaterialTheme.typography.titleLarge)
                     Text(
                         if (roundsToday >= goal) S.goalDone.str() else S.roundsOf(roundsToday.coerceAtMost(goal), goal).str(),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (roundsToday >= goal) K.Good else K.Muted,
+                        fontWeight = FontWeight.Bold,
+                        color = if (roundsToday >= goal) K.GoodTop else K.Muted,
                     )
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    repeat(goal) { index -> StarGlyph(filled = index < roundsToday, modifier = Modifier.size(30.dp)) }
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    repeat(goal) { index -> StarGlyph(filled = index < roundsToday, modifier = Modifier.size(38.dp)) }
                 }
             }
-            ProgressTrack(roundsToday / goal.toFloat(), Modifier.fillMaxWidth(), color = if (roundsToday >= goal) K.Good else K.Gold, track = K.SurfaceHigh)
+            ProgressTrack(roundsToday / goal.toFloat(), Modifier.fillMaxWidth(), color = if (roundsToday >= goal) K.Good else K.Gold, track = K.SurfaceLow, height = 14.dp)
         }
 
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             val wide = maxWidth >= 600.dp
             val tiles: List<@Composable (Modifier) -> Unit> = listOf(
                 { m ->
-                    SubjectTile(
+                    GameTile(
                         title = S.math.str(),
-                        detail = starsText(vm, Subject.MATH),
-                        look = Curriculum.chapters(Subject.MATH).first().look,
-                        face = K.Math,
-                        edge = K.MathDeep,
+                        stars = starsText(vm, Subject.MATH),
+                        tone = Tones.Math,
                         onClick = { vm.open(Screen.World(Subject.MATH)) },
                         modifier = m,
-                    )
+                    ) { PlanetArt(Curriculum.chapters(Subject.MATH).first().look, Modifier.size(80.dp), glow = false) }
                 },
                 { m ->
-                    SubjectTile(
+                    GameTile(
                         title = S.reading.str(),
-                        detail = starsText(vm, Subject.READING),
-                        look = Curriculum.chapters(Subject.READING).first().look,
-                        face = K.Reading,
-                        edge = K.ReadingDeep,
+                        stars = starsText(vm, Subject.READING),
+                        tone = Tones.Reading,
                         onClick = { vm.open(Screen.World(Subject.READING)) },
                         modifier = m,
-                    )
+                    ) { PlanetArt(Curriculum.chapters(Subject.READING).first().look, Modifier.size(80.dp), glow = false) }
                 },
                 { m ->
-                    FeatureTile(
+                    GameTile(
                         title = S.race.str(),
                         detail = S.raceDetail.str(),
-                        face = K.Race,
-                        edge = K.RaceDeep,
+                        tone = Tones.Race,
                         onClick = { vm.open(Screen.RaceMenu) },
                         modifier = m,
-                    ) { RocketArt(Modifier.size(46.dp, 72.dp), body = Color.White, accent = K.Gold) }
+                    ) { FloatingRocket() }
                 },
                 { m ->
-                    FeatureTile(
+                    GameTile(
                         title = S.cards.str(),
                         detail = S.cardsOf(unlockedCards, SpaceCards.all.size).str(),
-                        face = K.Cards,
-                        edge = K.CardsDeep,
+                        tone = Tones.Cards,
                         badge = if (unlockedCards > profile.seenCards) S.newBadge.str() else null,
                         onClick = { vm.open(Screen.Collection) },
                         modifier = m,
                     ) {
                         val card = SpaceCards.all.getOrNull(unlockedCards - 1)
                         if (card != null) {
-                            SpaceCardArt(card.art, Modifier.size(72.dp))
+                            SpaceCardArt(card.art, Modifier.size(80.dp), emojiSize = 52.dp)
                         } else {
                             // Nothing collected yet: a sealed card says «there is something to win».
                             Box(
                                 Modifier
-                                    .size(52.dp, 68.dp)
-                                    .background(K.CardsDeep, RoundedCornerShape(10.dp)),
+                                    .size(56.dp, 74.dp)
+                                    .border(2.dp, K.Outline, RoundedCornerShape(10.dp))
+                                    .background(Brush.verticalGradient(listOf(K.CardsTop, K.CardsDeep)), RoundedCornerShape(10.dp)),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                Text("?", color = K.Text, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
+                                GameText("?", style = MaterialTheme.typography.headlineLarge)
                             }
                         }
                     }
                 },
             )
             val perRow = if (wide) 4 else 2
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 tiles.chunked(perRow).forEach { row ->
-                    Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                         row.forEach { tile -> tile(Modifier.weight(1f).fillMaxHeight()) }
                     }
                 }
@@ -276,77 +275,137 @@ fun HomeScreen(vm: KometViewModel) {
 private fun starsText(vm: KometViewModel, subject: Subject): String {
     val profile = vm.profile ?: return ""
     val skills = Curriculum.skills(subject)
-    return "${Progression.earnedStars(profile, skills)} / ${skills.size * 3} ⭐"
+    return "${Progression.earnedStars(profile, skills)} / ${skills.size * 3}"
 }
 
+/** A gold medal with the rank number, pinned to the avatar. */
 @Composable
-private fun SubjectTile(
-    title: String,
-    detail: String,
-    look: app.komet.domain.PlanetLook,
-    face: Color,
-    edge: Color,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    PressSurface(
-        onClick = onClick,
-        modifier = modifier.heightIn(min = 150.dp),
-        face = face,
-        edge = edge,
-        shape = RoundedCornerShape(26.dp),
-        depth = 6.dp,
-        contentAlignment = Alignment.TopStart,
-        contentPadding = PaddingValues(16.dp),
+private fun RankBadge(number: Int, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(30.dp)
+            .border(2.dp, K.Outline, CircleShape)
+            .padding(2.dp)
+            .background(Brush.verticalGradient(listOf(K.GoldTop, K.Gold, K.GoldDeep)), CircleShape),
+        contentAlignment = Alignment.Center,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                PlanetArt(look, Modifier.size(64.dp), glow = false)
-            }
-            Text(title, style = MaterialTheme.typography.headlineMedium, color = K.Ink, fontWeight = FontWeight.Black)
-            Text(detail, style = MaterialTheme.typography.titleSmall, color = K.Ink.copy(alpha = 0.75f))
-        }
+        GameText(number.toString(), style = MaterialTheme.typography.labelLarge, fontSize = 15.sp)
     }
 }
 
+/**
+ * The next mission as a hero card: the planet breaks out of the frame, the world colour lights the
+ * card from behind, and one big button starts it.
+ */
 @Composable
-private fun FeatureTile(
+private fun MissionCard(
+    label: String,
     title: String,
     detail: String,
-    face: Color,
-    edge: Color,
+    tone: Tone,
+    onStart: () -> Unit,
+    art: @Composable () -> Unit,
+) {
+    val shape = RoundedCornerShape(30.dp)
+    Box(Modifier.fillMaxWidth().padding(top = 26.dp)) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .clip(shape)
+                .background(Brush.verticalGradient(listOf(lerp(tone.edge, K.SpaceTop, 0.15f), lerp(tone.edge, K.SpaceTop, 0.62f))))
+                .drawBehind {
+                    drawCircle(
+                        Brush.radialGradient(listOf(tone.face.copy(alpha = 0.55f), Color.Transparent), center = Offset(size.width * 0.86f, 0f), radius = size.width * 0.6f),
+                        radius = size.width * 0.6f,
+                        center = Offset(size.width * 0.86f, 0f),
+                    )
+                }
+                .border(2.dp, Brush.verticalGradient(listOf(tone.top.copy(alpha = 0.55f), tone.edge.copy(alpha = 0.3f))), shape)
+                .padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(label.uppercase(), style = MaterialTheme.typography.labelLarge, color = tone.top, letterSpacing = 1.5.sp, fontWeight = FontWeight.Black)
+            GameText(title, style = MaterialTheme.typography.displaySmall, modifier = Modifier.padding(end = 110.dp), maxLines = 2)
+            Text(detail, style = MaterialTheme.typography.titleSmall, color = K.Muted)
+            Spacer(Modifier.height(12.dp))
+            BigButton(
+                text = S.start.str(),
+                onClick = onStart,
+                icon = KometIcons.Play,
+                face = K.Gold,
+                edge = K.GoldDeep,
+                top = K.GoldTop,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        Box(Modifier.align(Alignment.TopEnd).offset(x = 8.dp, y = (-30).dp)) { art() }
+    }
+}
+
+/** A world or feature on Heim: a glossy slab in its own colour with the art breaking out of the corner. */
+@Composable
+private fun GameTile(
+    title: String,
+    tone: Tone,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    detail: String? = null,
+    stars: String? = null,
     badge: String? = null,
     art: @Composable () -> Unit,
 ) {
     PressSurface(
         onClick = onClick,
-        modifier = modifier.heightIn(min = 150.dp),
-        face = face,
-        edge = edge,
-        shape = RoundedCornerShape(26.dp),
-        depth = 6.dp,
+        modifier = modifier.heightIn(min = 164.dp),
+        face = tone.face,
+        edge = tone.edge,
+        // Deep colour with only a hint of light on top: rich, not candy.
+        top = lerp(tone.face, Color.White, 0.1f),
+        shape = RoundedCornerShape(28.dp),
+        depth = 7.dp,
         contentAlignment = Alignment.TopStart,
         contentPadding = PaddingValues(16.dp),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                 if (badge != null) {
-                    Text(
+                    GameText(
                         badge,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = K.Ink,
+                        style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier
-                            .background(K.Gold, RoundedCornerShape(50))
-                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                            .border(2.dp, K.Outline, RoundedCornerShape(50))
+                            .background(Brush.verticalGradient(listOf(K.RaceTop, K.Race)), RoundedCornerShape(50))
+                            .padding(horizontal = 10.dp, vertical = 3.dp),
                     )
                 }
                 Spacer(Modifier.weight(1f))
-                Box(Modifier.heightIn(min = 64.dp), contentAlignment = Alignment.Center) { art() }
+                Box(Modifier.heightIn(min = 72.dp), contentAlignment = Alignment.Center) { art() }
             }
-            Text(title, style = MaterialTheme.typography.headlineMedium, color = K.Ink, fontWeight = FontWeight.Black)
-            Text(detail, style = MaterialTheme.typography.titleSmall, color = K.Ink.copy(alpha = 0.75f))
+            GameText(title, style = MaterialTheme.typography.headlineMedium, maxLines = 1)
+            if (stars != null) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    StarGlyph(filled = true, modifier = Modifier.size(20.dp))
+                    GameText(stars, style = MaterialTheme.typography.titleSmall)
+                }
+            }
+            if (detail != null) {
+                Text(detail, style = MaterialTheme.typography.titleSmall, color = Color.White.copy(alpha = 0.92f), fontWeight = FontWeight.Bold)
+            }
         }
     }
+}
+
+/** The race tile's rocket bobs gently, as if it is waiting on the launch pad. */
+@Composable
+private fun FloatingRocket() {
+    val motion = LocalMotion.current
+    val transition = rememberInfiniteTransition(label = "bob")
+    val bob = transition.animateFloat(0f, 1f, infiniteRepeatable(tween(1300), RepeatMode.Reverse), label = "bobbing")
+    RocketArt(
+        Modifier
+            .offset(y = if (motion) (bob.value * -6f).dp else 0.dp)
+            .size(50.dp, 78.dp),
+        body = Color.White,
+        accent = K.Gold,
+    )
 }
