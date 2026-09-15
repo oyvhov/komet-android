@@ -1,6 +1,6 @@
 # Komet — vegkart
 
-Oppdatert 15. september 2026. Release under klargjering: **2.0.0** (versjonskode 6).
+Oppdatert 15. september 2026. Publisert release: **2.0.0** (versjonskode 6). Sjå [verifikasjonen](docs/VERIFICATION_v2.0.0.md).
 
 Retning frå eigaren: appen skal sjå ut som eit skikkeleg kult spel og ikkje som ein barnsleg, fargerik
 barneapp. Han skal passe for litt større barn. Barnet skal kunne finne oppgåvetypane han likar, uavhengig
@@ -99,7 +99,8 @@ illustrert med figurar og oppdrag, og musikk – på både mobil og nettbrett.
 - [x] 10 000 genererte oppgåver kontrollert med uavhengig utrekning frå oppgåveteksten.
       Alle 92 einingstestar grøne og debug-APK bygd.
 - [x] Stikkprøver på eigen emulator: mobil, nettbrett liggjande og skriftstorleik 2.0.
-- [ ] Publisering og kontroll på fysisk nettbrett. Denne utvidinga er berre lokal.
+- [x] Publisering av utvidinga i 2.0.0, med logo, skjermbilete og signert APK. Oppdatering gjennom appen testa på Komet-emulatoren.
+- [ ] Kontroll på fysisk nettbrett.
 
 Dette er nye læringsnivå med romforteljingar; oppdragsbok, mellomscener og varige endringar
 av sjølve planetlandskapet står framleis att i eventyrvegkartet.
