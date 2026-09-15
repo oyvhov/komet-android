@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="240" viewBox="0 0 960 240" role="img" aria-labelledby="title desc">
+<title id="title">Komet</title><desc id="desc">Lær gjennom eit romeventyr. Komet sin gullfarga kometlogo.</desc>
+<defs>
+<radialGradient id="bg" cx="30%" cy="30%" r="90%"><stop stop-color="#302680"/><stop offset="1" stop-color="#0b1030"/></radialGradient>
+<linearGradient id="tail" x1="64" y1="44" x2="30" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#ffb547"/><stop offset="1" stop-color="#ff6b9a" stop-opacity="0"/></linearGradient>
+<radialGradient id="head" cx="60" cy="40" r="16" gradientUnits="userSpaceOnUse"><stop stop-color="#fff6d8"/><stop offset="1" stop-color="#ffc53d"/></radialGradient>
+</defs>
+<rect width="960" height="240" rx="32" fill="url(#bg)"/>
+<g transform="translate(10 5) scale(2.1)">
+<circle cx="26" cy="30" r="1.2" fill="white" opacity=".6"/><circle cx="84" cy="76" r="1" fill="white" opacity=".4"/><circle cx="78" cy="26" r=".9" fill="white" opacity=".5"/>
+<path d="M54.5,34.5 Q40,58 29,80 Q52,68 73.5,53.5 Z" fill="url(#tail)"/>
+<path d="M50,40 Q42,50 36,60" fill="none" stroke="#ffe08a" stroke-opacity=".6" stroke-width="2" stroke-linecap="round"/>
+<path d="M69,59 Q60,66 50,72" fill="none" stroke="#ffb0c8" stroke-opacity=".47" stroke-width="2" stroke-linecap="round"/>
+<circle cx="64" cy="44" r="13" fill="url(#head)"/>
+</g>
+<text x="247" y="131" fill="white" font-family="Verdana, sans-serif" font-size="83" font-weight="bold" letter-spacing="5">KOMET</text>
+<text x="251" y="178" fill="#e1daff" font-family="Verdana, sans-serif" font-size="24">Lær gjennom eit romeventyr</text>
+<circle cx="880" cy="53" r="2" fill="#fff0b0"/><circle cx="835" cy="187" r="1.5" fill="white"/>
+</svg>

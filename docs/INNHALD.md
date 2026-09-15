@@ -1,7 +1,6 @@
 # Innhald i Komet
 
-116 nivå fordelte på 24 planetar i fire fag: matte, norsk, engelsk og verdsrommet. Kvart nivå lagar
-nye oppgåver kvar gong, så same runde blir aldri lik to gonger. Ei runde er 8 oppgåver (4–6 for tekstar,
+128 nivå fordelte på 25 kapittel i fire fag: matte, norsk, engelsk og verdsrommet. Mange nivå lagar nye tal og kombinasjonar kvar runde, medan fakta og ord kjem frå innhaldsbankar. Ei runde er 8 oppgåver (4–6 for tekstar,
 ordbygging, skriving og små emne). Kvart svar blir lagra med ein gong, og ein avbroten runde kan haldast
 fram frå heimeskjermen.
 
@@ -9,7 +8,7 @@ fram frå heimeskjermen.
 sitt klassesteg er opne frå start, det første på klassesteget er ope, og resten opnar seg når nivået
 før har minst éi stjerne. Det første nivået på kvar planet er alltid ope.
 
-## Matte (52 nivå)
+## Matte (64 nivå)
 
 ### Tal
 | Id | Nivå | Kl. | Oppgåve |
@@ -90,6 +89,27 @@ før har minst éi stjerne. Det første nivået på kvar planet er alltid ope.
 | `m_share` | Dele likt | 2 | Del på 2–5 |
 | `m_times_1_5` | Gongetabellen 1–5 | 3 | Skriv svaret |
 | `m_times_all` | Heile gongetabellen | 3 | 2–10 |
+
+### Bolt sine romoppdrag (nytt)
+
+Tolv nivå med korte romforteljingar, opplesing av heile oppgåva, hjelp og forklaring. Kvar runde har
+fem oppgåver i førskulenivået og seks i dei andre, med nye tal. Oppdraga finst både på Talplaneten og under **Romoppdrag** i Utforsk.
+Dei brukar vanleg framgang, stjerner, favorittar og lagring av avbrotne rundar.
+
+| Id | Nivå | Kl. | Oppgåve |
+| --- | --- | --- | --- |
+| `m_mission_collect` | Samle krystallar | 0 | Pluss til 5, tre svaralternativ og biletgrupper frå start |
+| `m_mission_lights` | Lys i basen | 1 | Finn kor mange lamper som ikkje lyser |
+| `m_mission_fuel10` | Ti energikuler | 1 | Tiarvenner før oppgåver til 20 |
+| `m_mission_route` | Finn landingsplassen | 1 | Hopp på 2, innanfor 0–20 |
+| `m_mission_fuel` | Fyll raketten | 2 | Fyll opp til 20 energikuler |
+| `m_mission_cargo` | Last romskipet | 2 | Last og lever kasser: pluss og minus i to steg |
+| `m_mission_robots` | Reparer robotane | 2 | Like mange skruar til kvar robot |
+| `m_mission_picnic` | Rom-piknik | 2 | Del jordbær likt mellom astronautar |
+| `m_mission_measure` | Bygg ei bru | 2 | Finn lengda som manglar i centimeter |
+| `m_mission_code10` | Koden med to siffer | 2 | Tiarar og einarar til 99 før hundrarar |
+| `m_mission_packs` | Pakk proviant | 3 | Gonge og pluss: fulle esker og lause matpakkar |
+| `m_mission_code` | Den hemmelege koden | 3 | Bygg tal til 999 av hundrarar, tiarar og einarar |
 
 ## Norsk (31 nivå)
 
@@ -218,3 +238,10 @@ Moduser: pluss til 10, minus til 10, pluss og minus til 20, gonge med 2, 5 og 10
 
 137 biletord med stavingar, 10 rimfamiliar og 15 samansette ord. Engelsk har om lag 90 ord og 11 fraser. Ord som skil seg mellom målformene
 (KVAL/HVAL, NASE/NESE, HAMMAR/HAMMER …) har begge formene.
+
+### Romoppdraga som spel
+
+Etter at eit svar er løyst eller forklart, trykkjer barnet **Send hjelpa!**. Eit romskip flyg i ein
+boge til basen med lyshale, landingsglitter og lyd. Eitt lys blir tent for kvar levering i runden.
+Forklaringa står framme også etter rette svar, og oppgåva går ikkje vidare før barnet vel å sende.
+Animasjonar følgjer eininga sitt val for redusert rørsle. Ingen tidsfrist eller tapte liv.

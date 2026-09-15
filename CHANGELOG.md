@@ -1,5 +1,16 @@
 # Endringslogg
 
+## 2.0.0 · 15. september 2026 · romoppdrag og jamnare nivå
+
+- Tolv romoppdrag med nye tal, forklaringar og aktiv utsending til basen.
+- Eigne landskap med krystallar, energistasjon, robotverkstad, portal, romhage og bru.
+- Flygeboge, lyshale, landingsglitter, lyd og baselys som viser leveringar i runden.
+- Førskule: pluss til 5, bilete frå start, tre svar og fem oppgåver. Andre romoppdrag har seks.
+- Tiarvenner før 20 og tosifra kodar før 999. Svaralternativa held seg innanfor øvingsområdet.
+- Anbefalte nye nivå tek utgangspunkt i valt klassesteg. Lette nivå og Utforsk er framleis opne.
+- Presentasjon på GitHub med eigen logo, nye skjermbilete, direkte APK og forklaring av oppdatering.
+- Inkluderer stjernekart, planetlandskap, astronaut, Bolt, musikk og butikk frå 2.0-betaene.
+
 ## 2.0.0-beta2 · 14. september 2026 · testutgåve med gullklumpar og butikk
 
 - **Gullklumpar:** éin for kvar stjerne i ein runde, bonus for dagens oppdrag og nye rekordar i

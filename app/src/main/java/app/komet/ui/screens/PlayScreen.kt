@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -50,6 +51,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import app.komet.domain.Answer
+import app.komet.domain.Topic
+import app.komet.domain.Topics
+import app.komet.domain.txt
+import app.komet.ui.scene.MissionFlight
+import app.komet.ui.theme.LocalMotion
+import app.komet.ui.components.LocalFeedback
+import app.komet.audio.Sfx
 import app.komet.domain.Strokes
 import app.komet.domain.Subject
 import app.komet.domain.inCase
@@ -103,6 +111,18 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
     val round = vm.round ?: return
     val question = round.question
     val phase = round.phase
+    val mission = Topics.of(round.skill) == Topic.MISSIONS
+    val motion = LocalMotion.current
+    val feedback = LocalFeedback.current
+    var launching by remember(round, round.index) { mutableStateOf(false) }
+    LaunchedEffect(launching) {
+        if (launching) {
+            feedback.sfx(Sfx.WHOOSH)
+            delay(if (motion) 1250L else 150L)
+            feedback.sfx(Sfx.SPARKLE)
+            vm.next()
+        }
+    }
     val view = LocalView.current
     val haptics = vm.settings.haptics
     val (accent, _) = subjectColors(round.skill.subject)
@@ -116,7 +136,7 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
     }
     // Move on by itself after a right answer; long rewards get time to be read aloud.
     LaunchedEffect(round, round.index, phase) {
-        if (phase == Phase.CORRECT) {
+        if (phase == Phase.CORRECT && !mission) {
             val reward = question.reward?.nn?.length ?: 0
             delay((1100L + reward * 45L).coerceAtMost(3800L))
             vm.next()
@@ -166,7 +186,11 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
                 answer = correctText,
                 explanation = question.explanation?.str(),
                 answerFont = if (round.skill.subject == Subject.READING) ReadingFont else null,
-                onNext = { vm.next() },
+                onNext = { if (mission) { if (!launching) launching = true } else vm.next() },
+                nextText = if (mission) {
+                    if (launching) txt("På veg!", "På vei!").str() else txt("Send hjelpa!", "Send hjelpen!").str()
+                } else S.onward.str(),
+                showExplanation = mission,
             )
         }
     }
@@ -186,7 +210,7 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
                     ) {
                         Column(Modifier.weight(1.1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             PromptLine(question.prompt.str(), tryAgainVisible)
-                            TaskCard(vm, round, visualState, Modifier.weight(1f))
+                            TaskCard(vm, round, visualState, Modifier.weight(1f), launching)
                         }
                         Column(
                             Modifier
@@ -209,7 +233,7 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         PromptLine(question.prompt.str(), tryAgainVisible)
-                        TaskCard(vm, round, visualState, Modifier.weight(1f))
+                        TaskCard(vm, round, visualState, Modifier.weight(1f), launching)
                         AnswerArea(vm, round, correctText)
                         banner()
                     }
@@ -337,7 +361,7 @@ private fun Visual.hasBlank(): Boolean = when (this) {
 }
 
 @Composable
-private fun TaskCard(vm: KometViewModel, round: RoundState, state: VisualState, modifier: Modifier) {
+private fun TaskCard(vm: KometViewModel, round: RoundState, state: VisualState, modifier: Modifier, launching: Boolean = false) {
     val question = round.question
     val trace = question.answer as? Answer.Trace
     if (trace != null) {
@@ -356,6 +380,10 @@ private fun TaskCard(vm: KometViewModel, round: RoundState, state: VisualState, 
         contentAlignment = Alignment.Center,
     ) {
         val hint = question.hint
+        val mission = Topics.of(round.skill) == Topic.MISSIONS
+        val delivered = round.phase != Phase.ANSWERING
+        val sceneHeight = if (delivered) (maxHeight - 36.dp).coerceAtLeast(80.dp) else 160.dp
+        val showMissionScene = mission && (delivered || maxHeight >= 340.dp)
         val showHint = round.hintShown && hint != null
         // Word-building tasks keep a row free for the slots under the picture.
         val reserved = if (question.answer is Answer.Build) 100.dp else 0.dp
@@ -369,12 +397,18 @@ private fun TaskCard(vm: KometViewModel, round: RoundState, state: VisualState, 
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                TaskVisual(question.visual, state, onListen = { vm.say(it) }, modifier = Modifier.fillMaxWidth())
+                if (showMissionScene) {
+                    MissionFlight(round.index, round.questions.size, launching,
+                        Modifier.fillMaxWidth().height(sceneHeight).clip(RoundedCornerShape(22.dp)), missionId = round.skill.id)
+                }
+                if (!mission || !delivered) {
+                    TaskVisual(question.visual, state, onListen = { vm.say(it) }, modifier = Modifier.fillMaxWidth())
+                }
                 val build = question.answer as? Answer.Build
                 if (build != null) {
                     BuildSlots(build, round.placed, revealed = round.phase == Phase.REVEALED)
                 }
-                if (showHint && hint != null) {
+                if (showHint && (!mission || !delivered)) {
                     Box(
                         Modifier
                             .fillMaxWidth()
@@ -534,6 +568,8 @@ private fun FeedbackBanner(
     explanation: String?,
     answerFont: FontFamily?,
     onNext: () -> Unit,
+    nextText: String,
+    showExplanation: Boolean = false,
 ) {
     val background = if (correct) Color(0xFF123B2B) else Color(0xFF462A10)
     val answerWas = S.answerWas.str()
@@ -566,13 +602,13 @@ private fun FeedbackBanner(
                     color = if (correct) K.Good else K.Reveal,
                     fontWeight = FontWeight.Black,
                 )
-                if (!correct && explanation != null) {
+                if ((!correct || showExplanation) && explanation != null) {
                     Text(explanation, style = MaterialTheme.typography.titleMedium.copy(fontFamily = answerFont), color = K.Text)
                 }
             }
         }
         BigButton(
-            text = S.onward.str(),
+            text = nextText,
             onClick = onNext,
             face = if (correct) K.Good else K.Reveal,
             edge = if (correct) K.GoodDeep else Color(0xFFB9761D),

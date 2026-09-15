@@ -44,8 +44,8 @@ android {
         targetSdk = 36
         // The published release sets these. Only the update test in docs/RELEASE_WORKFLOW.md overrides
         // them, to build an older local copy that the release must be able to replace.
-        versionCode = (findProperty("kometVersionCode") as String?)?.toInt() ?: 5
-        versionName = (findProperty("kometVersionName") as String?) ?: "2.0.0-beta2"
+        versionCode = (findProperty("kometVersionCode") as String?)?.toInt() ?: 6
+        versionName = (findProperty("kometVersionName") as String?) ?: "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

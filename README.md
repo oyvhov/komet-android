@@ -1,89 +1,106 @@
-<h1 align="center">Komet</h1>
-<p align="center">Matte, norsk, engelsk og verdsrommet – for barn frå 5 til 9 år.</p>
-<p align="center">Android 8.0 eller nyare · telefon og nettbrett · nynorsk og bokmål</p>
-<p align="center">
-  <a href="https://github.com/oyvhov/komet-android/releases/latest"><strong>Last ned APK</strong></a>
-  &nbsp; · &nbsp;
-  <a href="docs/INNHALD.md">Alle nivåa</a>
-  &nbsp; · &nbsp;
-  <a href="https://github.com/oyvhov/komet-android/issues">Meld ein feil</a>
-</p>
+<p align="center"><img src="docs/images/komet-logo.svg" width="760" alt="Komet – lær gjennom eit romeventyr" /></p>
 
-<p align="center">
-  <img src="docs/images/heim.png" width="24%" alt="Heimeskjermen med neste oppdrag, dagens oppdrag og faga" />
-  <img src="docs/images/skriv.png" width="24%" alt="Skriv bokstaven A med kometen: startprikk og piler viser vegen" />
-  <img src="docs/images/engelsk.png" width="24%" alt="Engelsk: sjå dyret og vel det engelske ordet" />
-  <img src="docs/images/romkort.png" width="24%" alt="Samlinga av romkort med sjeldanheitsrammer" />
-</p>
+<p align="center"><strong>Matte, norsk, engelsk og verdsrommet for barn frå 5 til 9 år.</strong><br />Android 8.0 eller nyare · mobil og nettbrett · nynorsk og bokmål</p>
 
-Komet gjer øving til ei romferd. Barnet samlar stjerner, låser opp planetar, stig i rang frå
-Romkadett til Stjernemeister og samlar romkort med fakta om solsystemet. Under panseret er det
-116 nivå i fire fag som lagar nye oppgåver kvar gong.
+<p align="center"><a href="https://github.com/oyvhov/komet-android/releases/download/v2.0.0/Komet-v2.0.0.apk"><strong>⬇ LAST NED KOMET 2.0.0 — APK</strong></a><br /><a href="https://github.com/oyvhov/komet-android/releases/latest">Nyaste release</a> · <a href="docs/INNHALD.md">Sjå alle nivåa</a></p>
 
-## Kva barnet får
+## Eit romeventyr å lære i
 
-- **Matte:** telling, skrive tal, tiarvenner, pluss og minus til 100, dobling, tekstoppgåver, vekta,
-  former og mønster, klokka, norske pengar og gongetabellen – med tiarrammer, tiarstavar og bilete som hjelp.
-- **Norsk:** bokstavar i den rekkjefølgja 1. klasse vanlegvis møter dei, skrive bokstavar med fingeren,
-  første og siste lyd, stavingar, rim, byggje ord, småord, setningar og korte tekstar.
-- **Engelsk:** fraser, fargar, tal, dyr, mat, kropp, familie, klede og staving, lesne høgt med engelsk stemme.
-- **Verdsrommet:** sola, månen, planetane, romfart og stjernehimmelen.
-- **Skriv med kometen:** spor bokstavar og tal i rett strekrekkjefølgje, med startprikk og piler.
-- **Utforsk og favorittar:** finn oppgåvetypane barnet likar – pluss, klokka, rim, planetar – på tvers av
-  trinn, og legg dei til med eit hjarte.
-- **Repetisjon:** ein eigen runde med det barnet oftast bommar på.
-- **Rakettløp:** 60 sekund hovudrekning med personleg rekord.
-- **Opplesing og barneskrift:** oppgåvene blir lesne høgt, og teksten bruker Andika med «a» og «g» slik
-  skulen lærer dei.
-- **Snill feilhandtering:** «Prøv igjen», hjelp-pære med bilete, og rett svar med forklaring etter to forsøk.
-  Kvart svar blir lagra, så ein avbroten runde kan haldast fram.
+Lag din eigen astronaut og reis med roboten Bolt. Utforsk planetane, løys oppgåver og saml
+stjerner og romkort. **128 nivå i fire fag** gir både enkle første steg og meir å bryne seg på.
+Mange nivå lagar nye tal og kombinasjonar kvar runde, så barnet kan øve fleire gonger.
 
-<p align="center">
-  <img src="docs/images/utforsk.png" width="24%" alt="Utforsk: oppgåvetypar i matte med stjerner" />
-  <img src="docs/images/verdsrommet.png" width="24%" alt="Verdsrommet: kva planet er dette?" />
-</p>
+![Stjernekartet med planetar, rakett og Bolt](docs/images/v2.0.0/stjernekart.png)
 
-## Kva foreldra får
+## Kva kan barnet gjere?
 
-- Framgang siste 7 dagar, prosent rett første gong og kva barnet bør øve meir på.
-- Målform (nynorsk/bokmål), STORE eller små bokstavar, klassesteg og dagleg mål per barn.
-- Fleire profilar på same eining.
-- Foreldresida er låst med eit gongestykke.
-- Oppdatering i appen: ein gul prikk på låsen viser at ein ny versjon er klar.
+| Fag | Døme på oppgåver |
+| --- | --- |
+| **Matte** | Telje, pluss og minus, klokke, pengar, gonge og dele, mønster og romoppdrag. |
+| **Norsk** | Lytte etter lydar, finne rim, byggje ord, lese setningar og skrive bokstavar med fingeren. |
+| **Engelsk** | Lytte til ord og fraser, kjenne att fargar og dyr og stave engelske ord. |
+| **Verdsrommet** | Utforske sola, månen, planetane, romfart og stjernehimmelen. |
 
-## Kom i gang
+### Nytt i 2.0: hjelp Bolt og send romskipet
 
-1. Last ned APK-en frå [Releases](https://github.com/oyvhov/komet-android/releases) og opne han på
-   telefonen eller nettbrettet.
-2. Tillat installasjon frå kjelda Android spør om.
-3. Opne Komet og følg oppsettet: målform, namn, figur, klassesteg og bokstavar.
+Tolv romoppdrag tek barnet frå krystallar og tiarvenner til forsyningar og hemmelege talkodar.
+Etter oppgåva sender barnet hjelpa til basen. Romskipet flyg med lyshale og landingsglitter,
+og lysa i basen viser framgangen i runden. Ulike oppdrag har eigne landskap og landemerke.
 
-Nye versjonar kjem deretter gjennom **Foreldre → Innstillingar → Appoppdateringar**. Komet
-kontrollerer storleik, SHA-256 og signatur før Android spør om å installere. Framgang og profilar
-blir verande. Komet 1.0.0 hadde ikkje denne funksjonen og må erstattast manuelt éin gong.
+![Romoppdrag med konkrete bilete og store svarfelt](docs/images/v2.0.0/romoppdrag.png)
 
-Opplesinga brukar talemotoren på eininga. Står det «Manglar norsk stemme» eller «Engelsk stemme
-manglar» på foreldresida, installer språket i Google sin talemotor (Innstillingar → System → Språk →
-Tekst til tale).
+### Ein astronaut som er din
 
-## Personvern
+Vel drakt, hud, hår og frisyre. Tente gullklumpar kan brukast til pynt til astronauten, Bolt og
+raketten. **Gullklumpar er berre spelepengar. Ingen ekte pengar eller kjøp i appen.**
 
-Ingen reklame, ingen kjøp i appen, ingen konto og ingen sporing. Framgang blir lagra berre på
-eininga. Den einaste nettkontakten er når Komet spør GitHub om det finst ein ny versjon – då får
-GitHub IP-adressa og Komet-versjonen. Sjekken kan slåast av på foreldresida.
+![Lag din eigen astronaut](docs/images/v2.0.0/astronaut.png)
 
-## Utvikling
+<details>
+<summary>Fleire bilete: skriving og kodeportal</summary>
 
-Kotlin og Jetpack Compose med same verktøy som [Spole](https://github.com/oyvhov/spole-android)
-(AGP 9.2.1, Kotlin 2.3.10, Compose BOM 2026.06.00). Les [AGENTS.md](AGENTS.md),
-[AI-instruksane](docs/AI_INSTRUCTIONS.md), [vegkartet](ROADMAP.md) og
-[release-flyten](docs/RELEASE_WORKFLOW.md) før endringar.
+![Skriv bokstavar med fingeren](docs/images/v2.0.0/skriving.png)
+
+![Den lilla kodeportalen](docs/images/v2.0.0/kodeportal.png)
+
+</details>
+
+## Tilpassa barnet
+
+- **Nynorsk og bokmål**, STORE eller små bokstavar og fleire profilar på same eining.
+- Vel klassesteg som startpunkt. Anbefalte oppgåver tek omsyn til dette, og **Utforsk** gir fri tilgang til oppgåvetypane.
+- Dei enklaste romoppdraga har bilete frå start, tre svaralternativ og fem oppgåver i runden.
+- Hjelp og «Prøv igjen». Etter to feil blir rett svar vist; romoppdraga forklarer også rette svar.
+- Vanlege rundar har **ingen tidsfrist eller liv å miste**. Det separate rakettløpet varer i 60 sekund.
+- Framgang blir lagra undervegs. Repetisjon hjelper barnet å øve på det som er vanskeleg.
+- Foreldresida viser framgang og innstillingar bak eit gongestykke.
+
+## Installer på Android
+
+1. Trykk **[Last ned APK](https://github.com/oyvhov/komet-android/releases/download/v2.0.0/Komet-v2.0.0.apk)** på telefonen eller nettbrettet.
+2. Opne fila **Komet-v2.0.0.apk**. Dersom Android spør, tillat installasjon frå nettlesaren du brukte.
+3. Vel **Installer**, opne Komet og lag ein profil.
+
+Har du Komet frå før? Installer oppå den eksisterande appen. **Ikkje avinstaller først** – då
+kan lokal framgang bli sletta. Vanleg oppdatering beheld profilar og stjerner.
+
+## Auto update – slik fungerer det
+
+**Komet sjekkar sjølv etter nye versjonar** når appen blir opna eller kjem fram att, høgst éin
+gong per tolv timar. Ein vaksen vel når oppdateringa skal lastast ned og installerast.
+
+**Foreldre → Innstillingar → Appoppdateringar → Sjekk no**
+
+Vel **Last ned oppdatering**, og deretter **Installer oppdatering**. Android kan be om løyve til
+å installere frå Komet. Appen kontrollerer fila, versjonen og signaturen før installasjonen.
+Automatisk sjekk kan slåast av. Du treng ikkje slå på testutgåver for å få 2.0.0.
+
+## Utan reklame og konto
+
+Læringsinnhaldet fungerer utan nett. Ingen reklame, sporing eller konto. Framgang blir lagra på
+eininga. Oppdateringssjekk og nedlasting bruker GitHub og krev nett.
+
+Opplesing bruker talemotoren på eininga. Norsk og engelsk stemme må vere installert for full
+opplesing; dette kan krevje ei eingongsnedlasting i Android sine tekst-til-tale-innstillingar.
+
+## Om denne utgåva
+
+2.0.0 er testa med automatiske testar og på Android-emulator i mobil- og nettbrettformat,
+også med stor skrift. Testing på fysisk nettbrett står att.
+
+[Meld ein feil](https://github.com/oyvhov/komet-android/issues) · [Endringslogg](CHANGELOG.md) · [Alle nivå](docs/INNHALD.md)
+
+<details>
+<summary>For utviklarar</summary>
+
+Kotlin og Jetpack Compose. Les [arbeidsrettleiinga](docs/AI_INSTRUCTIONS.md),
+[vegkartet](ROADMAP.md) og [releaseoppskrifta](docs/RELEASE_WORKFLOW.md).
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File C:\LeseApp\scripts\Build-Komet.ps1 -Release
 ```
 
-Skrifta Andika er laga av SIL International og er fri under SIL Open Font License 1.1
-(`app/src/main/assets/licenses/andika-ofl.txt`).
+Andika: SIL International, SIL Open Font License 1.1. Logoen byggjer på appen sitt eige kometikon.
+Skjermbileta er frå emulator med ein testprofil og inneheld ikkje ekte persondata.
 
-*Skjermbileta er tekne i emulator med ein testprofil og inneheld ingen persondata.*
+</details>

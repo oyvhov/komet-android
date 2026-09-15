@@ -5,6 +5,7 @@ package app.komet.domain
  * plus level, from 1 + 2 to 64 + 25.
  */
 enum class Topic(val subject: Subject, val title: Txt, val icon: String) {
+    MISSIONS(Subject.MATH, txt("Romoppdrag"), "🚀"),
     COUNTING(Subject.MATH, txt("Tal og telling", "Tall og telling"), "123"),
     PLUS(Subject.MATH, txt("Pluss"), "+"),
     MINUS(Subject.MATH, txt("Minus"), "−"),
@@ -35,6 +36,7 @@ enum class Topic(val subject: Subject, val title: Txt, val icon: String) {
 object Topics {
 
     private val bySkill: Map<String, Topic> = buildMap {
+        MissionCurriculum.chapters.flatMap { it.skills }.forEach { put(it.id, Topic.MISSIONS) }
         fun put(topic: Topic, vararg ids: String) = ids.forEach { put(it, topic) }
         put(Topic.COUNTING, "m_count5", "m_count10", "m_next10", "m_compare10", "m_count20", "m_findnumber", "m_tensones", "m_skip", "m_compare100", "m_evenodd")
         put(Topic.PLUS, "m_add5", "m_add10", "m_add10_keys", "m_friends10", "m_doubles", "m_add20", "m_add20_bridge", "m_add_tens", "m_add100", "m_add3")

@@ -80,7 +80,7 @@ object Progression {
             }
         }
 
-    /** The next thing to play: alternate subjects, easiest new level first, then improve, then review. */
+    /** Alternate subjects, starting near the chosen grade while keeping easier practice available. */
     fun recommended(profile: Profile): Skill {
         val first = if (profile.lastSubject == Subject.MATH) Subject.READING else Subject.MATH
         val second = if (first == Subject.MATH) Subject.READING else Subject.MATH
@@ -90,8 +90,10 @@ object Progression {
     fun recommended(profile: Profile, subject: Subject): Skill? {
         val unlocked = unlockedSkills(profile, subject)
         val chapterIndex = Curriculum.chapters(subject).withIndex().associate { it.value.id to it.index }
+        // Prefer the chosen starting grade, then earlier foundations, then later grades.
+        fun distance(skill: Skill) = if (skill.grade <= profile.grade) profile.grade - skill.grade else 4 + skill.grade - profile.grade
         val fresh = unlocked.filter { profile.stars(it.first.id) == 0 }
-            .minWithOrNull(compareBy({ it.first.grade }, { it.second }, { chapterIndex[Curriculum.chapterOf(it.first).id] }))
+            .minWithOrNull(compareBy({ distance(it.first) }, { it.second }, { chapterIndex[Curriculum.chapterOf(it.first).id] }))
         if (fresh != null) return fresh.first
         val improve = unlocked.filter { profile.stars(it.first.id) < 3 }
             .minWithOrNull(compareBy({ profile.stars(it.first.id) }, { it.first.grade }, { it.second }))

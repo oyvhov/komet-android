@@ -49,13 +49,25 @@ class ProgressionTest {
     }
 
     @Test
-    fun `recommendation alternates subjects and starts easy`() {
+    fun `recommendation alternates subjects and respects the chosen starting grade`() {
         val p = profile(grade = 1)
         val first = Progression.recommended(p)
         assertEquals(Subject.MATH, first.subject)
-        assertEquals(0, first.grade)
+        assertEquals(1, first.grade)
         val afterMath = Progression.recommended(p.copy(lastSubject = Subject.MATH))
         assertEquals(Subject.READING, afterMath.subject)
+        assertEquals(1, afterMath.grade)
+    }
+
+    @Test fun `recommendations are unlocked and use the chosen grade when available`() {
+        for (grade in 0..3) for (subject in Subject.entries) {
+            val p = profile(grade)
+            val available = Curriculum.skills(subject).filter { Progression.isUnlocked(p, it) }
+            val next = Progression.recommended(p, subject)!!
+            assertTrue(next in available)
+            if (available.any { it.grade == grade }) assertEquals(grade, next.grade)
+            if (available.none { it.grade == grade } && available.any { it.grade < grade }) assertTrue(next.grade < grade)
+        }
     }
 
     @Test

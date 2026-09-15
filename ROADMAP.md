@@ -1,6 +1,6 @@
 # Komet — vegkart
 
-Oppdatert 14. september 2026. Publisert: **1.2.0** (versjonskode 3).
+Oppdatert 15. september 2026. Release under klargjering: **2.0.0** (versjonskode 6).
 
 Retning frå eigaren: appen skal sjå ut som eit skikkeleg kult spel og ikkje som ein barnsleg, fargerik
 barneapp. Han skal passe for litt større barn. Barnet skal kunne finne oppgåvetypane han likar, uavhengig
@@ -90,3 +90,26 @@ illustrert med figurar og oppdrag, og musikk – på både mobil og nettbrett.
 - Ingen reklame, ingen kjøp og inga sporing. Einaste nettkontakt er oppdateringssjekken.
 - Ny GitHub-release, push og nedlasting av filer skjer berre etter tydeleg ja frå eigaren.
 - Lag aldri ny signeringsnøkkel. Ingen persondata i repoet.
+
+## Lokal innhaldsutviding · 15. september 2026
+
+- [x] Ti nye romoppdrag med Bolt på Talplaneten og i Utforsk: krystallar, lys, drivstoff,
+      landingsmønster, frakt, robotreparasjon, deling, måling, proviant og plassverdi til 999.
+- [x] Nynorsk og bokmål, opplesing av heile tekstoppgåva, hjelp og forklaringar.
+- [x] 10 000 genererte oppgåver kontrollert med uavhengig utrekning frå oppgåveteksten.
+      Alle 92 einingstestar grøne og debug-APK bygd.
+- [x] Stikkprøver på eigen emulator: mobil, nettbrett liggjande og skriftstorleik 2.0.
+- [ ] Publisering og kontroll på fysisk nettbrett. Denne utvidinga er berre lokal.
+
+Dette er nye læringsnivå med romforteljingar; oppdragsbok, mellomscener og varige endringar
+av sjølve planetlandskapet står framleis att i eventyrvegkartet.
+- [x] Aktiv utsending etter kvar oppgåve: animert romskip, lyshale, landingsglitter, lyd og lys i
+      basen for kvar levering. Barnet styrer tempoet; forklaringar blir også viste ved rett svar.
+      Kontrollert med stor skrift, begge målformer og avslåtte animasjonar.
+
+## Nivågjennomgang før 2.0.0
+
+Førskuleoppdraget er avgrensa til 5 og har bilete frå start. Nye mellomnivå er tiarvenner og
+tosifra kodar. Oppdragsrundane er korte (5–6). Anbefalingar tek omsyn til valt klassesteg.
+Klassesteg er eit startpunkt, ikkje ein påstand om meistring. Fysisk nettbrett og observasjon av
+barn som spelar er framleis naudsynt for vidare pedagogisk kalibrering.
