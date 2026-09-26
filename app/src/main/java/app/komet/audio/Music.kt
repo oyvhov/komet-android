@@ -11,7 +11,7 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /** One piece of music for each place in the adventure. */
-enum class MusicTheme { MAP, MATH, READING, ENGLISH, SPACE, RACE }
+enum class MusicTheme { MAP, MATH, READING, ENGLISH, SPACE, RACE, MONTESSORI }
 
 /**
  * Composes calm, looping background music in code: chords on a soft pad, a plucked arpeggio or bell
@@ -105,6 +105,19 @@ object MusicComposer {
             drums = true,
             padLevel = 0.08,
             seed = 53,
+        ),
+        // Sparse, unhurried tones leave room for a child to concentrate and hear the materials.
+        MusicTheme.MONTESSORI to Recipe(
+            bpm = 76.0,
+            chords = listOf(intArrayOf(60, 64, 67, 74), intArrayOf(57, 60, 64, 69), intArrayOf(53, 57, 60, 67), intArrayOf(55, 59, 62, 69)),
+            bass = intArrayOf(36, 33, 29, 31),
+            arpeggio = intArrayOf(0, -1, 2, -1, 1, -1, 3, -1),
+            arpeggioShift = 12,
+            pluckDecay = 4.5,
+            bells = intArrayOf(72, 76, 79, 81),
+            bellChance = 0.16,
+            padLevel = 0.12,
+            seed = 61,
         ),
     )
 

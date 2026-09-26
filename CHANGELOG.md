@@ -1,5 +1,16 @@
 # Endringslogg
 
+## 2.1.0 · 26. september 2026 · Montessori og nettbrett
+
+- Eiga Montessori-inspirert verkstad med talstenger 1–5, teljepinnar 0–5 og talsporing 1–5.
+- Arbeid utan klokke eller poeng, på nynorsk og bokmål, med lærarrettleiing for ein skulepilot.
+- Eigne nettbrettoppsett med arbeidsmatte og rettleiing side om side og store materialillustrasjonar.
+- Ny illustrert løpsmeny, eigne svarfelt på nettbrett, lysande rakettspor og motorflamme.
+- Metalliske romkort med glød, sveving og brei framvising av illustrasjon og lesetekst.
+- Mjukare knappar, dialogar og skjermovergangar, nye lydeffektar og roleg Montessori-musikk.
+- Retta kontrollen av talstengene slik at rett rekkjefølgje blir godkjend.
+- Tilpassingar for stor skrift og avslåtte animasjonar. GitHub-oppdatering er framleis aktiv i APK-en.
+
 ## 2.0.0 · 15. september 2026 · romoppdrag og jamnare nivå
 
 - Tolv romoppdrag med nye tal, forklaringar og aktiv utsending til basen.

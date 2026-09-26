@@ -18,6 +18,9 @@ val hasReleaseSigning = listOf(
     "keyAlias",
     "keyPassword",
 ).all { signingProperties.getProperty(it).isNullOrBlank().not() }
+val playStoreBuild = providers.gradleProperty("kometPlayStore")
+    .map { it.equals("true", ignoreCase = true) }
+    .getOrElse(false)
 
 // A release signed with a different key cannot update an installed Komet. Refuse the build instead
 // of silently producing an APK that the tablet will reject.
@@ -44,11 +47,15 @@ android {
         targetSdk = 36
         // The published release sets these. Only the update test in docs/RELEASE_WORKFLOW.md overrides
         // them, to build an older local copy that the release must be able to replace.
-        versionCode = (findProperty("kometVersionCode") as String?)?.toInt() ?: 6
-        versionName = (findProperty("kometVersionName") as String?) ?: "2.0.0"
+        versionCode = (findProperty("kometVersionCode") as String?)?.toInt() ?: 7
+        versionName = (findProperty("kometVersionName") as String?) ?: "2.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        buildConfigField("boolean", "PLAY_STORE", playStoreBuild.toString())
+        manifestPlaceholders["internetPermission"] = if (playStoreBuild) "app.komet.permission.NO_NETWORK_FOR_PLAY" else "android.permission.INTERNET"
+        manifestPlaceholders["requestInstallPackagesPermission"] =
+            if (playStoreBuild) "app.komet.permission.NO_PACKAGE_INSTALL_FOR_PLAY" else "android.permission.REQUEST_INSTALL_PACKAGES"
     }
 
     buildTypes {

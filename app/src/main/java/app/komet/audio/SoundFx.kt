@@ -26,7 +26,9 @@ class SoundFx(context: Context) {
     init {
         val directory = File(context.cacheDir, "sfx").apply { mkdirs() }
         thread(name = "komet-sfx", isDaemon = true) {
-            for (sfx in Sfx.entries) {
+            // The sounds heard during the first seconds of play are ready before longer rewards.
+            val first = listOf(Sfx.TAP, Sfx.OPEN, Sfx.PLACE, Sfx.CORRECT, Sfx.WRONG)
+            for (sfx in first + Sfx.entries.filterNot { it in first }) {
                 runCatching {
                     val file = File(directory, "${sfx.name.lowercase()}-v$VERSION.wav")
                     if (!file.exists()) file.writeBytes(Synth.wav(Synth.render(sfx)))
@@ -48,6 +50,6 @@ class SoundFx(context: Context) {
 
     private companion object {
         /** Bump when [Synth] changes so cached files are rendered again. */
-        const val VERSION = 3
+        const val VERSION = 4
     }
 }

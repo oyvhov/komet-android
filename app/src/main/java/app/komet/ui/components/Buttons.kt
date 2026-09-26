@@ -1,6 +1,10 @@
 package app.komet.ui.components
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -35,6 +39,7 @@ import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -46,6 +51,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import app.komet.audio.Sfx
 import app.komet.ui.theme.K
+import app.komet.ui.theme.LocalMotion
 
 /** Sound and vibration for controls, provided once from the root so buttons stay plain composables. */
 interface Feedback {
@@ -96,11 +102,18 @@ fun PressSurface(
 ) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    val sink by animateDpAsState(if (pressed && enabled) depth else 0.dp, tween(70), label = "press")
+    val motion = LocalMotion.current
+    val sink by animateDpAsState(if (pressed && enabled) depth else 0.dp, tween(if (motion) 70 else 0), label = "press")
+    val scale by animateFloatAsState(
+        targetValue = if (pressed && enabled) 0.965f else 1f,
+        animationSpec = if (motion) spring(dampingRatio = 0.68f, stiffness = Spring.StiffnessMedium) else snap(),
+        label = "press-scale",
+    )
     val feedback = LocalFeedback.current
     Box(
         modifier = modifier
             .alpha(if (enabled) 1f else 0.45f)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
             .clickable(
                 interactionSource = interaction,
                 indication = null,
@@ -124,7 +137,7 @@ fun PressSurface(
             modifier = Modifier
                 .padding(bottom = depth)
                 .offset { IntOffset(0, sink.roundToPx()) }
-                .gloss(face, shape, top = top)
+                .gloss(face, shape, top = if (pressed && enabled) lerp(top, Color.White, 0.13f) else top)
                 .padding(contentPadding),
             contentAlignment = contentAlignment,
             content = content,

@@ -94,7 +94,7 @@ adb -s emulator-5580 shell am start -f 0x20000000 -n app.komet.debug/app.komet.M
 | Ekstra | Verknad |
 | --- | --- |
 | `--es skill <id>` | Startar nivået (id-ar i `docs/INNHALD.md`) |
-| `--es screen home\|math\|reading\|english\|space\|cards\|race\|explore\|parent` | Opnar skjermen (foreldresida utan lås) |
+| `--es screen home\|math\|reading\|english\|space\|cards\|race\|explore\|montessori\|parent` | Opnar skjermen (foreldresida utan lås) |
 | `--es screen addprofile\|hero\|shop` | Opnar oppstarten for ny profil, astronautbyggjaren eller butikken |
 | `--ei solve <n>` | Svarar rett på dei neste n oppgåvene |
 | `--ei miss <n>` | Bommar n gonger på gjeldande oppgåve |

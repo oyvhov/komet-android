@@ -66,25 +66,36 @@ fun SpaceBackground(
             StarDot(random.nextFloat(), random.nextFloat(), 0.5f + random.nextFloat() * 1.3f, 0.25f + random.nextFloat() * 0.65f, random.nextFloat())
         }
     }
-    val transition = rememberInfiniteTransition(label = "stars")
-    val time = transition.animateFloat(0f, 1f, infiniteRepeatable(tween(9000, easing = LinearEasing)), label = "twinkle")
+    val time = if (motion) {
+        val transition = rememberInfiniteTransition(label = "stars")
+        transition.animateFloat(0f, 1f, infiniteRepeatable(tween(9000, easing = LinearEasing)), label = "twinkle")
+    } else null
     Box(
         modifier = modifier
             .background(Brush.verticalGradient(listOf(K.SpaceTop, K.SpaceBottom)))
             .drawBehind {
                 val w = size.width
                 val h = size.height
+                val phase = time?.value ?: 0.25f
+                val turn = (phase * 2 * PI).toFloat()
+                val upper = Offset(w * (0.9f + sin(turn) * 0.025f), h * (0.08f + cos(turn) * 0.018f))
+                val lower = Offset(w * (0.05f + sin(turn + 1.8f) * 0.025f), h * (0.78f + cos(turn + 1.8f) * 0.018f))
                 drawCircle(
-                    Brush.radialGradient(listOf(K.Nebula.copy(alpha = 0.45f), Color.Transparent), center = Offset(w * 0.9f, h * 0.08f), radius = w * 0.75f),
+                    Brush.radialGradient(listOf(K.Nebula.copy(alpha = 0.45f), Color.Transparent), center = upper, radius = w * 0.75f),
                     radius = w * 0.75f,
-                    center = Offset(w * 0.9f, h * 0.08f),
+                    center = upper,
                 )
                 drawCircle(
-                    Brush.radialGradient(listOf(Color(0xFF155E8C).copy(alpha = 0.28f), Color.Transparent), center = Offset(w * 0.05f, h * 0.78f), radius = w * 0.85f),
+                    Brush.radialGradient(listOf(Color(0xFF155E8C).copy(alpha = 0.28f), Color.Transparent), center = lower, radius = w * 0.85f),
                     radius = w * 0.85f,
-                    center = Offset(w * 0.05f, h * 0.78f),
+                    center = lower,
                 )
-                val phase = if (motion) time.value else 0.25f
+                val warm = Offset(w * 0.72f, h * (0.68f + sin(turn + 0.9f) * 0.025f))
+                drawCircle(
+                    Brush.radialGradient(listOf(Color(0xFF8C3B79).copy(alpha = 0.13f), Color.Transparent), center = warm, radius = w * 0.5f),
+                    radius = w * 0.5f,
+                    center = warm,
+                )
                 for (star in stars) {
                     val shimmer = 0.55f + 0.45f * abs(sin(((phase + star.phase) * 2 * PI).toFloat()))
                     drawCircle(

@@ -73,7 +73,15 @@ fun ResultScreen(vm: KometViewModel) {
     val scales = remember(info) { List(3) { Animatable(if (motion) 0f else 1f) } }
 
     LaunchedEffect(info) {
-        if (!motion) return@LaunchedEffect
+        // Turning motion off still leaves the audible reward available.
+        if (!motion) {
+            if (outcome.stars > 0) feedback.sfx(Sfx.STAR, 0.7f)
+            if (outcome.newCards.isNotEmpty() || outcome.newRank != null) {
+                delay(250)
+                feedback.sfx(Sfx.UNLOCK)
+            }
+            return@LaunchedEffect
+        }
         delay(450)
         for (index in 0 until 3) {
             if (index < outcome.stars) {

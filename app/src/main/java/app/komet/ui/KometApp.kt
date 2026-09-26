@@ -6,6 +6,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +32,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import app.komet.BuildConfig
 import app.komet.ui.components.BigButton
 import app.komet.ui.components.GameText
 import app.komet.ui.components.KometDialog
@@ -47,6 +50,7 @@ import app.komet.ui.screens.PlayScreen
 import app.komet.ui.screens.RaceMenuScreen
 import app.komet.ui.screens.RaceScreen
 import app.komet.ui.screens.ResultScreen
+import app.komet.ui.screens.MontessoriScreen
 import app.komet.ui.scene.HeroEditorScreen
 import app.komet.ui.scene.PlanetScreen
 import app.komet.ui.scene.ShopScreen
@@ -54,6 +58,7 @@ import app.komet.ui.scene.StarMapScreen
 import app.komet.ui.theme.K
 import app.komet.ui.theme.LocalReading
 import app.komet.ui.theme.ReadingPrefs
+import app.komet.ui.theme.LocalMotion
 
 @Composable
 fun KometApp(vm: KometViewModel) {
@@ -61,17 +66,20 @@ fun KometApp(vm: KometViewModel) {
     val prefs = ReadingPrefs(profile?.maalform ?: Maalform.NYNORSK, profile?.letterCase ?: LetterCase.UPPER)
     var confirmQuit by remember { mutableStateOf(false) }
 
-    // Look for a new version whenever the app comes to the front; the updater rate-limits itself.
-    val lifecycle = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycle) {
-        lifecycle.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            vm.updater.checkIfDue()
-            awaitCancellation()
+    if (!BuildConfig.PLAY_STORE) {
+        // Look for a new version whenever the app comes to the front; the updater rate-limits itself.
+        val lifecycle = LocalLifecycleOwner.current
+        LaunchedEffect(lifecycle) {
+            lifecycle.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.updater.checkIfDue()
+                awaitCancellation()
+            }
         }
     }
 
     CompositionLocalProvider(LocalReading provides prefs, LocalFeedback provides vm.feedback) {
         val screen = vm.stack.lastOrNull() ?: Screen.Home
+        val motion = LocalMotion.current
         LaunchedEffect(screen) { vm.onScreenShown(screen) }
 
         BackHandler(enabled = vm.stack.size > 1) {
@@ -80,12 +88,16 @@ fun KometApp(vm: KometViewModel) {
 
         SpaceBackground(
             modifier = Modifier.fillMaxSize(),
-            twinkle = screen == Screen.Onboarding || screen == Screen.AddProfile || screen == Screen.Result || screen == Screen.Collection,
+            twinkle = screen != Screen.Home && screen !is Screen.World && screen != Screen.Play,
         ) {
             AnimatedContent(
                 targetState = screen,
                 transitionSpec = {
-                    (fadeIn(tween(220)) + scaleIn(tween(220), initialScale = 0.98f)) togetherWith fadeOut(tween(140))
+                    if (motion) {
+                        (fadeIn(tween(280)) + scaleIn(tween(320), initialScale = 0.955f)) togetherWith fadeOut(tween(170))
+                    } else {
+                        EnterTransition.None togetherWith ExitTransition.None
+                    }
                 },
                 label = "screen",
             ) { target ->
@@ -112,6 +124,7 @@ fun KometApp(vm: KometViewModel) {
                         Screen.Parent -> ParentScreen(vm)
                         Screen.HeroEditor -> HeroEditorScreen(vm)
                         Screen.Shop -> ShopScreen(vm)
+                        Screen.Montessori -> MontessoriScreen(vm)
                     }
                 }
             }

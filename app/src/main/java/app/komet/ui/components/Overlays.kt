@@ -1,5 +1,8 @@
 package app.komet.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,10 +26,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -44,7 +49,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import app.komet.ui.S
+import app.komet.audio.Sfx
 import app.komet.ui.theme.K
+import app.komet.ui.theme.LocalMotion
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -86,6 +93,13 @@ fun CloseButton(onClick: () -> Unit, modifier: Modifier = Modifier, size: Dp = 5
  */
 @Composable
 fun KometDialog(onClose: () -> Unit, maxWidth: Dp = 520.dp, content: @Composable ColumnScope.() -> Unit) {
+    val motion = LocalMotion.current
+    val appearance = remember { Animatable(if (motion) 0f else 1f) }
+    val feedback = LocalFeedback.current
+    LaunchedEffect(Unit) {
+        feedback.sfx(Sfx.OPEN, 0.32f)
+        if (motion) appearance.animateTo(1f, spring(dampingRatio = 0.78f, stiffness = Spring.StiffnessMediumLow))
+    }
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Box(
             Modifier
@@ -94,7 +108,14 @@ fun KometDialog(onClose: () -> Unit, maxWidth: Dp = 520.dp, content: @Composable
                 .padding(16.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Box(Modifier.widthIn(max = maxWidth).fillMaxWidth()) {
+            Box(
+                Modifier.widthIn(max = maxWidth).fillMaxWidth().graphicsLayer {
+                    val progress = appearance.value
+                    scaleX = 0.9f + 0.1f * progress
+                    scaleY = 0.9f + 0.1f * progress
+                    alpha = progress.coerceIn(0f, 1f)
+                },
+            ) {
                 val shape = RoundedCornerShape(32.dp)
                 Column(
                     Modifier

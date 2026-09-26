@@ -7,7 +7,7 @@ import kotlin.math.exp
 import kotlin.math.min
 import kotlin.math.sin
 
-enum class Sfx { TAP, CORRECT, WRONG, STAR, COMPLETE, UNLOCK, TICK, GO, WHOOSH, STEP, BOING, BEEP, SPARKLE, COIN }
+enum class Sfx { TAP, CORRECT, WRONG, STAR, COMPLETE, UNLOCK, TICK, GO, WHOOSH, STEP, BOING, BEEP, SPARKLE, COIN, OPEN, PLACE }
 
 /**
  * Every sound in Komet is synthesised here: short bell tones with a soft attack, so feedback is
@@ -30,7 +30,10 @@ object Synth {
     )
 
     private fun tones(sfx: Sfx): List<Tone> = when (sfx) {
-        Sfx.TAP -> listOf(Tone(1046.5, 0.0, 0.07, 0.3, soft, decay = 45.0))
+        Sfx.TAP -> listOf(
+            Tone(650.0, 0.0, 0.085, 0.3, soft, decay = 32.0, slideTo = 520.0),
+            Tone(1300.0, 0.0, 0.045, 0.12, soft, decay = 55.0),
+        )
         Sfx.CORRECT -> listOf(
             Tone(1046.5, 0.0, 0.32, 0.45),
             Tone(1318.5, 0.07, 0.32, 0.4),
@@ -77,6 +80,14 @@ object Synth {
             Tone(1975.5, 0.0, 0.09, 0.4, decay = 18.0),
             Tone(2637.0, 0.07, 0.42, 0.42, decay = 6.0),
         )
+        Sfx.OPEN -> listOf(
+            Tone(440.0, 0.0, 0.24, 0.22, soft, decay = 11.0, slideTo = 587.33),
+            Tone(880.0, 0.045, 0.29, 0.16, soft, decay = 9.0, slideTo = 1174.66),
+        )
+        Sfx.PLACE -> listOf(
+            Tone(360.0, 0.0, 0.12, 0.45, soft, decay = 23.0, slideTo = 290.0),
+            Tone(720.0, 0.0, 0.07, 0.2, soft, decay = 35.0),
+        )
     }
 
     fun render(sfx: Sfx): FloatArray {
@@ -102,6 +113,15 @@ object Synth {
                 }
                 val index = offset + i
                 if (index < out.size) out[index] += (sample * envelope * tone.gain).toFloat()
+            }
+        }
+        if (sfx == Sfx.TAP || sfx == Sfx.PLACE) {
+            // A short, seeded contact transient gives the button and wooden material a real edge.
+            val random = java.util.Random(if (sfx == Sfx.TAP) 17 else 29)
+            val count = (SAMPLE_RATE * if (sfx == Sfx.TAP) 0.012 else 0.018).toInt()
+            for (i in 0 until count) {
+                val envelope = exp(-i.toDouble() / (SAMPLE_RATE * 0.0025))
+                out[i] += ((random.nextDouble() * 2 - 1) * envelope * (if (sfx == Sfx.TAP) 0.12 else 0.2)).toFloat()
             }
         }
         val peak = out.maxOfOrNull { abs(it) } ?: 0f

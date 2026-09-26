@@ -118,9 +118,10 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Every place has its own music; a result or the parents' pages keep what was playing. */
     fun onScreenShown(target: Screen) {
-        music.setQuiet(target == Screen.Play)
+        music.setQuiet(target == Screen.Play || target == Screen.Montessori)
         val theme = when (target) {
             Screen.Onboarding, Screen.AddProfile, Screen.Home, Screen.Explore, is Screen.Topic -> MusicTheme.MAP
+            Screen.Montessori -> MusicTheme.MONTESSORI
             is Screen.World -> musicFor(target.subject)
             Screen.Play -> round?.let { musicFor(it.skill.subject) }
             Screen.Collection -> MusicTheme.SPACE
@@ -610,6 +611,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             "race" -> { goHome(); open(Screen.RaceMenu) }
             "parent" -> { goHome(); open(Screen.Parent) }
             "explore" -> { goHome(); open(Screen.Explore) }
+            "montessori" -> { goHome(); open(Screen.Montessori) }
             "english" -> { goHome(); open(Screen.World(Subject.ENGLISH)) }
             "space" -> { goHome(); open(Screen.World(Subject.SPACE)) }
             "addprofile" -> { goHome(); open(Screen.AddProfile) }

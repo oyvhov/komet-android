@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -65,6 +66,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.komet.BuildConfig
 import app.komet.audio.Sfx
 import app.komet.domain.Curriculum
 import app.komet.domain.Progression
@@ -894,7 +896,7 @@ private fun MapOverlay(vm: KometViewModel, time: State<Float>, onProfile: () -> 
             )
             Box {
                 RoundIconButton(KometIcons.Lock, S.parents.str(), onClick = { vm.open(Screen.ParentGate) }, size = 48.dp, tint = K.Muted)
-                if (vm.updater.state.release != null) {
+                if (!BuildConfig.PLAY_STORE && vm.updater.state.release != null) {
                     Box(
                         Modifier
                             .align(Alignment.TopEnd)
@@ -918,6 +920,17 @@ private fun MapOverlay(vm: KometViewModel, time: State<Float>, onProfile: () -> 
                 repeat(goal.coerceAtMost(5)) { index -> StarGlyph(filled = index < roundsToday, modifier = Modifier.size(20.dp)) }
             }
             if (streak > 0) Pill(S.streak(streak).str(), icon = KometIcons.Flame, iconTint = Color(0xFFFF8A3D))
+        }
+        PressSurface(
+            onClick = { vm.open(Screen.Montessori) },
+            modifier = Modifier.fillMaxWidth(0.58f).heightIn(min = 58.dp),
+            face = K.Explore,
+            edge = K.ExploreDeep,
+            top = K.ExploreTop,
+            shape = RoundedCornerShape(18.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+        ) {
+            GameText(S.montessoriShort.str(), style = MaterialTheme.typography.titleMedium, fontSize = cappedSp(17.sp), maxLines = 1)
         }
     }
 }

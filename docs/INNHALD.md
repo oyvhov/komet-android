@@ -212,6 +212,10 @@ Engelske ord blir lesne høgt med engelsk stemme. Manglar eininga engelsk stemme
 | `s_sky_facts` | Stjernene | 2 | Sant eller usant om stjernene |
 | `s_quiz` | Stor romquiz | 3 | Alle påstandane blanda |
 
+## Montessori-verkstad
+
+Ein valfri arbeidsstad på stjernekartet med tre sjølvvalde arbeid: raude og blå stenger (lengd og rekkjefølgje 1–5), teljepinnar (mengder 0–5) og talsporing (1–5). Her er det inga klokke, poeng eller stjerner. Barnet kan gjenta arbeidet og sjølv velje når det vil kontrollere oppsettet. Sjå [rettleiing for skuleutprøving](MONTESSORI_VERKSTAD.md).
+
 ## Utforsk, favorittar og repetisjon
 
 - **Utforsk** viser alle oppgåvetypar (pluss, klokka, rim, engelske ord, planetane …) med alle nivåa

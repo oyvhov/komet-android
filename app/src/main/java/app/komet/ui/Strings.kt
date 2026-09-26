@@ -72,6 +72,8 @@ object S {
     val newBadge = txt("Nytt!")
     fun nextRank(title: String) = txt("Neste rang: $title")
     val explore = txt("Utforsk")
+    val montessori = txt("Montessori-verkstad", "Montessori-verksted")
+    val montessoriShort = txt("Montessori")
     val exploreDetail = txt("Finn oppgåvene du likar best", "Finn oppgavene du liker best")
     val favorites = txt("Favorittane dine", "Favorittene dine")
     val favoritesHint = txt("Trykk på hjartet ved eit nivå for å leggje det her.", "Trykk på hjertet ved et nivå for å legge det her.")

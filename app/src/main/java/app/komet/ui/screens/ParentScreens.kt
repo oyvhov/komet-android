@@ -135,7 +135,7 @@ fun ParentScreen(vm: KometViewModel) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
     PageColumn {
         ScreenTopBar(S.parents.str(), onBack = { vm.back() })
-        val waiting = vm.updater.state.release
+        val waiting = if (BuildConfig.PLAY_STORE) null else vm.updater.state.release
         if (waiting != null && tab != 1) {
             Panel(Modifier.fillMaxWidth(), color = K.Gold.copy(alpha = 0.16f)) {
                 Text(S.updateReady(waiting.tag.removePrefix("v")).str(), style = MaterialTheme.typography.titleLarge, color = K.Text)
@@ -335,8 +335,10 @@ private fun SettingsTab(vm: KometViewModel) {
         ProfilePreferences(vm, profile)
     }
 
-    SectionTitle(S.updates.str())
-    UpdatePanel(vm)
+    if (!BuildConfig.PLAY_STORE) {
+        SectionTitle(S.updates.str())
+        UpdatePanel(vm)
+    }
 
     SectionTitle(S.aboutTitle.str())
     Panel(Modifier.fillMaxWidth()) {

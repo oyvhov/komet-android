@@ -65,7 +65,7 @@ lærer undervegs. Alt fyller skjermen på både mobil og nettbrett, med grafikk,
       mellomscener.
 - [x] **6. Musikk og lydar.** Eigen musikk for kvart område, lydar for det barnet trykkjer på, stemmer til
       figurane og innstilling for musikk av/på.
-      *Gjort:* seks melodiar laga i kode, sus, steg, boing, pip og glitter, demping under opplesing og
+      *Gjort:* sju melodiar laga i kode, sus, steg, boing, pip og glitter, demping under opplesing og
       brytar på foreldresida.
 - [ ] **7. Oppgåvene inne i eventyret.** Oppgåveskjermen blir ei scene med figurane til stades og animert
       respons; på nettbrett står scena og oppgåva side om side.
@@ -77,6 +77,26 @@ lærer undervegs. Alt fyller skjermen på både mobil og nettbrett, med grafikk,
 
 Første leveranse er ein heil smakebit: stjernekartet i fullskjerm med rakett, éin planet ferdig
 illustrert med figurar og oppdrag, og musikk – på både mobil og nettbrett.
+
+## Montessori-verkstad · skulepilot
+
+- [x] Eige val på stjernekartet, med roleg arbeid utan tid, poeng eller straff.
+- [x] Talstenger 1–5, teljepinnar 0–5 og talsporing 1–5; nynorsk, bokmål og opplesing av arbeidsinstruks.
+- [x] Lærarrettleiing for ein liten pilot med fysisk materiell og observasjonar: `docs/MONTESSORI_VERKSTAD.md`.
+- [ ] Observer barn og lærarar i faktisk skulebruk før fleire materiell og pedagogiske påstandar blir lagde til.
+
+## Lokal visuell pussing · 26. september 2026
+
+- [x] Felles 3D-knappar med mjuk trykkrørsle, lysrespons og ein ny kort trykklyd.
+- [x] Dialogar med fjøring og opningslyd; mjuke skjermovergangar og sakte lys i rombakgrunnen.
+- [x] Rakettløpet med lysande spor, motorflamme og oppgåveflate med svakt banelys.
+- [x] Romkort med metalliske rammer, glød, sveving og stjerneglimt i framvisinga.
+- [x] Montessori med eige roleg musikkspor, plasseringslydar og visuelle materialval på mobil.
+- [x] Eigne nettbrettoppsett: Montessori-materiale og rettleiing side om side, eigne svarfelt i
+      rakettløpet og illustrasjon og lesetekst ved sida av kvarandre på opne romkort.
+- [x] 98 lokale einingstestar grøne og skjermkontroll på mobil og nettbrett, også med skrift 2.0.
+      Sjå `docs/VERIFICATION_UI_2026-09-26.md`.
+- [ ] Lytte- og ytingskontroll på fysisk nettbrett før publisering.
 
 ## Seinare
 
