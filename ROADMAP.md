@@ -1,6 +1,6 @@
 # Komet — vegkart
 
-Oppdatert 15. september 2026. Publisert release: **2.0.0** (versjonskode 6). Sjå [verifikasjonen](docs/VERIFICATION_v2.0.0.md).
+Oppdatert 26. september 2026. Publisert release: **2.1.0** (versjonskode 7). Sjå [verifikasjonen](docs/VERIFICATION_v2.1.0.md).
 
 Retning frå eigaren: appen skal sjå ut som eit skikkeleg kult spel og ikkje som ein barnsleg, fargerik
 barneapp. Han skal passe for litt større barn. Barnet skal kunne finne oppgåvetypane han likar, uavhengig
@@ -96,7 +96,8 @@ illustrert med figurar og oppdrag, og musikk – på både mobil og nettbrett.
       rakettløpet og illustrasjon og lesetekst ved sida av kvarandre på opne romkort.
 - [x] 98 lokale einingstestar grøne og skjermkontroll på mobil og nettbrett, også med skrift 2.0.
       Sjå `docs/VERIFICATION_UI_2026-09-26.md`.
-- [ ] Lytte- og ytingskontroll på fysisk nettbrett før publisering.
+- [x] Publisert som 2.1.0 på GitHub etter ønske frå eigaren; ekte oppdatering frå 2.0.0 gjennom appen testa med bevart framgang.
+- [ ] Lytte- og ytingskontroll på fysisk nettbrett.
 
 ## Seinare
 
