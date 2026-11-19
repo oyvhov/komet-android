@@ -50,6 +50,7 @@ import app.komet.ui.components.PressSurface
 import app.komet.ui.components.RoundIconButton
 import app.komet.ui.components.ScreenTopBar
 import app.komet.ui.components.StarRow
+import app.komet.ui.components.StarGlyph
 import app.komet.ui.components.fixedSp
 import app.komet.ui.components.gloss
 import app.komet.ui.components.str
@@ -78,12 +79,8 @@ fun ExploreScreen(vm: KometViewModel) {
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 36.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item(key = "favorites") { SectionHeading(S.favorites.str()) }
-            if (favorites.isEmpty()) {
-                item(key = "favorites-hint") {
-                    Text(S.favoritesHint.str(), style = MaterialTheme.typography.bodyLarge, color = K.Muted)
-                }
-            } else {
+            if (favorites.isNotEmpty()) {
+                item(key = "favorites") { SectionHeading(S.favorites.str()) }
                 items(favorites, key = { "fav-${it.id}" }) { skill ->
                     LevelRow(
                         skill = skill,
@@ -96,14 +93,17 @@ fun ExploreScreen(vm: KometViewModel) {
             }
             Subject.entries.filter { subject -> Topics.all.any { it.subject == subject } }.forEach { subject ->
                 item(key = "heading-$subject") {
-                    SectionHeading(S.subject(subject).str(), Modifier.padding(top = 10.dp))
+                    SectionHeading(
+                        S.subject(subject).str(),
+                        Modifier.padding(top = 14.dp),
+                        color = subjectTone(subject).accent,
+                    )
                 }
                 item(key = "topics-$subject") {
-                    TopicGrid(Topics.all.filter { it.subject == subject }) { topic, index, tileModifier ->
+                    TopicGrid(Topics.all.filter { it.subject == subject }) { topic, tileModifier ->
                         val skills = Topics.skills(topic)
                         TopicTile(
                             topic = topic,
-                            shade = index,
                             detail = S.levelCount(skills.size).str(),
                             stars = "${Progression.earnedStars(profile, skills)} / ${skills.size * 3}",
                             onClick = { vm.open(app.komet.ui.Screen.Topic(topic)) },
@@ -139,6 +139,9 @@ fun TopicScreen(vm: KometViewModel, topic: Topic) {
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 36.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (topic == Topic.CLOCK) {
+                item { ClockWorkshopButton(onClick = { vm.open(app.komet.ui.Screen.ClockWorkshop) }, modifier = Modifier.fillMaxWidth()) }
+            }
             items(skills, key = { it.id }) { skill ->
                 LevelRow(
                     skill = skill,
@@ -153,18 +156,28 @@ fun TopicScreen(vm: KometViewModel, topic: Topic) {
 }
 
 @Composable
-private fun SectionHeading(text: String, modifier: Modifier = Modifier) {
-    GameText(text, style = MaterialTheme.typography.headlineSmall, modifier = modifier.semantics { heading() })
+private fun SectionHeading(text: String, modifier: Modifier = Modifier, color: Color = K.Text) {
+    Text(
+        text,
+        color = color,
+        style = MaterialTheme.typography.headlineSmall,
+        modifier = modifier.semantics { heading() },
+    )
 }
 
 @Composable
-private fun TopicGrid(topics: List<Topic>, tile: @Composable (Topic, Int, Modifier) -> Unit) {
+private fun TopicGrid(topics: List<Topic>, tile: @Composable (Topic, Modifier) -> Unit) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val perRow = if (maxWidth >= 600.dp) 3 else 2
+        val perRow = when {
+            maxWidth >= 760.dp -> 4
+            maxWidth >= 560.dp -> 3
+            maxWidth >= 285.dp -> 2
+            else -> 1
+        }
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            topics.chunked(perRow).forEachIndexed { rowIndex, row ->
+            topics.chunked(perRow).forEach { row ->
                 Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    row.forEachIndexed { column, topic -> tile(topic, rowIndex * perRow + column, Modifier.weight(1f).fillMaxHeight()) }
+                    row.forEach { topic -> tile(topic, Modifier.weight(1f).fillMaxHeight()) }
                     repeat(perRow - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
@@ -173,35 +186,44 @@ private fun TopicGrid(topics: List<Topic>, tile: @Composable (Topic, Int, Modifi
 }
 
 @Composable
-private fun TopicTile(topic: Topic, shade: Int, detail: String, stars: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun TopicTile(topic: Topic, detail: String, stars: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val tone = subjectTone(topic.subject)
-    // Neighbouring tiles differ a little in depth, so a grid of one colour still has rhythm.
-    val face = lerp(tone.face, tone.edge, listOf(0f, 0.2f, 0.1f, 0.28f)[shade % 4])
+    val face = lerp(K.Surface, tone.edge, 0.19f)
+    val iconShape = RoundedCornerShape(14.dp)
     PressSurface(
         onClick = onClick,
-        modifier = modifier.heightIn(min = 132.dp),
+        modifier = modifier.heightIn(min = 138.dp),
         face = face,
-        edge = lerp(tone.edge, K.Outline, 0.25f),
-        top = lerp(face, Color.White, 0.1f),
-        shape = RoundedCornerShape(24.dp),
-        depth = 6.dp,
+        edge = K.SpaceTop,
+        top = lerp(K.SurfaceHigh, tone.face, 0.18f),
         contentAlignment = Alignment.TopStart,
         contentPadding = PaddingValues(14.dp),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            if (isPictograph(topic.icon)) {
-                Text(topic.icon, fontSize = fixedSp(34.dp))
-            } else {
-                GameText(
-                    topic.icon,
-                    style = MaterialTheme.typography.headlineLarge.copy(fontFamily = if (topic.subject == Subject.READING) ReadingFont else null),
-                    fontSize = fixedSp(if (topic.icon.length > 2) 30.dp else 40.dp),
-                    maxLines = 1,
-                )
+        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Box(
+                Modifier.size(46.dp)
+                    .gloss(lerp(tone.edge, K.SurfaceLow, 0.35f), iconShape, top = tone.face)
+                    .border(1.dp, tone.accent.copy(alpha = 0.52f), iconShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (isPictograph(topic.icon)) {
+                    Text(topic.icon, fontSize = fixedSp(23.dp))
+                } else {
+                    GameText(
+                        topic.icon,
+                        style = MaterialTheme.typography.headlineSmall.copy(fontFamily = if (topic.subject == Subject.READING) ReadingFont else null),
+                        fontSize = fixedSp(if (topic.icon.length > 2) 18.dp else 24.dp),
+                        color = tone.accent,
+                        maxLines = 1,
+                    )
+                }
             }
-            GameText(topic.title.str(), style = MaterialTheme.typography.titleLarge, maxLines = 2)
-            // One text, so large system fonts wrap it as a line and not word by word in three boxes.
-            Text("$detail  ·  ⭐ $stars", style = MaterialTheme.typography.labelMedium, color = Color.White.copy(alpha = 0.9f))
+            Text(topic.title.str(), style = MaterialTheme.typography.titleMedium, color = K.Text)
+            Text(detail, style = MaterialTheme.typography.bodySmall, color = K.Muted)
+            Row(horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
+                StarGlyph(true, Modifier.size(13.dp))
+                Text(stars, style = MaterialTheme.typography.labelMedium, color = K.GoldTop)
+            }
         }
     }
 }

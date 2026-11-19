@@ -81,6 +81,7 @@ import app.komet.ui.components.KometIcons
 import app.komet.ui.components.LocalFeedback
 import app.komet.ui.components.NuggetPill
 import app.komet.ui.components.Pill
+import app.komet.ui.components.Panel
 import app.komet.ui.components.PressSurface
 import app.komet.ui.components.RoundIconButton
 import app.komet.ui.components.StarGlyph
@@ -359,17 +360,17 @@ private fun SceneScope.SpaceBackdrop(layout: MapLayout, time: State<Float>) {
                 val u = metrics.unitPx
                 val cam = camera.position
                 val t = time.value
-                drawRect(Brush.verticalGradient(listOf(Color(0xFF040722), K.SpaceTop, Color(0xFF12184A))))
+                drawRect(Brush.verticalGradient(listOf(K.SpaceTop, K.SpaceTop, K.SpaceBottom)))
                 // Nebulae drift slowly behind everything.
                 val nebulae = listOf(
-                    Triple(Offset(0.5f, 0.2f), 0.9f, Color(0xFF5B2FB0)),
-                    Triple(Offset(1.9f, 0.85f), 1.1f, Color(0xFF155E8C)),
-                    Triple(Offset(3.2f, 0.15f), 0.9f, Color(0xFFB02F7A)),
-                    Triple(Offset(4.4f, 0.8f), 1f, Color(0xFF2F7AB0)),
+                    Triple(Offset(0.5f, 0.2f), 0.9f, K.Nebula),
+                    Triple(Offset(1.9f, 0.85f), 1.1f, K.ReadingDeep),
+                    Triple(Offset(3.2f, 0.15f), 0.9f, K.CosmosDeep),
+                    Triple(Offset(4.4f, 0.8f), 1f, K.ExploreDeep),
                 )
                 for ((center, radius, color) in nebulae) {
                     val c = Offset((center.x - cam * 0.15f) * u, metrics.y(center.y))
-                    drawCircle(Brush.radialGradient(listOf(color.copy(alpha = 0.32f), Color.Transparent), c, radius * u), radius * u, c)
+                    drawCircle(Brush.radialGradient(listOf(color.copy(alpha = 0.40f), Color.Transparent), c, radius * u), radius * u, c)
                 }
                 // A spiral galaxy far away.
                 val galaxy = Offset((2.6f - cam * 0.1f) * u, metrics.y(0.12f))
@@ -389,7 +390,7 @@ private fun SceneScope.SpaceBackdrop(layout: MapLayout, time: State<Float>) {
                     val y = metrics.y(star.y)
                     val twinkle = 0.55f + 0.45f * sin(t * (0.8f + star.layer * 0.5f) + star.phase)
                     val radius = star.size * metrics.density * 0.8f
-                    drawCircle(Color.White.copy(alpha = (0.35f + star.layer * 0.22f) * twinkle), radius, Offset(x, y))
+                    drawCircle(K.Text.copy(alpha = (0.24f + star.layer * 0.18f) * twinkle), radius, Offset(x, y))
                     if (star.layer == 2 && star.size > 2.4f) {
                         val glint = radius * 3.2f * twinkle
                         drawLine(Color.White.copy(alpha = 0.5f * twinkle), Offset(x - glint, y), Offset(x + glint, y), strokeWidth = 1f)
@@ -425,11 +426,11 @@ private fun SceneScope.OrbitLine(layout: MapLayout) {
             .fillMaxSize()
             .drawBehind {
                 translate(-camera.position * metrics.unitPx, 0f) {
-                    drawPath(path, Color(0xFF7F8CFF).copy(alpha = 0.12f), style = Stroke(14.dp.toPx(), cap = StrokeCap.Round))
+                    drawPath(path, K.Line.copy(alpha = 0.33f), style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
                     drawPath(
                         path,
-                        Color.White.copy(alpha = 0.45f),
-                        style = Stroke(4.dp.toPx(), cap = StrokeCap.Round, pathEffect = PathEffect.dashPathEffect(floatArrayOf(0.1f, 16.dp.toPx()))),
+                        K.Muted.copy(alpha = 0.48f),
+                        style = Stroke(3.dp.toPx(), cap = StrokeCap.Round, pathEffect = PathEffect.dashPathEffect(floatArrayOf(0.1f, 14.dp.toPx()))),
                     )
                 }
             },
@@ -478,7 +479,12 @@ private fun SceneScope.Sun(time: State<Float>) {
                     }
                 }
                 drawCircle(Brush.radialGradient(listOf(Color(0xFFFFFDF0), Color(0xFFFFE27A), Color(0xFFFFA62E), Color(0xFFF26A0F)), center - Offset(r * 0.2f, r * 0.25f), r * 1.3f), r, center)
-                drawCircle(Color.White.copy(alpha = 0.18f + 0.06f * sin(t * 1.3f)), r * 0.7f, center - Offset(r * 0.18f, r * 0.2f))
+                val sunspot = center - Offset(r * 0.21f, r * 0.27f)
+                drawCircle(
+                    Brush.radialGradient(listOf(Color.White.copy(alpha = 0.24f), Color.Transparent), sunspot, r * 0.65f),
+                    r * 0.65f,
+                    sunspot,
+                )
             },
     )
 }
@@ -521,7 +527,7 @@ private fun SceneScope.PlaceView(
         when (spot.place) {
             MapPlace.MATH, MapPlace.READING, MapPlace.ENGLISH, MapPlace.SPACE -> {
                 drawOrbiters(glyphs, c, r, t, front = false, tone = tone)
-                drawCircle(Brush.radialGradient(listOf(tone.face.copy(alpha = 0.4f), Color.Transparent), c, r * 1.75f), r * 1.75f, c)
+                drawCircle(Brush.radialGradient(listOf(tone.face.copy(alpha = 0.24f), Color.Transparent), c, r * 1.75f), r * 1.75f, c)
                 drawMapPlanet(spot.place, c, r, t)
                 if (spot.place == MapPlace.SPACE) drawSatellite(c, r, t)
                 drawOrbiters(glyphs, c, r, t, front = true, tone = tone)
@@ -547,20 +553,22 @@ private fun SceneScope.PlaceView(
             drawPath(arrow, K.Outline, style = Stroke(2.5.dp.toPx()))
         }
     }
+    val labelShape = RoundedCornerShape(16.dp)
     Column(
-        Modifier.worldAt(spot.x, spot.y + spot.radius * 1.05f + 0.012f, anchorY = 0f),
+        Modifier.worldAt(spot.x, spot.y + spot.radius * 1.05f + 0.015f, anchorY = 0f)
+            .gloss(lerp(K.SurfaceLow, tone.edge, 0.18f), labelShape, top = K.SurfaceHigh)
+            .border(1.dp, tone.accent.copy(alpha = 0.32f), labelShape)
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, role = Role.Button, onClick = onTap)
+            .padding(horizontal = 13.dp, vertical = 7.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         Row(
-            Modifier
-                .border(2.dp, K.Outline, RoundedCornerShape(50))
-                .gloss(tone.face, RoundedCornerShape(50), top = tone.top)
-                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onTap)
-                .padding(horizontal = 14.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
         ) {
-            GameText(label, style = MaterialTheme.typography.titleMedium, fontSize = cappedSp(17.sp), maxLines = 1)
+            Box(Modifier.size(6.dp).background(tone.accent, CircleShape))
+            GameText(label, style = MaterialTheme.typography.titleMedium, fontSize = cappedSp(17.sp), color = K.Text, maxLines = 1)
             if (badge != null) {
                 GameText(
                     badge,
@@ -575,15 +583,11 @@ private fun SceneScope.PlaceView(
         }
         if (detail != null) {
             Row(
-                Modifier
-                    .padding(top = 4.dp)
-                    .background(K.SpaceTop.copy(alpha = 0.75f), RoundedCornerShape(50))
-                    .padding(horizontal = 9.dp, vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 if (showStar) StarGlyph(true, Modifier.size(15.dp))
-                Text(detail, style = MaterialTheme.typography.labelMedium, fontSize = cappedSp(14.sp), color = K.Text, fontWeight = FontWeight.Bold, maxLines = 1)
+                Text(detail, style = MaterialTheme.typography.labelMedium, fontSize = cappedSp(13.sp), color = K.Muted, fontWeight = FontWeight.Bold, maxLines = 1)
             }
         }
     }
@@ -592,10 +596,10 @@ private fun SceneScope.PlaceView(
 /** A subject's planet: its own surface, lit by the sun on the left, with a rim of atmosphere. */
 private fun DrawScope.drawMapPlanet(place: MapPlace, c: Offset, r: Float, t: Float) {
     val (light, base, dark) = when (place) {
-        MapPlace.MATH -> Triple(Color(0xFFFFC46B), Color(0xFFF2780F), Color(0xFF7A2A06))
-        MapPlace.READING -> Triple(Color(0xFF9FEAFF), Color(0xFF1E88E5), Color(0xFF0A2F78))
-        MapPlace.ENGLISH -> Triple(Color(0xFF8FE6FF), Color(0xFF2E8FD8), Color(0xFF0C3A7A))
-        else -> Triple(Color(0xFFD9C6FF), Color(0xFF7B4DF2), Color(0xFF2E1680))
+        MapPlace.MATH -> Triple(K.MathTop, K.Math, K.MathDeep)
+        MapPlace.READING -> Triple(K.ReadingTop, K.Reading, K.ReadingDeep)
+        MapPlace.ENGLISH -> Triple(Color(0xFFAFDEE3), Color(0xFF32728B), Color(0xFF142C50))
+        else -> Triple(K.CosmosTop, K.Cosmos, K.CosmosDeep)
     }
     val ringRect = Rect(c.x - r * 1.75f, c.y - r * 0.42f, c.x + r * 1.75f, c.y + r * 0.42f)
     if (place == MapPlace.SPACE) {
@@ -664,10 +668,11 @@ private fun DrawScope.drawMapPlanet(place: MapPlace, c: Offset, r: Float, t: Flo
         }
         // Night side and a thin bright rim towards the sun.
         drawCircle(Brush.radialGradient(listOf(Color.Transparent, Color.Transparent, Color(0xFF050818).copy(alpha = 0.55f)), c - Offset(r * 0.55f, r * 0.45f), r * 2.1f), r, c)
-        drawCircle(Color.White.copy(alpha = 0.3f), r * 0.3f, c - Offset(r * 0.42f, r * 0.45f))
+        val gleam = c - Offset(r * 0.40f, r * 0.46f)
+        drawCircle(Brush.radialGradient(listOf(light.copy(alpha = 0.36f), Color.Transparent), gleam, r * 0.48f), r * 0.48f, gleam)
     }
-    drawArc(light.copy(alpha = 0.8f), 150f, 110f, false, c - Offset(r * 0.96f, r * 0.96f), Size(r * 1.92f, r * 1.92f), style = Stroke(r * 0.045f, cap = StrokeCap.Round))
-    drawCircle(K.Outline.copy(alpha = 0.7f), r, c, style = Stroke(r * 0.035f))
+    drawArc(light.copy(alpha = 0.70f), 150f, 110f, false, c - Offset(r * 0.985f, r * 0.985f), Size(r * 1.97f, r * 1.97f), style = Stroke(r * 0.024f, cap = StrokeCap.Round))
+    drawCircle(K.Outline.copy(alpha = 0.54f), r, c, style = Stroke(r * 0.018f))
     if (place == MapPlace.SPACE) {
         rotate(-16f, c) {
             drawArc(K.Outline, 0f, 180f, false, ringRect.topLeft, ringRect.size, style = Stroke(r * 0.2f))
@@ -921,17 +926,6 @@ private fun MapOverlay(vm: KometViewModel, time: State<Float>, onProfile: () -> 
             }
             if (streak > 0) Pill(S.streak(streak).str(), icon = KometIcons.Flame, iconTint = Color(0xFFFF8A3D))
         }
-        PressSurface(
-            onClick = { vm.open(Screen.Montessori) },
-            modifier = Modifier.fillMaxWidth(0.58f).heightIn(min = 58.dp),
-            face = K.Explore,
-            edge = K.ExploreDeep,
-            top = K.ExploreTop,
-            shape = RoundedCornerShape(18.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-        ) {
-            GameText(S.montessoriShort.str(), style = MaterialTheme.typography.titleMedium, fontSize = cappedSp(17.sp), maxLines = 1)
-        }
     }
 }
 
@@ -977,16 +971,15 @@ private fun MissionBubble(vm: KometViewModel, time: State<Float>, modifier: Modi
                     }
                 },
         )
-        SpeechBubble(Modifier.widthIn(max = 330.dp).padding(bottom = 46.dp), tailAt = 0.08f) {
+        Panel(Modifier.widthIn(max = 330.dp).padding(bottom = 20.dp), padding = 14.dp) {
             val tone = subjectTone((resume?.first ?: recommended).subject)
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
-                    (if (resume != null) S.resumeLabel else S.nextMission).str().uppercase(),
+                    (if (resume != null) S.resumeLabel else S.nextMission).str(),
                     style = MaterialTheme.typography.labelMedium,
                     fontSize = cappedSp(13.sp),
-                    color = tone.edge,
+                    color = tone.accent,
                     fontWeight = FontWeight.Black,
-                    letterSpacing = 1.sp,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Column(Modifier.weight(1f, fill = false)) {
@@ -995,7 +988,7 @@ private fun MissionBubble(vm: KometViewModel, time: State<Float>, modifier: Modi
                             style = MaterialTheme.typography.titleLarge,
                             fontSize = cappedSp(20.sp),
                             lineHeight = cappedSp(25.sp),
-                            color = K.Ink,
+                            color = K.Text,
                             fontWeight = FontWeight.ExtraBold,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
@@ -1004,7 +997,7 @@ private fun MissionBubble(vm: KometViewModel, time: State<Float>, modifier: Modi
                             if (resume != null) S.resumeDetail(resume.second.done, resume.second.total).str() else S.subject(recommended.subject).str(),
                             style = MaterialTheme.typography.labelMedium,
                             fontSize = cappedSp(14.sp),
-                            color = K.InkMuted,
+                            color = K.Muted,
                             maxLines = 1,
                         )
                     }

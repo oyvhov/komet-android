@@ -68,15 +68,19 @@ val LocalFeedback = staticCompositionLocalOf<Feedback> { object : Feedback { ove
 fun Modifier.gloss(face: Color, shape: Shape, top: Color = lerp(face, Color.White, 0.2f), rim: Float = 0.42f): Modifier =
     drawWithCache {
         val path = Path().apply { addOutline(shape.createOutline(size, layoutDirection, this@drawWithCache)) }
-        val fill = Brush.verticalGradient(0f to top, 0.55f to face, 1f to lerp(face, Color.Black, 0.12f))
-        // White keys keep only a whisper of gloss; coloured faces get a clear highlight.
-        val shine = if (face.luminance() > 0.8f) 0.05f else 0.17f
-        val highlight = Brush.verticalGradient(0f to Color.White.copy(alpha = shine), 0.5f to Color.White.copy(alpha = shine * 0.25f), 0.56f to Color.Transparent)
-        val rimStroke = Stroke(width = 1.6.dp.toPx())
+        val fill = Brush.verticalGradient(
+            0f to lerp(face, top, 0.7f),
+            0.32f to lerp(face, top, 0.25f),
+            0.74f to face,
+            1f to lerp(face, Color.Black, 0.1f),
+        )
+        val shine = if (face.luminance() > 0.8f) 0.09f else 0.23f
+        val lightEdge = Brush.verticalGradient(0f to Color.White.copy(alpha = shine), 0.55f to Color.Transparent)
+        val rimStroke = Stroke(width = 1.4.dp.toPx())
         onDrawBehind {
             drawPath(path, fill)
-            drawPath(path, highlight)
             drawPath(path, K.Outline.copy(alpha = rim), style = rimStroke)
+            drawPath(path, lightEdge, style = rimStroke)
         }
     }
 
@@ -90,8 +94,8 @@ fun PressSurface(
     modifier: Modifier = Modifier,
     face: Color = K.SurfaceHigh,
     edge: Color = K.SurfaceLow,
-    shape: Shape = RoundedCornerShape(22.dp),
-    depth: Dp = 5.dp,
+    shape: Shape = RoundedCornerShape(20.dp),
+    depth: Dp = 4.dp,
     enabled: Boolean = true,
     tapSound: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),

@@ -82,6 +82,7 @@ import app.komet.domain.Subject
 import app.komet.domain.Wallet
 import app.komet.ui.KometViewModel
 import app.komet.ui.S
+import app.komet.ui.Screen
 import app.komet.ui.components.BigButton
 import app.komet.ui.components.CloseButton
 import app.komet.ui.components.Feedback
@@ -102,6 +103,7 @@ import app.komet.ui.components.gloss
 import app.komet.ui.components.shake
 import app.komet.ui.components.str
 import app.komet.ui.components.subjectTone
+import app.komet.ui.screens.ClockWorkshopButton
 import app.komet.ui.screens.LevelMedallion
 import app.komet.ui.screens.LevelSymbol
 import app.komet.ui.theme.K
@@ -429,19 +431,27 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
             }
         }
 
-        Row(
+        Column(
             Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
                 .padding(horizontal = 14.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Box(Modifier.weight(1f)) { NamePlate(S.subject(subject).str(), tone.face, tone.top) }
-            val skills = Curriculum.skills(subject)
-            Pill("${Progression.earnedStars(profile, skills)} / ${skills.size * 3}", star = true)
-            NuggetPill(profile.nuggets)
-            CloseButton(onClick = { vm.back() })
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Box(Modifier.weight(1f)) { NamePlate(S.subject(subject).str(), tone.face, tone.top) }
+                val skills = Curriculum.skills(subject)
+                Pill("${Progression.earnedStars(profile, skills)} / ${skills.size * 3}", star = true)
+                NuggetPill(profile.nuggets)
+                CloseButton(onClick = { vm.back() })
+            }
+            if (subject == Subject.MATH) {
+                ClockWorkshopButton(onClick = { vm.open(Screen.ClockWorkshop) }, modifier = Modifier.widthIn(max = 216.dp))
+            }
         }
 
         val cardModifier = if (landscape) {
@@ -555,8 +565,8 @@ private fun NamePlate(text: String, face: Color, top: Color) {
         // As wide as the name, and only smaller when the bar has no room for it.
         modifier = Modifier
             .width(IntrinsicSize.Max)
-            .border(2.dp, K.Outline, RoundedCornerShape(50))
-            .gloss(face, RoundedCornerShape(50), top = top)
+            .gloss(lerp(K.SurfaceLow, face, 0.18f), RoundedCornerShape(50), top = lerp(K.SurfaceHigh, top, 0.20f))
+            .border(1.dp, top.copy(alpha = 0.42f), RoundedCornerShape(50))
             .padding(horizontal = 14.dp, vertical = 6.dp),
     )
 }
@@ -786,14 +796,13 @@ private fun LevelCard(vm: KometViewModel, skill: Skill, compact: Boolean) {
     val unlocked = Progression.isUnlocked(profile, skill)
     val stars = profile.stars(skill.id)
     val favorite = skill.id in profile.favorites
-    val shape = RoundedCornerShape(28.dp)
+    val shape = RoundedCornerShape(22.dp)
     Column(
         Modifier
             .fillMaxWidth()
-            .border(2.5.dp, K.Outline, shape)
             .clip(shape)
-            .background(Brush.verticalGradient(listOf(lerp(tone.edge, K.SpaceTop, 0.2f), lerp(tone.edge, K.SpaceTop, 0.72f))))
-            .border(1.5.dp, Brush.verticalGradient(listOf(tone.top.copy(alpha = 0.5f), Color.Transparent)), shape)
+            .background(Brush.verticalGradient(listOf(lerp(K.Surface, tone.edge, 0.27f), K.SurfaceLow)))
+            .border(1.dp, Brush.verticalGradient(listOf(tone.top.copy(alpha = 0.44f), K.Line.copy(alpha = 0.30f))), shape)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 12.dp),
     ) {
@@ -851,13 +860,13 @@ private fun LevelCard(vm: KometViewModel, skill: Skill, compact: Boolean) {
 @Composable
 private fun ReviewCard(vm: KometViewModel, subject: Subject, names: List<String>) {
     val tone = subjectTone(subject)
-    val shape = RoundedCornerShape(28.dp)
+    val shape = RoundedCornerShape(22.dp)
     Column(
         Modifier
             .fillMaxWidth()
-            .border(2.5.dp, K.Outline, shape)
             .clip(shape)
-            .background(Brush.verticalGradient(listOf(lerp(tone.edge, K.SpaceTop, 0.2f), lerp(tone.edge, K.SpaceTop, 0.72f))))
+            .background(Brush.verticalGradient(listOf(lerp(K.Surface, tone.edge, 0.27f), K.SurfaceLow)))
+            .border(1.dp, Brush.verticalGradient(listOf(tone.top.copy(alpha = 0.44f), K.Line.copy(alpha = 0.30f))), shape)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {

@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -39,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.AnnotatedString
@@ -375,8 +377,7 @@ private fun TaskCard(vm: KometViewModel, round: RoundState, state: VisualState, 
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp))
-            .background(K.Paper),
+            .lessonPaper(),
         contentAlignment = Alignment.Center,
     ) {
         val hint = question.hint
@@ -490,6 +491,13 @@ private fun ColumnScope.AnswerArea(vm: KometViewModel, round: RoundState, correc
     }
 }
 
+private fun Modifier.lessonPaper(): Modifier {
+    val shape = RoundedCornerShape(24.dp)
+    return clip(shape)
+        .background(Brush.verticalGradient(listOf(K.Paper, K.Paper, K.PaperShade)))
+        .border(1.dp, Brush.verticalGradient(listOf(Color.White, K.PaperShade)), shape)
+}
+
 /** The writing pad on its paper card. */
 @Composable
 private fun TracingCard(vm: KometViewModel, round: RoundState, answer: Answer.Trace, modifier: Modifier) {
@@ -498,8 +506,7 @@ private fun TracingCard(vm: KometViewModel, round: RoundState, answer: Answer.Tr
     Box(
         modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp))
-            .background(K.Paper),
+            .lessonPaper(),
     ) {
         if (glyph != null) {
             TracingPad(

@@ -50,7 +50,7 @@ import app.komet.ui.screens.PlayScreen
 import app.komet.ui.screens.RaceMenuScreen
 import app.komet.ui.screens.RaceScreen
 import app.komet.ui.screens.ResultScreen
-import app.komet.ui.screens.MontessoriScreen
+import app.komet.ui.screens.ClockWorkshopScreen
 import app.komet.ui.scene.HeroEditorScreen
 import app.komet.ui.scene.PlanetScreen
 import app.komet.ui.scene.ShopScreen
@@ -124,7 +124,7 @@ fun KometApp(vm: KometViewModel) {
                         Screen.Parent -> ParentScreen(vm)
                         Screen.HeroEditor -> HeroEditorScreen(vm)
                         Screen.Shop -> ShopScreen(vm)
-                        Screen.Montessori -> MontessoriScreen(vm)
+                        Screen.ClockWorkshop -> ClockWorkshopScreen(vm)
                     }
                 }
             }

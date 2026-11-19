@@ -29,7 +29,7 @@ sealed interface Screen {
     data object Parent : Screen
     data object HeroEditor : Screen
     data object Shop : Screen
-    data object Montessori : Screen
+    data object ClockWorkshop : Screen
 }
 
 enum class Phase { ANSWERING, CORRECT, REVEALED }

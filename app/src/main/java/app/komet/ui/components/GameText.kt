@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -75,8 +76,8 @@ fun GameText(
     }
     val density = LocalDensity.current
     val sizePx = with(density) { size.toPx() }
-    val rim = (sizePx * 0.15f).coerceIn(with(density) { 2.5.dp.toPx() }, with(density) { 9.dp.toPx() })
-    val drop = rim * 0.55f
+    val rim = (sizePx * 0.10f).coerceIn(with(density) { 1.6.dp.toPx() }, with(density) { 6.dp.toPx() })
+    val drop = rim * 0.45f
     // A smaller size than the style's (for example a capped one) keeps the style's line spacing in proportion.
     val lineHeight = if (style.lineHeight.isSp && style.fontSize.isSp && size.isSp) (size.value * style.lineHeight.value / style.fontSize.value).sp else style.lineHeight
     val base = style.merge(
@@ -98,7 +99,7 @@ fun GameText(
             maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
             autoSize = fit,
-            modifier = Modifier.matchParentSize(),
+            modifier = Modifier.matchParentSize().clearAndSetSemantics {},
         )
         BasicText(
             text,

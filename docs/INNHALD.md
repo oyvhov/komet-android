@@ -72,6 +72,12 @@ før har minst éi stjerne. Det første nivået på kvar planet er alltid ope.
 | `m_shape_names` | Namn på former | 1 | Kva heiter forma? |
 
 ### Klokka og pengar
+
+**Klokkeverkstaden** ligg på Talplaneten og under **Klokka** i Utforsk. I Leik kan barnet dra i
+visarane eller bruke time- og minuttknappane. Den analoge og den digitale klokka følgjer kvarandre
+gjennom heile døgnet. I Øv vekslar seks oppgåver mellom å lese ei urskive og å stille visarane etter
+digital tid. Barnet kan velje heile timar, halve timar, kvarter eller femminuttssteg.
+
 | Id | Nivå | Kl. | Oppgåve |
 | --- | --- | --- | --- |
 | `m_clock_hour` | Heile timar | 1 | Analog klokke |
@@ -211,10 +217,6 @@ Engelske ord blir lesne høgt med engelsk stemme. Manglar eininga engelsk stemme
 | `s_sky_things` | På himmelen | 1 | Nordlys, Karlsvogna, stjerneskot, komet |
 | `s_sky_facts` | Stjernene | 2 | Sant eller usant om stjernene |
 | `s_quiz` | Stor romquiz | 3 | Alle påstandane blanda |
-
-## Montessori-verkstad
-
-Ein valfri arbeidsstad på stjernekartet med tre sjølvvalde arbeid: raude og blå stenger (lengd og rekkjefølgje 1–5), teljepinnar (mengder 0–5) og talsporing (1–5). Her er det inga klokke, poeng eller stjerner. Barnet kan gjenta arbeidet og sjølv velje når det vil kontrollere oppsettet. Sjå [rettleiing for skuleutprøving](MONTESSORI_VERKSTAD.md).
 
 ## Utforsk, favorittar og repetisjon
 

@@ -1,5 +1,12 @@
 # Endringslogg
 
+## 2.2.0 · 19. november 2026 · Klokkeverkstaden
+
+- Leik med analoge visarar og digital tid på Talplaneten og i Utforsk.
+- Øv på heile timar, halve timar, kvarter og femminuttssteg med opplesing og forklaringar.
+- Stjernekartet har rolegare lys og tydelegare planetskilt. Utforsk, oppgåvene og planetkorta har eit meir samanhengande uttrykk.
+- Montessori-verkstaden er fjerna frå appen.
+
 ## 2.1.0 · 26. september 2026 · Montessori og nettbrett
 
 - Eiga Montessori-inspirert verkstad med talstenger 1–5, teljepinnar 0–5 og talsporing 1–5.

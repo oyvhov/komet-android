@@ -112,12 +112,12 @@ fun Panel(
     padding: Dp = 18.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val shape = RoundedCornerShape(26.dp)
+    val shape = RoundedCornerShape(22.dp)
     Column(
         modifier = modifier
             .clip(shape)
-            .background(Brush.verticalGradient(listOf(lerp(color, Color.White, 0.05f), lerp(color, K.SpaceTop, 0.25f))))
-            .border(1.5.dp, Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.13f), Color.White.copy(alpha = 0.02f))), shape)
+            .background(Brush.verticalGradient(listOf(lerp(color, K.SurfaceHigh, 0.23f), lerp(color, K.SpaceTop, 0.28f))))
+            .border(1.dp, Brush.verticalGradient(listOf(K.Line, K.Line.copy(alpha = 0.30f))), shape)
             .padding(padding),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         content = content,
