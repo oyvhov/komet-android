@@ -6,9 +6,11 @@ pakke, nøkkel og emulator.
 
 ## 1. Produktet og faste føringar
 
-Komet er ein app der barn øver på matte, norsk, engelsk og verdsrommet. Temaet er verdsrommet:
-kvart fag er ein planet å gå på, stjerner er framgang, og romkort er premien. Sidan 2.0 er appen eit
-eventyr: stjernekartet er heimeskjermen, og barnet reiser med sin eigen astronaut og roboten Bolt.
+Komet er ein app der barn øver på matte, norsk, engelsk og verdsrommet. Heimeskjermen er ei
+rakettreise der barnet kan dra gjennom solsystemet. **Kartoversikt** viser alle åtte planetane samla.
+Kvar planet har eit planetoppdrag og ein inngang til
+relevante oppgåvetypar. Fire av planetane har fagstiar med astronauten og roboten Bolt.
+Stjerner er framgang, og romkort er premien.
 
 - **Som eit kult spel, ikkje ein barnsleg app – og ikkje HUD.** Mørkt romtema, planetar og blanke 3D-knappar
   (`PressSurface` + `gloss`), djupe fargar per fag (`Tones`), kvit spelskrift med mørk kontur (`GameText`).
@@ -88,14 +90,20 @@ Debug-bygget tek imot kommandoar som hoppar rett til ein skjerm eller eit nivå.
 release-bygget.
 
 ```bash
-adb -s emulator-5580 shell am start -f 0x20000000 -n app.komet.debug/app.komet.MainActivity --es skill m_clock_half
+adb shell am start -f 0x20000000 -n app.komet.debug/app.komet.MainActivity --es skill m_clock_half
 ```
 
 | Ekstra | Verknad |
 | --- | --- |
 | `--es skill <id>` | Startar nivået (id-ar i `docs/INNHALD.md`) |
-| `--es screen home\|math\|reading\|english\|space\|cards\|race\|explore\|montessori\|parent` | Opnar skjermen (foreldresida utan lås) |
+| `--es screen home\|math\|reading\|english\|space\|cards\|race\|explore\|parent` | Opnar skjermen (foreldresida utan lås) |
 | `--es screen addprofile\|hero\|shop` | Opnar oppstarten for ny profil, astronautbyggjaren eller butikken |
+| `--es screen clock` | Opnar Klokkeverkstaden |
+| `--es screen pizza\|rover\|post` | Opnar Pizzaverkstaden, Marsruta eller Stjerneposten |
+| `--es screen geography` | Opnar jordatlaset på trinnet til spelaren |
+| `--es screen solar_<id>` | Opnar ein planet på solsystemkartet, t.d. `solar_saturn` |
+| `--es screen overview` | Opnar Kartoversikt |
+| `--es screen adventure_math\|adventure_reading\|adventure_english\|adventure_space` | Opnar innbyggjaren sitt eventyr på vald planet |
 | `--ei solve <n>` | Svarar rett på dei neste n oppgåvene |
 | `--ei miss <n>` | Bommar n gonger på gjeldande oppgåve |
 | `--ei stars <n>` | Set stjerner (for romkort og rang) |
@@ -104,7 +112,7 @@ adb -s emulator-5580 shell am start -f 0x20000000 -n app.komet.debug/app.komet.M
 | `--es speech on\|off` | Slår opplesing av/på |
 | `--es music on\|off` | Slår musikken av/på (greitt å slå av under test) |
 
-Skjermbilete: `adb -s emulator-5580 exec-out screencap -p > bilete.png`. Første oppstart av
+Skjermbilete: `adb exec-out screencap -p > bilete.png`. Første oppstart av
 debug-bygget på emulator utan GPU tek 10–15 sekund; vent før du tek bilete.
 
 Kontroller ved endringar i UI:

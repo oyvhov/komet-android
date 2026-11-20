@@ -11,9 +11,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.platform.LocalDensity
+import app.komet.ui.scene.AdventureArtwork
+import app.komet.domain.Adventures
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -39,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.AnnotatedString
@@ -67,6 +74,8 @@ import app.komet.ui.KometViewModel
 import app.komet.ui.Phase
 import app.komet.ui.RoundState
 import app.komet.ui.S
+import app.komet.ui.CompanionMessage
+import app.komet.ui.companionMessage
 import app.komet.ui.components.AnswerDisplay
 import app.komet.ui.components.BigButton
 import app.komet.ui.components.BuildSlots
@@ -94,9 +103,8 @@ import app.komet.domain.ShopSlot
 import app.komet.ui.components.CloseButton
 import app.komet.ui.scene.Astronaut
 import app.komet.ui.scene.Gear
-import app.komet.ui.scene.Bolt
-import app.komet.ui.scene.BoltMood
-import app.komet.ui.scene.BoltReaction
+import app.komet.ui.scene.TaskCompanionButton
+import app.komet.ui.scene.TaskCompanionDialog
 import app.komet.ui.scene.HeroPose
 import app.komet.ui.scene.JourneyTrack
 import app.komet.ui.scene.SubjectBackdrop
@@ -111,9 +119,12 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
     val round = vm.round ?: return
     val question = round.question
     val phase = round.phase
-    val mission = Topics.of(round.skill) == Topic.MISSIONS
+    val mission = Topics.of(round.skill) == Topic.MISSIONS || round.adventureId != null
+    val atlas = Topics.of(round.source) == Topic.GEOGRAPHY && !mission
     val motion = LocalMotion.current
     val feedback = LocalFeedback.current
+    var companionOpen by remember(round, round.index) { mutableStateOf(false) }
+    val companion = round.companionMessage()
     var launching by remember(round, round.index) { mutableStateOf(false) }
     LaunchedEffect(launching) {
         if (launching) {
@@ -131,12 +142,12 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
     LaunchedEffect(round, round.index) {
         if (vm.settings.autoRead) {
             delay(300)
-            vm.readQuestion()
+            if (!companionOpen && round.phase == Phase.ANSWERING) vm.readQuestion()
         }
     }
     // Move on by itself after a right answer; long rewards get time to be read aloud.
-    LaunchedEffect(round, round.index, phase) {
-        if (phase == Phase.CORRECT && !mission) {
+    LaunchedEffect(round, round.index, phase, companionOpen) {
+        if (phase == Phase.CORRECT && !mission && !atlas && !companionOpen) {
             val reward = question.reward?.nn?.length ?: 0
             delay((1100L + reward * 45L).coerceAtMost(3800L))
             vm.next()
@@ -153,9 +164,10 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
         }
     }
 
-    var tryAgainVisible by remember { mutableStateOf(false) }
-    LaunchedEffect(round.shakeCount) {
-        if (round.shakeCount > 0 && round.phase == Phase.ANSWERING) {
+    var tryAgainVisible by remember(round, round.index) { mutableStateOf(false) }
+    LaunchedEffect(round, round.index, round.shakeCount, phase) {
+        tryAgainVisible = false
+        if (round.misses > 0 && round.phase == Phase.ANSWERING) {
             tryAgainVisible = true
             delay(1300)
             tryAgainVisible = false
@@ -180,7 +192,6 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
             exit = slideOutVertically(tween(140)) { it / 2 } + fadeOut(tween(100)),
         ) {
             FeedbackBanner(
-                boltPaint = vm.profile?.equipped?.get(ShopSlot.BOLT),
                 correct = phase == Phase.CORRECT,
                 praise = S.praise[round.praise % S.praise.size].str(),
                 answer = correctText,
@@ -195,33 +206,56 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
         }
     }
 
+    if (atlas) {
+        AtlasRound(vm, round, onQuit) { companionOpen = true }
+        if (companionOpen) TaskCompanionDialog(vm, round, companion, onClose = { companionOpen = false })
+        return
+    }
     Box(Modifier.fillMaxSize()) {
         SubjectBackdrop(round.skill.subject)
         BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding()) {
-            val wide = maxWidth >= 840.dp && maxWidth > maxHeight
+            val wide = maxWidth >= (if (LocalDensity.current.fontScale >= 1.6f) 840.dp else 720.dp) && maxHeight >= 450.dp
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                TopBar(vm, round, accent, onQuit)
+                TopBar(vm, round, accent, onQuit, companion, showCompanion = !wide, companionEnabled = !launching) { companionOpen = true }
                 if (wide) {
-                    Row(
-                        Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 24.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(24.dp),
-                    ) {
-                        Column(Modifier.weight(1.1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            PromptLine(question.prompt.str(), tryAgainVisible)
-                            TaskCard(vm, round, visualState, Modifier.weight(1f), launching)
-                        }
-                        Column(
+                    Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Row(
                             Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+                                .widthIn(max = 1180.dp)
+                                .heightIn(max = 620.dp)
+                                .fillMaxSize()
+                                .padding(horizontal = 24.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(24.dp),
                         ) {
-                            HeroCorner(vm, round)
-                            AnswerArea(vm, round, correctText)
-                            banner()
+                            Column(Modifier.weight(1.1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)) {
+                                PromptLine(question.prompt.str(), tryAgainVisible)
+                                if (round.source.id == "s_planet_clues" && question.visual is Visual.Story && !round.hintShown) {
+                                    Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())
+                                        .clip(RoundedCornerShape(24.dp)).background(K.Paper)) {
+                                        AdventureArtwork(Subject.SPACE, vm.profile?.let { Adventures.completed(it, Subject.SPACE) } ?: 0,
+                                            Modifier.fillMaxWidth().height(186.dp).clearAndSetSemantics {})
+                                        TaskVisual(question.visual, visualState, onListen = { vm.say(it) }, modifier = Modifier.fillMaxWidth().padding(18.dp))
+                                    }
+                                } else if (question.visual == Visual.None && !round.hintShown && question.answer !is Answer.Build && question.answer !is Answer.Trace) {
+                                    AdventureArtwork(round.skill.subject, vm.profile?.let { Adventures.completed(it, round.skill.subject) } ?: 0,
+                                        Modifier.weight(1f, fill = false).fillMaxWidth().heightIn(max = 320.dp).fillMaxHeight().clip(RoundedCornerShape(22.dp)))
+                                } else {
+                                    val compactCard = !mission && !round.hintShown && (question.visual is Visual.Story || question.visual is Visual.Equation || question.visual is Visual.Glyph)
+                                    val card = if (compactCard) Modifier.weight(1f, fill = false).heightIn(max = 300.dp) else Modifier.weight(1f)
+                                    TaskCard(vm, round, visualState, card, launching)
+                                }
+                            }
+                            Column(
+                                Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+                            ) {
+                                HeroCorner(vm, round, companion, companionEnabled = !launching) { companionOpen = true }
+                                AnswerArea(vm, round, correctText)
+                                banner()
+                            }
                         }
                     }
                 } else {
@@ -243,10 +277,23 @@ fun PlayScreen(vm: KometViewModel, onQuit: () -> Unit) {
 
         if (phase == Phase.CORRECT && round.isLast) ConfettiBurst(round.index, Modifier.fillMaxSize())
     }
+
+    if (companionOpen) {
+        TaskCompanionDialog(vm, round, companion, onClose = { companionOpen = false })
+    }
 }
 
 @Composable
-private fun TopBar(vm: KometViewModel, round: RoundState, accent: Color, onQuit: () -> Unit) {
+private fun TopBar(
+    vm: KometViewModel,
+    round: RoundState,
+    accent: Color,
+    onQuit: () -> Unit,
+    companion: CompanionMessage,
+    showCompanion: Boolean,
+    companionEnabled: Boolean,
+    onCompanion: () -> Unit,
+) {
     Row(
         Modifier
             .widthIn(max = 960.dp)
@@ -257,38 +304,33 @@ private fun TopBar(vm: KometViewModel, round: RoundState, accent: Color, onQuit:
     ) {
         val done = round.index + if (round.phase == Phase.ANSWERING) 0 else 1
         val player = vm.profile
+        if (showCompanion) {
+            TaskCompanionButton(companion, player?.equipped?.get(ShopSlot.BOLT), onCompanion, enabled = companionEnabled)
+        }
         if (player != null) {
-            JourneyTrack(done / round.questions.size.toFloat(), accent, player.hero, Modifier.weight(1f), gear = Gear.of(player.equipped))
+            JourneyTrack(done, round.questions.size, accent, player.hero, Modifier.weight(1f), gear = Gear.of(player.equipped))
         } else {
             ProgressTrack(done / round.questions.size.toFloat(), Modifier.weight(1f), color = accent, track = K.SurfaceHigh, height = 16.dp)
         }
         if (round.question.hint != null && !round.hintShown && round.phase == Phase.ANSWERING) {
-            RoundIconButton(KometIcons.Bulb, S.hint.str(), { vm.showHint() }, size = 50.dp, face = K.Gold, edge = K.GoldDeep, tint = K.Ink)
+            RoundIconButton(KometIcons.Bulb, S.hint.str(), { vm.showHint() }, size = 64.dp, face = K.Gold, edge = K.GoldDeep, tint = K.Ink)
         }
-        if (vm.speechAvailable) {
-            RoundIconButton(KometIcons.Speaker, S.readQuestion.str(), { vm.readQuestion() }, size = 50.dp)
+        if (vm.speechAvailable && !showCompanion) {
+            RoundIconButton(KometIcons.Speaker, S.readQuestion.str(), { vm.readQuestion() }, size = 64.dp)
         }
-        CloseButton(onClick = onQuit)
+        CloseButton(onClick = onQuit, size = 64.dp)
     }
 }
 
 /**
- * On wide screens the astronaut and Bolt keep the child company beside the answers: they cheer at a
- * right answer and Bolt is surprised for a moment after a miss.
+ * On wide screens the astronaut and Bolt keep the child company beside the answers. Bolt uses the
+ * same response and help action as on the phone, including when speech or motion is disabled.
  */
 @Composable
-private fun HeroCorner(vm: KometViewModel, round: RoundState) {
+private fun HeroCorner(vm: KometViewModel, round: RoundState, companion: CompanionMessage, companionEnabled: Boolean, onCompanion: () -> Unit) {
     val player = vm.profile ?: return
     val hero = player.hero
     val time = rememberSceneTime()
-    var surprised by remember { mutableStateOf(false) }
-    LaunchedEffect(round.shakeCount) {
-        if (round.shakeCount > 0) {
-            surprised = true
-            delay(900)
-            surprised = false
-        }
-    }
     val phase = round.phase
     Row(
         Modifier.fillMaxWidth(),
@@ -302,19 +344,13 @@ private fun HeroCorner(vm: KometViewModel, round: RoundState) {
             gear = Gear.of(player.equipped),
             modifier = Modifier.size(88.dp, 132.dp),
         )
-        Bolt(
-            time = time,
+        TaskCompanionButton(
+            message = companion,
             paint = player.equipped[ShopSlot.BOLT],
-            mood = {
-                when {
-                    phase == Phase.CORRECT -> BoltMood.HAPPY
-                    surprised -> BoltMood.SURPRISED
-                    else -> BoltMood.IDLE
-                }
-            },
-            modifier = Modifier
-                .padding(bottom = 70.dp)
-                .size(62.dp),
+            onClick = onCompanion,
+            enabled = companionEnabled,
+            modifier = Modifier.padding(bottom = 48.dp),
+            size = 80.dp,
         )
     }
 }
@@ -375,12 +411,11 @@ private fun TaskCard(vm: KometViewModel, round: RoundState, state: VisualState, 
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp))
-            .background(K.Paper),
+            .lessonPaper(),
         contentAlignment = Alignment.Center,
     ) {
         val hint = question.hint
-        val mission = Topics.of(round.skill) == Topic.MISSIONS
+        val mission = Topics.of(round.skill) == Topic.MISSIONS || round.adventureId != null
         val delivered = round.phase != Phase.ANSWERING
         val sceneHeight = if (delivered) (maxHeight - 36.dp).coerceAtLeast(80.dp) else 160.dp
         val showMissionScene = mission && (delivered || maxHeight >= 340.dp)
@@ -438,7 +473,11 @@ private fun ColumnScope.AnswerArea(vm: KometViewModel, round: RoundState, correc
                     else -> OptionLook.NORMAL
                 }
             }
-            ChoiceGrid(
+            val hunt = if (round.source.id == "s_planet_clues") answer.options.mapNotNull { option ->
+                app.komet.domain.SolarDestination.entries.firstOrNull { it.planet.art == (option as? app.komet.domain.Option.Art)?.art }
+            } else emptyList()
+            if (hunt.size == answer.options.size) app.komet.ui.scene.PlanetHunt(hunt, looks, vm::choose)
+            else ChoiceGrid(
                 answer = answer,
                 looks = looks,
                 shakeTarget = round.shakeTarget,
@@ -490,6 +529,13 @@ private fun ColumnScope.AnswerArea(vm: KometViewModel, round: RoundState, correc
     }
 }
 
+private fun Modifier.lessonPaper(): Modifier {
+    val shape = RoundedCornerShape(24.dp)
+    return clip(shape)
+        .background(Brush.verticalGradient(listOf(K.Paper, K.Paper, K.PaperShade)))
+        .border(1.dp, Brush.verticalGradient(listOf(Color.White, K.PaperShade)), shape)
+}
+
 /** The writing pad on its paper card. */
 @Composable
 private fun TracingCard(vm: KometViewModel, round: RoundState, answer: Answer.Trace, modifier: Modifier) {
@@ -498,8 +544,7 @@ private fun TracingCard(vm: KometViewModel, round: RoundState, answer: Answer.Tr
     Box(
         modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp))
-            .background(K.Paper),
+            .lessonPaper(),
     ) {
         if (glyph != null) {
             TracingPad(
@@ -561,7 +606,6 @@ private fun TraceExample(visual: Visual, accent: Color) {
 
 @Composable
 private fun FeedbackBanner(
-    boltPaint: String?,
     correct: Boolean,
     praise: String,
     answer: String?,
@@ -593,18 +637,15 @@ private fun FeedbackBanner(
             .padding(horizontal = 18.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            BoltReaction(correct, Modifier.size(58.dp), paint = boltPaint)
-            Column(Modifier.weight(1f)) {
-                Text(
-                    title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = if (correct) K.Good else K.Reveal,
-                    fontWeight = FontWeight.Black,
-                )
-                if ((!correct || showExplanation) && explanation != null) {
-                    Text(explanation, style = MaterialTheme.typography.titleMedium.copy(fontFamily = answerFont), color = K.Text)
-                }
+        Column(Modifier.fillMaxWidth()) {
+            Text(
+                title,
+                style = MaterialTheme.typography.headlineSmall,
+                color = if (correct) K.Good else K.Reveal,
+                fontWeight = FontWeight.Black,
+            )
+            if ((!correct || showExplanation) && explanation != null) {
+                Text(explanation, style = MaterialTheme.typography.titleMedium.copy(fontFamily = answerFont), color = K.Text)
             }
         }
         BigButton(

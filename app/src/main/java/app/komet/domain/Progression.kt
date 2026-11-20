@@ -131,6 +131,7 @@ object Progression {
         today: Long,
         now: Long,
         trackRound: Boolean = true,
+        adventureId: String? = null,
     ): Profile {
         val first = if (rightFirstTime) 1 else 0
         val old = profile.skills[skill.id] ?: SkillStats()
@@ -148,6 +149,7 @@ object Progression {
             activeRound = when {
                 // A review round mixes levels and cannot be picked up; it leaves any saved round alone.
                 !trackRound -> profile.activeRound
+                Adventures.validRound(adventureId, skill.id) -> ActiveRound(skill.id, done, roundFirstTry, total, now, adventureId)
                 done < total -> ActiveRound(skill.id, done, roundFirstTry, total, now)
                 else -> null
             },
@@ -158,7 +160,9 @@ object Progression {
     fun resumable(profile: Profile): Pair<Skill, ActiveRound>? {
         val active = profile.activeRound ?: return null
         val skill = Curriculum.skill(active.skillId) ?: return null
-        return if (active.done in 1 until active.total) skill to active else null
+        val valid = if (Adventures.validRound(active.adventureId, skill.id)) active.done in 0..active.total
+            else active.done in 1 until active.total
+        return if (active.total > 0 && valid) skill to active else null
     }
 
     /**

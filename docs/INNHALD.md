@@ -1,12 +1,46 @@
 # Innhald i Komet
 
-128 nivå fordelte på 25 kapittel i fire fag: matte, norsk, engelsk og verdsrommet. Mange nivå lagar nye tal og kombinasjonar kvar runde, medan fakta og ord kjem frå innhaldsbankar. Ei runde er 8 oppgåver (4–6 for tekstar,
+147 nivå fordelte på 27 kapittel i fire fag: matte, norsk, engelsk og verdsrommet med geografi. Mange nivå lagar nye tal og kombinasjonar kvar runde, medan fakta og ord kjem frå innhaldsbankar. Ei runde er vanlegvis 8 oppgåver (kortare for tekstar,
 ordbygging, skriving og små emne). Kvart svar blir lagra med ein gong, og ein avbroten runde kan haldast
 fram frå heimeskjermen.
 
 **Klassesteg:** 0 = 5 år / førskule, 1 = 1. klasse, 2 = 2. klasse, 3 = 3. klasse. Nivå under barnet
 sitt klassesteg er opne frå start, det første på klassesteget er ope, og resten opnar seg når nivået
 før har minst éi stjerne. Det første nivået på kvar planet er alltid ope.
+
+## Kart over solsystemet
+
+Alle åtte planetane ligg i rekkjefølgje frå sola. På kvar planet kan barnet spele eit planetoppdrag
+og velje ein oppgåvetype direkte. **Alle oppgåver** på kartet opnar den same oversikta med fagval.
+Storleiken og avstanden mellom planetane er tilpassa skjermen.
+
+Reisepasset i kartoversikta har åtte stempelplassar. Første gong barnet fullfører planetoppdraget,
+får det stempelet frå den planeten. Oppdrag som er fullførte tidlegare, tel òg. Frå passet kan barnet
+trykkje på ein stempelplass for å reise til planeten.
+Frå passet kan barnet òg starte **Planetjakt**, der det brukar ledetrådar frå nivået «Kven er eg?» til å finne rett planet.
+
+| Planet | Typar oppgåver |
+| --- | --- |
+| Merkur | Tal, pluss og skriv tal |
+| Venus | Pizzaverkstaden, minus, pluss og minus, tekstoppgåver |
+| Jorda | Geografi, norsk, sola og månen |
+| Mars | Marsruta, former, gonge og dele, romoppdrag |
+| Jupiter | Engelsk |
+| Saturn | Klokkeverkstaden, klokka og pengar |
+| Uranus | Stjerneposten, planetane og romfart |
+| Neptun | Stjernehimmelen |
+
+Planetnamn, rekkjefølgje og kjenneteikn er følgde opp mot [NASA si planetoversikt](https://science.nasa.gov/solar-system/planets/).
+
+## Interaktive verkstader
+
+**Pizzaverkstaden** har seks bestillingar på Venus. Barnet legg like store pizzastykke på eit fat, tek dei av og serverer ein brøk av pizzaen. Same brøk dukkar opp med ulik oppdeling. Verkstaden finst òg under Matte i Alle oppgåver.
+
+**Marsruta** har fem kart på Mars. Barnet programmerer roveren med piler, køyrer programmet og kan rette ruta dersom roveren stansar ved ein stein eller utanfor målet. Verkstaden finst òg under Verdsrommet i Alle oppgåver.
+
+**Stjerneposten** har ti oppdrag på Uranus og under Norsk i Alle oppgåver. Gamle pakkelappar viser kva orda i eit romspråk tyder. Barnet pakkar ei bestilling eller skriv ei melding til Bolt. Etter dei to innføringsoppdraga må barnet kombinere ord frå ulike lappar.
+
+Verkstadene hugsar neste oppdrag for kvar profil.
 
 ## Matte (64 nivå)
 
@@ -72,6 +106,12 @@ før har minst éi stjerne. Det første nivået på kvar planet er alltid ope.
 | `m_shape_names` | Namn på former | 1 | Kva heiter forma? |
 
 ### Klokka og pengar
+
+**Klokkeverkstaden** ligg på Talplaneten og under **Klokka** i Utforsk. I Leik kan barnet dra i
+visarane eller bruke time- og minuttknappane. Den analoge og den digitale klokka følgjer kvarandre
+gjennom heile døgnet. I Øv vekslar seks oppgåver mellom å lese ei urskive og å stille visarane etter
+digital tid. Barnet kan velje heile timar, halve timar, kvarter eller femminuttssteg.
+
 | Id | Nivå | Kl. | Oppgåve |
 | --- | --- | --- | --- |
 | `m_clock_hour` | Heile timar | 1 | Analog klokke |
@@ -195,7 +235,27 @@ Engelske ord blir lesne høgt med engelsk stemme. Manglar eininga engelsk stemme
 | `e_spell3` | Stav korte ord | 2 | cat, dog, sun … med bokstavbrikker |
 | `e_spell5` | Stav lengre ord | 3 | fish, horse, apple … |
 
-## Verdsrommet (12 nivå)
+## Verdsrommet og geografi (31 nivå)
+
+### Geografi på Jorda
+
+Opne **Jorda → Geografi** eller **Alle oppgåver → Verdsrommet → Geografi**. Atlaset opnar på trinnet til spelaren. Alle fire trinna kan veljast fritt. Barnet kan lese forklaringa på kartet før neste oppgåve.
+
+| Id | Trinn | Oppgåve |
+| --- | --- | --- |
+| `g_flag_pair` | Førskule | Finn same flagg blant tre flagg. |
+| `g_land_sea` | Førskule | Sjå om ein prikk på verdskartet ligg på land eller i havet. |
+| `g_nordic` | 1. | Kjenn att flagga til dei fem nordiske statane. |
+| `g_compass` | 1. | Finn himmelretninga frå ein seglbåt til eit fyr på eit sjøkart. |
+| `g_flags` | 2. | Kjenn att tolv nasjonalflagg frå seks verdsdelar. |
+| `g_grid` | 2. | Finn kartreferansen til fyret, eller trykk direkte på rett kai for å segle dit. |
+| `g_capitals` | 2. | Finn hovudstaden i kvart av dei fem nordiske landa. |
+| `g_continents` | 3. | Finn dei sju verdsdelane på verdskartet. |
+| `g_oceans` | 3. | Finn dei fem verdshava på verdskartet. |
+| `g_scale` | 3. | Bruk 2, 5 eller 10 km per rutesteg til å rekne ut lengda på ei sjøreise. |
+| `g_world_capitals` | 3. | Kople tolv land til hovudstadene deira. |
+
+Verdskartet brukar kystlinjer frå [Natural Earth, 1:110m Land](https://www.naturalearthdata.com/downloads/110m-physical-vectors/110m-land/). Flagga og sjøkartet blir teikna lokalt. [Norden](https://www.norden.org/no/information/fakta-om-de-nordiske-landene) og [FN si oversikt over geografiske namn](https://unstats.un.org/unsd/geoinfo/ungegn/docs/geoname.pdf) er kjelder for land og hovudstader.
 
 | Id | Nivå | Kl. | Oppgåve |
 | --- | --- | --- | --- |
@@ -212,9 +272,40 @@ Engelske ord blir lesne høgt med engelsk stemme. Manglar eininga engelsk stemme
 | `s_sky_facts` | Stjernene | 2 | Sant eller usant om stjernene |
 | `s_quiz` | Stor romquiz | 3 | Alle påstandane blanda |
 
-## Montessori-verkstad
+### Planetoppdrag
 
-Ein valfri arbeidsstad på stjernekartet med tre sjølvvalde arbeid: raude og blå stenger (lengd og rekkjefølgje 1–5), teljepinnar (mengder 0–5) og talsporing (1–5). Her er det inga klokke, poeng eller stjerner. Barnet kan gjenta arbeidet og sjølv velje når det vil kontrollere oppsettet. Sjå [rettleiing for skuleutprøving](MONTESSORI_VERKSTAD.md).
+| Id | Nivå | Kl. | Oppgåve |
+| --- | --- | --- | --- |
+| `s_visit_merkur` | Merkur | 0 | Namn, plassen frå sola og eit kjenneteikn |
+| `s_visit_venus` | Venus | 0 | Namn, plassen frå sola og eit kjenneteikn |
+| `s_visit_jorda` | Jorda | 0 | Namn, plassen frå sola og eit kjenneteikn |
+| `s_visit_mars` | Mars | 0 | Namn, plassen frå sola og eit kjenneteikn |
+| `s_visit_jupiter` | Jupiter | 0 | Namn, plassen frå sola og eit kjenneteikn |
+| `s_visit_saturn` | Saturn | 0 | Namn, plassen frå sola og eit kjenneteikn |
+| `s_visit_uranus` | Uranus | 0 | Namn, plassen frå sola og eit kjenneteikn |
+| `s_visit_neptun` | Neptun | 0 | Namn, plassen frå sola og eit kjenneteikn |
+
+## Eventyr med innbyggjarane
+
+Dei fire fagstiane har kvar sin innbyggjar med tre samanhengande oppdrag. Opne **Fagstien**, og trykk
+på innbyggjaren eller **Hjelp …** for å besøkje staden. Kvart oppdrag har fem oppgåver frå dei eksisterande,
+testa nivåa, valde etter klassesteget. Dette legg til tolv forteljingsoppdrag, ikkje nye læringsnivå.
+
+| Planet | Ven | Det barnet forandrar |
+| --- | --- | --- |
+| Merkur | Pip | Tre krystallar får lys, og fyret sender ein lysstråle ut i rommet. |
+| Jorda | Mira | Tre delar av signalbrua får lys, slik at helsingane kjem over juvet. |
+| Jupiter | Rio | Tre stjerneblomstrar opnar seg og lyser opp romhagen. |
+| Neptun | Vega | Teleskopet får straum og linse, og viser eit nytt stjernemønster. |
+
+Etter kvart løyst eller forklart svar vel barnet **Send hjelpa!**. Fullført runde endrar staden,
+og innbyggjaren takkar. Hjelp og bom hindrar ikkje forteljinga i å gå vidare. Ingen tidsfrist eller liv.
+Vanlege stjerner og gullklumpar blir tente som før; historia gir ikkje ei ekstra pengeløning.
+
+Staden held på endringane neste gong appen blir opna. Avbrot kan haldast fram frå planeten eller
+stjernekartet, også før første svar og etter siste svar dersom appen vart lukka før leveringa.
+Framgangen høyrer til kvar spelar. Vanleg øving endrar ikkje forteljinga. Alle oppdrag har nynorsk,
+bokmål, opplesing på trykk og ei ferdig vising også med avslåtte animasjonar.
 
 ## Utforsk, favorittar og repetisjon
 
@@ -249,3 +340,10 @@ Etter at eit svar er løyst eller forklart, trykkjer barnet **Send hjelpa!**. Ei
 boge til basen med lyshale, landingsglitter og lyd. Eitt lys blir tent for kvar levering i runden.
 Forklaringa står framme også etter rette svar, og oppgåva går ikkje vidare før barnet vel å sende.
 Animasjonar følgjer eininga sitt val for redusert rørsle. Ingen tidsfrist eller tapte liv.
+
+### Bolt hjelper til
+
+Trykk på Bolt i ei oppgåve for å få støtte og høyre oppgåva på nytt. Hjelpevindauget har ein knapp
+som viser den vanlege hjelpa når oppgåva har det. Etter at svaret er løyst eller vist, kan Bolt
+lese forklaringa. Oppgåva ventar medan vindauget er ope. Hjelpa finst på begge målformer og kan
+lesast også når tale er slått av.

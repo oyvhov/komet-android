@@ -21,8 +21,8 @@ object SpaceContent {
         PlanetInfo("jorda", txt("Jorda", "Jorden"), 3, 5, txt("Eg er planeten der du bur.", "Jeg er planeten der du bor.")),
         PlanetInfo("mars", txt("Mars"), 4, 7, txt("Eg er den raude planeten.", "Jeg er den røde planeten.")),
         PlanetInfo("jupiter", txt("Jupiter"), 5, 1, txt("Eg er den største planeten.", "Jeg er den største planeten.")),
-        PlanetInfo("saturn", txt("Saturn"), 6, 2, txt("Eg har dei flottaste ringane.", "Jeg har de flotteste ringene.")),
-        PlanetInfo("uranus", txt("Uranus"), 7, 3, txt("Eg ligg på sida og trillar rundt sola.", "Jeg ligger på siden og triller rundt solen.")),
+        PlanetInfo("saturn", txt("Saturn"), 6, 2, txt("Eg har breie, lyse ringar av is og stein.", "Jeg har brede, lyse ringer av is og stein.")),
+        PlanetInfo("uranus", txt("Uranus"), 7, 3, txt("Eg snurrar nesten på sida.", "Jeg snurrer nesten på siden.")),
         PlanetInfo("neptun", txt("Neptun"), 8, 4, txt("Eg er planeten lengst frå sola.", "Jeg er planeten lengst fra solen.")),
     )
 

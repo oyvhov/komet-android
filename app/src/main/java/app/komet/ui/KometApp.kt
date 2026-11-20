@@ -41,6 +41,8 @@ import app.komet.ui.components.LocalFeedback
 import app.komet.ui.components.SpaceBackground
 import app.komet.ui.components.str
 import app.komet.ui.screens.CollectionScreen
+import app.komet.ui.screens.ClockWorkshopScreen
+import app.komet.ui.screens.DiscoveryScreen
 import app.komet.ui.screens.ExploreScreen
 import app.komet.ui.screens.TopicScreen
 import app.komet.ui.screens.OnboardingScreen
@@ -50,11 +52,13 @@ import app.komet.ui.screens.PlayScreen
 import app.komet.ui.screens.RaceMenuScreen
 import app.komet.ui.screens.RaceScreen
 import app.komet.ui.screens.ResultScreen
-import app.komet.ui.screens.MontessoriScreen
 import app.komet.ui.scene.HeroEditorScreen
 import app.komet.ui.scene.PlanetScreen
+import app.komet.ui.scene.AdventureScreen
 import app.komet.ui.scene.ShopScreen
 import app.komet.ui.scene.StarMapScreen
+import app.komet.ui.scene.SolarOverviewScreen
+import app.komet.ui.scene.SolarWorldScreen
 import app.komet.ui.theme.K
 import app.komet.ui.theme.LocalReading
 import app.komet.ui.theme.ReadingPrefs
@@ -83,7 +87,11 @@ fun KometApp(vm: KometViewModel) {
         LaunchedEffect(screen) { vm.onScreenShown(screen) }
 
         BackHandler(enabled = vm.stack.size > 1) {
-            if (screen == Screen.Play) confirmQuit = true else vm.back()
+            when (screen) {
+                Screen.Play -> confirmQuit = true
+                Screen.Result -> vm.leaveResult()
+                else -> vm.back()
+            }
         }
 
         SpaceBackground(
@@ -102,7 +110,7 @@ fun KometApp(vm: KometViewModel) {
                 label = "screen",
             ) { target ->
                 // Scenes fill the whole screen and keep their own controls clear of the system bars.
-                val scene = target == Screen.Home || target is Screen.World || target == Screen.Play || target == Screen.Result
+                val scene = target == Screen.Home || target is Screen.World || target is Screen.Adventure || target == Screen.Play || target == Screen.Result
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -112,11 +120,16 @@ fun KometApp(vm: KometViewModel) {
                         Screen.Onboarding -> OnboardingScreen(vm, adding = false)
                         Screen.AddProfile -> OnboardingScreen(vm, adding = true)
                         Screen.Home -> StarMapScreen(vm)
+                        Screen.SolarOverview -> SolarOverviewScreen(vm)
+                        is Screen.SolarWorld -> SolarWorldScreen(vm, target.destination)
                         is Screen.World -> PlanetScreen(vm, target.subject)
+                        is Screen.Adventure -> AdventureScreen(vm, target)
                         Screen.Play -> PlayScreen(vm, onQuit = { confirmQuit = true })
                         Screen.Result -> ResultScreen(vm)
                         Screen.Collection -> CollectionScreen(vm)
                         Screen.Explore -> ExploreScreen(vm)
+                        Screen.ClockWorkshop -> ClockWorkshopScreen(vm)
+                        is Screen.Workshop -> DiscoveryScreen(vm, target.kind)
                         is Screen.Topic -> TopicScreen(vm, target.topic)
                         Screen.RaceMenu -> RaceMenuScreen(vm)
                         Screen.Race -> RaceScreen(vm)
@@ -124,7 +137,6 @@ fun KometApp(vm: KometViewModel) {
                         Screen.Parent -> ParentScreen(vm)
                         Screen.HeroEditor -> HeroEditorScreen(vm)
                         Screen.Shop -> ShopScreen(vm)
-                        Screen.Montessori -> MontessoriScreen(vm)
                     }
                 }
             }

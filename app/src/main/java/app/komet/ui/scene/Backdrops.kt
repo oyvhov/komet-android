@@ -3,23 +3,20 @@ package app.komet.ui.scene
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.progressSemantics
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -27,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import app.komet.domain.HeroLook
@@ -84,36 +80,34 @@ fun SubjectBackdrop(subject: Subject, modifier: Modifier = Modifier) {
  * helmet travels along it, and a gold star waits at the end.
  */
 @Composable
-fun JourneyTrack(progress: Float, color: Color, hero: HeroLook, modifier: Modifier = Modifier, height: Dp = 16.dp, gear: Gear = Gear.None) {
-    val animated by animateFloatAsState(progress.coerceIn(0f, 1f), tween(600), label = "journey")
-    BoxWithConstraints(modifier.height(40.dp), contentAlignment = Alignment.CenterStart) {
-        val badge = 36.dp
-        val trackWidth = maxWidth - 20.dp
-        Box(
-            Modifier
-                .padding(end = 20.dp)
-                .fillMaxWidth()
-                .height(height)
-                .clip(RoundedCornerShape(50))
-                .background(Brush.verticalGradient(listOf(lerp(K.SurfaceHigh, Color.Black, 0.35f), K.SurfaceHigh)))
-                .border(1.dp, K.Outline.copy(alpha = 0.5f), RoundedCornerShape(50)),
-        ) {
-            if (animated > 0f) {
-                Box(
-                    Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth(animated)
-                        .clip(RoundedCornerShape(50))
-                        .background(Brush.verticalGradient(listOf(lerp(color, Color.White, 0.35f), color, lerp(color, Color.Black, 0.15f)))),
-                )
+fun JourneyTrack(done: Int, steps: Int, color: Color, hero: HeroLook, modifier: Modifier = Modifier, gear: Gear = Gear.None) {
+    val progress = done.toFloat() / steps
+    val motion = app.komet.ui.theme.LocalMotion.current
+    val travel = animateFloatAsState(progress, tween(if (motion) 500 else 0), label = "journey")
+    BoxWithConstraints(modifier.height(54.dp).progressSemantics(progress), contentAlignment = Alignment.CenterStart) {
+        val badge = 34.dp
+        val length = (maxWidth - badge).coerceAtLeast(0.dp)
+        fun rise(fraction: Float) = (-7).dp * kotlin.math.sin(fraction * kotlin.math.PI).toFloat()
+        Canvas(Modifier.fillMaxSize()) {
+            fun point(f: Float) = Offset(badge.toPx() / 2 + length.toPx() * f, center.y + rise(f).toPx())
+            val route = Path().apply {
+                val start = point(0f)
+                moveTo(start.x, start.y)
+                for (i in 1..32) {
+                    val p = point(i / 32f)
+                    lineTo(p.x, p.y)
+                }
+            }
+            drawPath(route, K.Faint.copy(alpha = .58f), style = Stroke(2.dp.toPx()))
+            for (i in 0 until steps) {
+                val stop = point(i.toFloat() / steps)
+                val reached = i <= done
+                drawCircle(if (reached) color else K.Faint, 4.dp.toPx(), stop)
+                if (!reached) drawCircle(K.SpaceTop, 2.dp.toPx(), stop)
             }
         }
-        StarGlyph(filled = animated >= 1f, modifier = Modifier.align(Alignment.CenterEnd).size(30.dp))
-        Box(
-            Modifier
-                .offset { IntOffset(((trackWidth - badge) * animated).roundToPx(), 0) }
-                .size(badge),
-        ) {
+        StarGlyph(filled = done == steps, modifier = Modifier.align(Alignment.CenterEnd).size(badge))
+        Box(Modifier.offset { IntOffset((length * travel.value).roundToPx(), rise(travel.value).roundToPx()) }.size(badge)) {
             HeroBadge(hero, size = badge, gear = gear)
         }
     }

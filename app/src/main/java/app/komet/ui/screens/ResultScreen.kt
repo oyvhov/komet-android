@@ -7,6 +7,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.widthIn
+import app.komet.domain.SolarDestination
+import app.komet.domain.Txt
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
@@ -16,6 +20,9 @@ import app.komet.domain.ShopSlot
 import app.komet.ui.components.CloseButton
 import app.komet.ui.components.NuggetGlyph
 import app.komet.ui.scene.Astronaut
+import app.komet.ui.scene.AdventureArtwork
+import app.komet.ui.scene.AdventureResident
+import app.komet.domain.Adventures
 import app.komet.ui.scene.Gear
 import app.komet.ui.scene.Bolt
 import app.komet.ui.scene.BoltMood
@@ -47,6 +54,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.komet.audio.Sfx
 import app.komet.ui.KometViewModel
+import app.komet.ui.ResultInfo
 import app.komet.ui.S
 import app.komet.ui.Screen
 import app.komet.ui.components.BigButton
@@ -111,11 +119,13 @@ fun ResultScreen(vm: KometViewModel) {
     Box(Modifier.fillMaxSize()) {
         if (subject != null) SubjectBackdrop(subject)
         BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding()) {
-            val wide = maxWidth >= 840.dp && maxWidth > maxHeight
+            val wide = maxWidth >= 740.dp && maxHeight >= 460.dp
             if (wide) {
                 // Tablet: the celebration fills the left half, what happens next the right.
                 Row(
                     Modifier
+                        .align(Alignment.Center)
+                        .widthIn(max = 1160.dp)
                         .fillMaxSize()
                         .padding(horizontal = 32.dp, vertical = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(32.dp),
@@ -126,29 +136,37 @@ fun ResultScreen(vm: KometViewModel) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Celebration(vm, outcome.stars, big = true)
+                        ResultScene(vm, info, big = true)
                         ResultStars(outcome.stars, scales, big = true)
                     }
                     Column(
                         Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .verticalScroll(rememberScrollState()),
+                            .verticalScroll(rememberScrollState()).padding(top = 56.dp),
                         verticalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterVertically),
                     ) {
                         ResultHeadline(title.str(), (info.skill?.title ?: info.raceMode?.title)?.str().orEmpty())
+                        if (info.adventureCompleted != null) {
+                            AdventureThanks(info)
+                            ResultButtons(vm, info)
+                        }
                         ResultDetails(vm, info)
-                        ResultButtons(vm, info)
+                        if (info.adventureCompleted == null) ResultButtons(vm, info)
                     }
                 }
             } else {
                 PageColumn(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Celebration(vm, outcome.stars, big = false)
+                    ResultScene(vm, info, big = false)
                     ResultHeadline(title.str(), (info.skill?.title ?: info.raceMode?.title)?.str().orEmpty())
                     ResultStars(outcome.stars, scales, big = false)
+                    if (info.adventureCompleted != null) {
+                        AdventureThanks(info)
+                        ResultButtons(vm, info)
+                    }
                     ResultDetails(vm, info)
                     Spacer(Modifier.height(4.dp))
-                    ResultButtons(vm, info)
+                    if (info.adventureCompleted == null) ResultButtons(vm, info)
                     Spacer(Modifier.height(12.dp))
                 }
             }
@@ -161,6 +179,26 @@ fun ResultScreen(vm: KometViewModel) {
                 .safeDrawingPadding()
                 .padding(12.dp),
         )
+    }
+}
+
+@Composable
+private fun ResultScene(vm: KometViewModel, info: ResultInfo, big: Boolean) {
+    val quest = info.adventureCompleted
+    val stamp = info.newStamp
+    if (stamp != null) {
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            app.komet.ui.scene.PlanetSeal(stamp, true, Modifier.size(if (big) 168.dp else 106.dp))
+            GameText(app.komet.domain.Txt("Nytt stempel!").str(), color = K.GoldTop, style = MaterialTheme.typography.titleLarge)
+            Text(stamp.planet.name.str(), color = K.Text, style = MaterialTheme.typography.titleMedium)
+        }
+    } else if (quest == null) {
+        Celebration(vm, info.outcome.stars, big)
+    } else {
+        Box(Modifier.fillMaxWidth().aspectRatio(1.77f)) {
+            AdventureArtwork(quest.subject, Adventures.completed(info.outcome.profile, quest.subject), Modifier.fillMaxSize(), reveal = true)
+            AdventureResident(quest.subject, Modifier.align(Alignment.BottomStart).padding(12.dp).size(if (big) 120.dp else 76.dp))
+        }
     }
 }
 
@@ -210,6 +248,14 @@ private fun ResultStars(stars: Int, scales: List<Animatable<Float, *>>, big: Boo
                     .scale(scales[index].value),
             )
         }
+    }
+}
+
+@Composable
+private fun AdventureThanks(info: ResultInfo) {
+    info.adventureCompleted?.let { quest ->
+        GameText(quest.title.str(), style = MaterialTheme.typography.headlineSmall, modifier = Modifier.fillMaxWidth())
+        Text(quest.thanks.str(), style = MaterialTheme.typography.titleMedium, color = K.Text)
     }
 }
 
@@ -279,7 +325,19 @@ private fun ResultButtons(vm: KometViewModel, info: app.komet.ui.ResultInfo) {
     val outcome = info.outcome
     Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.fillMaxWidth()) {
         val next = info.next
-        if (info.raceMode != null) {
+        if (info.newStamp != null) {
+            val stamps = SolarDestination.stamps(outcome.profile)
+            val destination = SolarDestination.entries.firstOrNull { it !in stamps }
+            val action = destination?.planet?.name?.let { Txt("Reis til ${it.nn}", "Reis til ${it.nb}") } ?: Txt("Kartoversikt")
+            BigButton(action.str(), {
+                vm.goHome()
+                vm.open(Screen.SolarOverview)
+                if (destination != null) vm.open(Screen.SolarWorld(destination))
+            }, Modifier.fillMaxWidth(), icon = KometIcons.Rocket)
+            BigButton(S.playAgain.str(), { info.skill?.let(vm::startSkill) }, Modifier.fillMaxWidth(), face = K.SurfaceHigh, edge = K.SurfaceLow)
+        } else if (info.adventureCompleted != null) {
+            BigButton(S.adventureSee.str(), onClick = { vm.leaveResult() }, icon = KometIcons.Rocket, modifier = Modifier.fillMaxWidth())
+        } else if (info.raceMode != null) {
             BigButton(S.playAgain.str(), onClick = { vm.startRace(info.raceMode) }, icon = KometIcons.Refresh, modifier = Modifier.fillMaxWidth())
         } else if (next != null && next != info.skill && outcome.stars > 0) {
             BigButton(S.nextLevel.str(), onClick = { vm.startSkill(next) }, icon = KometIcons.Play, modifier = Modifier.fillMaxWidth())
@@ -287,16 +345,29 @@ private fun ResultButtons(vm: KometViewModel, info: app.komet.ui.ResultInfo) {
         } else {
             BigButton(S.playAgain.str(), onClick = { info.skill?.let(vm::startSkill) }, icon = KometIcons.Refresh, modifier = Modifier.fillMaxWidth())
         }
-        val toPlanet = vm.resultReturnsToPlanet
-        BigButton(
-            (if (toPlanet) S.toPlanet else S.home).str(),
+        if (info.adventureCompleted == null) {
+            val toPlanet = vm.resultReturnsToPlanet
+            val label = when {
+                toPlanet -> S.toPlanet
+                vm.resultReturnsToAtlas -> Txt("Kartoversikt")
+                vm.resultReturnsToTasks -> app.komet.domain.Txt("Til oppgåvene", "Til oppgavene")
+                else -> S.home
+            }
+            val icon = when {
+                toPlanet -> KometIcons.Rocket
+                vm.resultReturnsToTasks -> KometIcons.Back
+                else -> KometIcons.Home
+            }
+            BigButton(
+            label.str(),
             onClick = { vm.leaveResult() },
             face = K.SurfaceHigh,
             edge = K.SurfaceLow,
             textColor = K.Text,
-            icon = if (toPlanet) KometIcons.Rocket else KometIcons.Home,
+            icon = icon,
             modifier = Modifier.fillMaxWidth(),
-        )
+            )
+        }
     }
 }
 

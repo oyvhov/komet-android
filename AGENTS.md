@@ -5,8 +5,8 @@ Les `docs/AI_INSTRUCTIONS.md` før arbeid i prosjektet. Innhaldslista med alle n
 `docs/INNHALD.md`.
 
 - Bygg og test: `powershell -NoProfile -ExecutionPolicy Bypass -File C:\LeseApp\scripts\Build-Komet.ps1` (legg til `-Release` for signert APK).
-- Emulator: `powershell -NoProfile -ExecutionPolicy Bypass -File C:\LeseApp\scripts\Start-KometEmulator.ps1`. Komet har sin eigen
-  AVD (`Komet_Phone`, port 5580, `C:\LeseApp\.avd`). Rør aldri Spole sine emulatorar (5560, 5562, 5564).
+- Emulator: `powershell -NoProfile -ExecutionPolicy Bypass -File C:\LeseApp\scripts\Start-KometEmulator.ps1`. Komet nyttar den
+  felles AVD-en (`C:\Android\avd\Tunet_Ascii`) eller koplar seg automatisk til ein allereie køyrende emulator.
 - Signeringsnøkkelen ligg i `.signing/komet-release.jks` med passord i `signing.properties`. Begge er
   Git-ignorerte. **Lag aldri ein ny nøkkel** – då kan appen ikkje lenger oppdaterast på nettbrettet.
 - Ny APK-release som appen kan oppdatere frå: følg `docs/RELEASE_WORKFLOW.md`. Same nøkkel, høgare

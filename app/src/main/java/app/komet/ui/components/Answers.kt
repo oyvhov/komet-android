@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -50,7 +51,7 @@ enum class OptionLook { NORMAL, WRONG, CORRECT, FADED }
 private fun Option.isCompact(): Boolean = when (this) {
     is Option.Label -> kind == GlyphKind.NUMBER || kind == GlyphKind.LETTER || kind == GlyphKind.EXACT ||
         (kind == GlyphKind.PLAIN && text.nn.length <= 7 && text.nb.length <= 7)
-    is Option.Shape, is Option.Verdict, is Option.Claps, is Option.Clock, is Option.Picture, is Option.Color, is Option.Art -> true
+    is Option.Flag, is Option.Shape, is Option.Verdict, is Option.Claps, is Option.Clock, is Option.Picture, is Option.Color, is Option.Art -> true
 }
 
 /** Grid of large answer buttons. Long words get one full-width row each on a phone. */
@@ -128,6 +129,7 @@ fun OptionButton(option: Option, look: OptionLook, onClick: () -> Unit, enabled:
 @Composable
 fun OptionContent(option: Option, ink: Color) {
     when (option) {
+        is Option.Flag -> AtlasFlag(option.country, Modifier.widthIn(max = 102.dp).fillMaxWidth().height(62.dp))
         is Option.Label -> {
             val text = readingString(option.text, option.kind)
             val size: Dp = when (option.kind) {
@@ -187,6 +189,7 @@ fun OptionContent(option: Option, ink: Color) {
 fun answerText(answer: Answer): String? = when (answer) {
     is Answer.NumberInput -> answer.correct.toString()
     is Answer.Choice -> when (val option = answer.options[answer.correct]) {
+        is Option.Flag -> option.country.title.str()
         is Option.Label -> readingString(option.text, option.kind)
         is Option.Picture -> option.caption?.inCase(LocalReading.current.letterCase)
         is Option.Verdict -> (if (option.truth) S.trueLabel else S.falseLabel).str()

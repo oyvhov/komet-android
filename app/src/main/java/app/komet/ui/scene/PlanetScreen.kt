@@ -74,14 +74,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.komet.audio.Sfx
 import app.komet.domain.Chapter
+import app.komet.domain.Adventures
 import app.komet.domain.Curriculum
 import app.komet.domain.Progression
 import app.komet.domain.ShopSlot
 import app.komet.domain.Skill
+import app.komet.domain.SolarDestination
 import app.komet.domain.Subject
 import app.komet.domain.Wallet
 import app.komet.ui.KometViewModel
 import app.komet.ui.S
+import app.komet.ui.Screen
 import app.komet.ui.components.BigButton
 import app.komet.ui.components.CloseButton
 import app.komet.ui.components.Feedback
@@ -103,6 +106,7 @@ import app.komet.ui.components.shake
 import app.komet.ui.components.str
 import app.komet.ui.components.subjectTone
 import app.komet.ui.screens.LevelMedallion
+import app.komet.ui.screens.ClockWorkshopButton
 import app.komet.ui.screens.LevelSymbol
 import app.komet.ui.theme.K
 import app.komet.ui.theme.LocalMotion
@@ -181,11 +185,13 @@ private fun planetLayout(subject: Subject, biome: Biome, metrics: SceneMetrics):
 private sealed interface Selection {
     data class Level(val skill: Skill) : Selection
     data object Review : Selection
+    data object Adventure : Selection
 }
 
 /** A subject as a planet to walk on: a winding path of levels through a landscape, with the hero on it. */
 @Composable
 fun PlanetScreen(vm: KometViewModel, subject: Subject) {
+    val destination = SolarDestination.entries.first { it.trail == subject }
     val profile = vm.profile ?: return
     val biome = Biomes.of(subject)
     val tone = subjectTone(subject)
@@ -207,7 +213,7 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
     val startSkill = justPlayed ?: recommended ?: Curriculum.skills(subject).first()
     val walkOn = justPlayed != null && recommended != null && justPlayed != recommended
 
-    var selection by remember(subject) { mutableStateOf<Selection>(Selection.Level(recommended ?: startSkill)) }
+    var selection by remember(subject) { mutableStateOf<Selection>(Selection.Adventure) }
     var pose by remember(subject) { mutableStateOf(if (walkOn) HeroPose.CHEER else HeroPose.WAVE) }
     var facingLeft by remember(subject) { mutableStateOf(false) }
     var boltMood by remember(subject) { mutableStateOf(BoltMood.IDLE) }
@@ -319,9 +325,13 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
 
             for ((index, critter) in layout.critters.withIndex()) {
                 if (critter.x !in left..right) continue
-                CritterView(critter, time, hopStarted = { hops[index] }) {
+                val guide = index == 0
+                val character = if (guide) Critter(critter.x, subject.ordinal % 3, adventureColor(subject)) else critter
+                val description = if (guide) S.adventureMeet(Adventures.of(subject).resident) else S.greetFriend
+                CritterView(character, time, description.str(), hopStarted = { hops[index] }) {
                     hops[index] = System.currentTimeMillis()
                     feedback.sfx(Sfx.BOING, 0.8f)
+                    if (guide) vm.open(Screen.Adventure(subject))
                 }
             }
 
@@ -390,6 +400,7 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
                         when (val chosen = selection) {
                             is Selection.Level -> vm.say(chosen.skill.title)
                             Selection.Review -> vm.say(S.review)
+                            Selection.Adventure -> vm.say(Adventures.of(subject).title)
                         }
                         scope.launch {
                             delay(1600)
@@ -429,19 +440,27 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
             }
         }
 
-        Row(
+        Column(
             Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
                 .padding(horizontal = 14.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Box(Modifier.weight(1f)) { NamePlate(S.subject(subject).str(), tone.face, tone.top) }
-            val skills = Curriculum.skills(subject)
-            Pill("${Progression.earnedStars(profile, skills)} / ${skills.size * 3}", star = true)
-            NuggetPill(profile.nuggets)
-            CloseButton(onClick = { vm.back() })
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Box(Modifier.weight(1f)) { NamePlate(destination.planet.name.str(), tone.face, tone.top) }
+                val skills = Curriculum.skills(subject)
+                Pill("${Progression.earnedStars(profile, skills)} / ${skills.size * 3}", star = true)
+                NuggetPill(profile.nuggets)
+                CloseButton(onClick = { vm.back() })
+            }
+            if (subject == Subject.MATH) {
+                ClockWorkshopButton(onClick = { vm.open(Screen.ClockWorkshop) }, modifier = Modifier.widthIn(max = 216.dp))
+            }
         }
 
         val cardModifier = if (landscape) {
@@ -467,6 +486,7 @@ fun PlanetScreen(vm: KometViewModel, subject: Subject) {
             when (chosen) {
                 is Selection.Level -> LevelCard(vm, chosen.skill, compact = landscape && maxHeight < 480.dp)
                 Selection.Review -> ReviewCard(vm, subject, weak.map { it.title.str() })
+                Selection.Adventure -> AdventureInvitation(vm, subject)
             }
         }
     }
@@ -555,8 +575,8 @@ private fun NamePlate(text: String, face: Color, top: Color) {
         // As wide as the name, and only smaller when the bar has no room for it.
         modifier = Modifier
             .width(IntrinsicSize.Max)
-            .border(2.dp, K.Outline, RoundedCornerShape(50))
-            .gloss(face, RoundedCornerShape(50), top = top)
+            .gloss(lerp(K.SurfaceLow, face, 0.18f), RoundedCornerShape(50), top = lerp(K.SurfaceHigh, top, 0.20f))
+            .border(1.dp, top.copy(alpha = 0.42f), RoundedCornerShape(50))
             .padding(horizontal = 14.dp, vertical = 6.dp),
     )
 }
@@ -723,12 +743,13 @@ private fun SceneScope.Workshop(x: Float, accent: Color, time: State<Float>, sel
 }
 
 @Composable
-private fun SceneScope.CritterView(critter: Critter, time: State<Float>, hopStarted: () -> Long?, onTap: () -> Unit) {
-    val size = units(0.085f, 48.dp, 80.dp)
+private fun SceneScope.CritterView(critter: Critter, time: State<Float>, description: String, hopStarted: () -> Long?, onTap: () -> Unit) {
+    val size = units(0.085f, 64.dp, 80.dp)
     Canvas(
         Modifier
             .worldAt(critter.x, PlanetGround.pathY(critter.x) - 0.02f, anchorY = 1f)
             .size(size)
+            .semantics { contentDescription = description }
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onTap),
     ) {
         // The clock is read every frame anyway, so the hop follows the wall clock.
@@ -786,14 +807,13 @@ private fun LevelCard(vm: KometViewModel, skill: Skill, compact: Boolean) {
     val unlocked = Progression.isUnlocked(profile, skill)
     val stars = profile.stars(skill.id)
     val favorite = skill.id in profile.favorites
-    val shape = RoundedCornerShape(28.dp)
+    val shape = RoundedCornerShape(22.dp)
     Column(
         Modifier
             .fillMaxWidth()
-            .border(2.5.dp, K.Outline, shape)
             .clip(shape)
-            .background(Brush.verticalGradient(listOf(lerp(tone.edge, K.SpaceTop, 0.2f), lerp(tone.edge, K.SpaceTop, 0.72f))))
-            .border(1.5.dp, Brush.verticalGradient(listOf(tone.top.copy(alpha = 0.5f), Color.Transparent)), shape)
+            .background(Brush.verticalGradient(listOf(lerp(K.Surface, tone.edge, 0.27f), K.SurfaceLow)))
+            .border(1.dp, Brush.verticalGradient(listOf(tone.top.copy(alpha = 0.44f), K.Line.copy(alpha = 0.30f))), shape)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 12.dp),
     ) {
@@ -851,13 +871,13 @@ private fun LevelCard(vm: KometViewModel, skill: Skill, compact: Boolean) {
 @Composable
 private fun ReviewCard(vm: KometViewModel, subject: Subject, names: List<String>) {
     val tone = subjectTone(subject)
-    val shape = RoundedCornerShape(28.dp)
+    val shape = RoundedCornerShape(22.dp)
     Column(
         Modifier
             .fillMaxWidth()
-            .border(2.5.dp, K.Outline, shape)
             .clip(shape)
-            .background(Brush.verticalGradient(listOf(lerp(tone.edge, K.SpaceTop, 0.2f), lerp(tone.edge, K.SpaceTop, 0.72f))))
+            .background(Brush.verticalGradient(listOf(lerp(K.Surface, tone.edge, 0.27f), K.SurfaceLow)))
+            .border(1.dp, Brush.verticalGradient(listOf(tone.top.copy(alpha = 0.44f), K.Line.copy(alpha = 0.30f))), shape)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {

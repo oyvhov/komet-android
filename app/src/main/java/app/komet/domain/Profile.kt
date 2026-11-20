@@ -24,6 +24,7 @@ data class ActiveRound(
     val firstTry: Int,
     val total: Int,
     val updatedAt: Long = 0L,
+    val adventureId: String? = null,
 )
 
 data class Profile(
@@ -64,6 +65,9 @@ data class Profile(
     val equipped: Map<ShopSlot, String> = emptyMap(),
     /** Levels whose nugget on the planet has been picked up. */
     val collectedNuggets: Set<String> = emptySet(),
+    /** Finished story chapters; each one leaves a permanent change on its planet. */
+    val adventures: Set<String> = emptySet(),
+    val nextWorkshopMission: Map<DiscoveryWorkshop, Int> = emptyMap(),
 ) {
     fun stars(skillId: String): Int = skills[skillId]?.bestStars ?: 0
 

@@ -31,12 +31,14 @@ enum class Topic(val subject: Subject, val title: Txt, val icon: String) {
     SP_PLANETS(Subject.SPACE, txt("Planetane", "Planetene"), "🪐"),
     SP_TRAVEL(Subject.SPACE, txt("Romfart"), "🚀"),
     SP_SKY(Subject.SPACE, txt("Stjernehimmelen"), "✨"),
+    GEOGRAPHY(Subject.SPACE, txt("Geografi"), "🌍"),
 }
 
 object Topics {
 
     private val bySkill: Map<String, Topic> = buildMap {
         MissionCurriculum.chapters.flatMap { it.skills }.forEach { put(it.id, Topic.MISSIONS) }
+        GeographyCurriculum.chapter.skills.forEach { put(it.id, Topic.GEOGRAPHY) }
         fun put(topic: Topic, vararg ids: String) = ids.forEach { put(it, topic) }
         put(Topic.COUNTING, "m_count5", "m_count10", "m_next10", "m_compare10", "m_count20", "m_findnumber", "m_tensones", "m_skip", "m_compare100", "m_evenodd")
         put(Topic.PLUS, "m_add5", "m_add10", "m_add10_keys", "m_friends10", "m_doubles", "m_add20", "m_add20_bridge", "m_add_tens", "m_add100", "m_add3")
@@ -61,6 +63,7 @@ object Topics {
         put(Topic.EN_SPELL, "e_spell3", "e_spell5")
         put(Topic.SP_SUN_MOON, "s_basics", "s_sun_facts", "s_moon_facts")
         put(Topic.SP_PLANETS, "s_planet_names", "s_planet_clues", "s_planet_size", "s_planet_order")
+        SolarDestination.entries.forEach { put(it.missionId, Topic.SP_PLANETS) }
         put(Topic.SP_TRAVEL, "s_travel_things", "s_travel_facts")
         put(Topic.SP_SKY, "s_sky_things", "s_sky_facts", "s_quiz")
     }

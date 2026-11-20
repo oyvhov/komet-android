@@ -62,8 +62,8 @@ fun SpaceBackground(
     val motion = LocalMotion.current && twinkle
     val stars = remember {
         val random = Random(42)
-        List(110) {
-            StarDot(random.nextFloat(), random.nextFloat(), 0.5f + random.nextFloat() * 1.3f, 0.25f + random.nextFloat() * 0.65f, random.nextFloat())
+        List(78) {
+            StarDot(random.nextFloat(), random.nextFloat(), 0.45f + random.nextFloat() * 0.85f, 0.15f + random.nextFloat() * 0.50f, random.nextFloat())
         }
     }
     val time = if (motion) {
@@ -81,18 +81,18 @@ fun SpaceBackground(
                 val upper = Offset(w * (0.9f + sin(turn) * 0.025f), h * (0.08f + cos(turn) * 0.018f))
                 val lower = Offset(w * (0.05f + sin(turn + 1.8f) * 0.025f), h * (0.78f + cos(turn + 1.8f) * 0.018f))
                 drawCircle(
-                    Brush.radialGradient(listOf(K.Nebula.copy(alpha = 0.45f), Color.Transparent), center = upper, radius = w * 0.75f),
+                    Brush.radialGradient(listOf(K.Nebula.copy(alpha = 0.33f), Color.Transparent), center = upper, radius = w * 0.75f),
                     radius = w * 0.75f,
                     center = upper,
                 )
                 drawCircle(
-                    Brush.radialGradient(listOf(Color(0xFF155E8C).copy(alpha = 0.28f), Color.Transparent), center = lower, radius = w * 0.85f),
+                    Brush.radialGradient(listOf(K.ReadingDeep.copy(alpha = 0.25f), Color.Transparent), center = lower, radius = w * 0.85f),
                     radius = w * 0.85f,
                     center = lower,
                 )
                 val warm = Offset(w * 0.72f, h * (0.68f + sin(turn + 0.9f) * 0.025f))
                 drawCircle(
-                    Brush.radialGradient(listOf(Color(0xFF8C3B79).copy(alpha = 0.13f), Color.Transparent), center = warm, radius = w * 0.5f),
+                    Brush.radialGradient(listOf(K.CosmosDeep.copy(alpha = 0.12f), Color.Transparent), center = warm, radius = w * 0.5f),
                     radius = w * 0.5f,
                     center = warm,
                 )

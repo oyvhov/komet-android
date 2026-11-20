@@ -1,8 +1,10 @@
 package app.komet.data
 
 import app.komet.domain.ActiveRound
+import app.komet.domain.Adventures
 import app.komet.domain.AppState
 import app.komet.domain.DayStats
+import app.komet.domain.DiscoveryWorkshop
 import app.komet.domain.HeroLook
 import app.komet.domain.HeroPalette
 import app.komet.domain.LetterCase
@@ -21,6 +23,27 @@ import org.junit.Test
 import java.nio.file.Files
 
 class StateStoreTest {
+
+    @Test fun `adventure progress and every resumable boundary survive saving per profile`() {
+        val quest = Adventures.of(Subject.READING).quests[1]
+        for (done in listOf(0, 2, 5)) {
+            val player = Profile("story", "Test", 0, 0,
+                adventures = setOf("reading_signals", "math_energy"),
+                activeRound = ActiveRound(quest.skill(0).id, done, 0, 5, 99L, quest.id))
+            val sibling = Profile("sibling", "Test", 1, 2)
+            val saved = AppState(listOf(player, sibling), player.id)
+            assertEquals(saved, StateStore.decode(JSONObject(StateStore.encode(saved).toString())))
+        }
+    }
+
+    @Test fun `old profiles start with an untouched story and unknown story saves are ignored`() {
+        val old = StateStore.decode(JSONObject("""{"profiles":[{"id":"old"}]}""")).profiles.single()
+        assertTrue(old.adventures.isEmpty())
+        val broken = StateStore.decode(JSONObject("""{"profiles":[{"id":"x","adventures":["math_energy","gone"],
+            "activeRound":{"skillId":"m_add10","done":5,"total":5,"adventureId":"math_energy"}}]}""")).profiles.single()
+        assertEquals(setOf("math_energy"), broken.adventures)
+        assertEquals(null, broken.activeRound)
+    }
 
     private val state = AppState(
         profiles = listOf(
@@ -43,6 +66,7 @@ class StateStoreTest {
                 createdAt = 1234L,
                 activeRound = ActiveRound("m_add10", done = 3, firstTry = 2, total = 8, updatedAt = 77L),
                 favorites = listOf("r_rhyme", "m_add10"),
+                nextWorkshopMission = mapOf(DiscoveryWorkshop.PIZZA to 2, DiscoveryWorkshop.ROVER to 4),
                 hero = HeroLook(suit = 4, skin = 5, hair = 3, hairStyle = 2),
                 visitedPlanets = setOf(Subject.MATH, Subject.SPACE),
                 nuggets = 23,

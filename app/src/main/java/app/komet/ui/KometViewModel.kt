@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.SystemClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
@@ -15,6 +16,8 @@ import app.komet.audio.SoundFx
 import app.komet.audio.Speaker
 import app.komet.data.StateStore
 import app.komet.domain.Answer
+import app.komet.domain.ActiveRound
+import app.komet.domain.Adventures
 import app.komet.domain.AppState
 import app.komet.domain.Curriculum
 import app.komet.domain.HeroLook
@@ -33,8 +36,7 @@ import app.komet.domain.SpaceCards
 import app.komet.domain.Subject
 import app.komet.domain.Txt
 import app.komet.ui.components.Feedback
-import app.komet.ui.scene.MapPlace
-import app.komet.ui.scene.mapPlaceOf
+import app.komet.domain.SolarDestination
 import app.komet.update.AppUpdater
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -59,6 +61,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     val stack = mutableStateListOf<Screen>()
+    var exploreSubject by mutableStateOf<Subject?>(null)
 
     var round by mutableStateOf<RoundState?>(null)
         private set
@@ -69,9 +72,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
     var result by mutableStateOf<ResultInfo?>(null)
         private set
 
-    /** Where the rocket is parked on the star map. Starts at the planet played last. */
-    var mapPlace by mutableStateOf(state.activeProfile?.lastSubject?.let(::mapPlaceOf) ?: MapPlace.MATH)
-
+    private val parkedPlanets = mutableStateMapOf<String, SolarDestination>()
     private var raceJob: Job? = null
 
     val feedback = object : Feedback {
@@ -87,6 +88,12 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
     val profile: Profile? get() = state.activeProfile
     val settings: Settings get() = state.settings
     val screen: Screen get() = stack.last()
+    val parkedPlanet: SolarDestination
+        get() = profile?.let { child ->
+            parkedPlanets[child.id] ?: child.lastSubject?.let { subject ->
+                SolarDestination.entries.firstOrNull { it.trail == subject }
+            }
+        } ?: SolarDestination.MERCURY
 
     val today: Long get() = LocalDate.now().toEpochDay()
 
@@ -118,11 +125,14 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Every place has its own music; a result or the parents' pages keep what was playing. */
     fun onScreenShown(target: Screen) {
-        music.setQuiet(target == Screen.Play || target == Screen.Montessori)
+        music.setQuiet(target == Screen.Play)
         val theme = when (target) {
-            Screen.Onboarding, Screen.AddProfile, Screen.Home, Screen.Explore, is Screen.Topic -> MusicTheme.MAP
-            Screen.Montessori -> MusicTheme.MONTESSORI
+            Screen.Onboarding, Screen.AddProfile, Screen.Home, Screen.SolarOverview, Screen.Explore, is Screen.Topic -> MusicTheme.MAP
+            is Screen.SolarWorld -> target.destination.trail?.let(::musicFor) ?: MusicTheme.SPACE
             is Screen.World -> musicFor(target.subject)
+            Screen.ClockWorkshop -> musicFor(Subject.MATH)
+            is Screen.Workshop -> musicFor(target.kind.subject)
+            is Screen.Adventure -> musicFor(target.subject)
             Screen.Play -> round?.let { musicFor(it.skill.subject) }
             Screen.Collection -> MusicTheme.SPACE
             Screen.RaceMenu, Screen.Race -> MusicTheme.RACE
@@ -150,6 +160,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     fun open(target: Screen) {
         speaker.stop()
+        if (target is Screen.SolarWorld) profile?.let { parkedPlanets[it.id] = target.destination }
         stack += target
     }
 
@@ -171,10 +182,31 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     /** A result goes back to the planet its level came from; anything else goes home. */
     val resultReturnsToPlanet: Boolean
-        get() = stack.size >= 2 && stack[stack.lastIndex - 1] is Screen.World
+        get() = resultOrigin is Screen.World || resultOrigin is Screen.SolarWorld
+
+    val resultReturnsToTasks: Boolean
+        get() = resultOrigin is Screen.Topic
+
+    val resultReturnsToAtlas: Boolean get() = resultOrigin == Screen.SolarOverview
+
+    private val resultOrigin: Screen?
+        get() = stack.getOrNull(stack.lastIndex - 1)
 
     fun leaveResult() {
-        if (resultReturnsToPlanet) back() else goHome()
+        result?.adventureCompleted?.let { quest ->
+            speaker.stop()
+            val index = stack.indexOfLast { it is Screen.Adventure && it.subject == quest.subject }
+            if (index >= 0) {
+                while (stack.lastIndex > index) stack.removeAt(stack.lastIndex)
+                stack[index] = Screen.Adventure(quest.subject, quest.id)
+            } else {
+                goHome()
+                open(Screen.World(quest.subject))
+                open(Screen.Adventure(quest.subject, quest.id))
+            }
+            return
+        }
+        if (resultReturnsToPlanet || resultReturnsToTasks || resultReturnsToAtlas) back() else goHome()
     }
 
     private fun replaceTop(target: Screen) {
@@ -244,11 +276,12 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
 
     fun switchProfile(id: String) {
         if (state.profiles.none { it.id == id }) return
+        if (state.activeProfileId != id) exploreSubject = null
         commit(state.copy(activeProfileId = id))
-        mapPlace = profile?.lastSubject?.let(::mapPlaceOf) ?: MapPlace.MATH
     }
 
     fun deleteProfile(id: String) {
+        parkedPlanets.remove(id)
         val remaining = state.profiles.filterNot { it.id == id }
         val active = if (state.activeProfileId == id) remaining.firstOrNull()?.id else state.activeProfileId
         commit(state.copy(profiles = remaining, activeProfileId = active))
@@ -261,6 +294,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             skills = emptyMap(), totalStars = 0, streak = 0, lastGoalDay = -1L, days = emptyMap(),
             raceBest = emptyMap(), lastSubject = null, seenCards = 0,
             nuggets = Wallet.WELCOME, collectedNuggets = emptySet(),
+            adventures = emptySet(), activeRound = null,
         )
     }
 
@@ -285,6 +319,22 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         get() = state.settings.speech && speaker.status != Speaker.Status.UNAVAILABLE && speaker.status != Speaker.Status.MISSING_NORWEGIAN
 
     // ── Rounds ─────────────────────────────────────────────────────────────────────────────────
+
+    fun startAdventure(subject: Subject) {
+        val player = profile ?: return
+        val quest = Adventures.next(player, subject) ?: return
+        val saved = Progression.resumable(player)
+        if (saved?.second?.adventureId == quest.id) {
+            resumeRound()
+            return
+        }
+        val skill = quest.skill(player.grade)
+        val context = QuestionContext(Random(System.nanoTime()), player.maalform, player.letterCase)
+        round = RoundState(skill, Curriculum.round(skill, context, Adventures.ROUND_LENGTH), adventureId = quest.id)
+        commit(state.withProfile(player.copy(activeRound = ActiveRound(skill.id, 0, 0, Adventures.ROUND_LENGTH,
+            System.currentTimeMillis(), quest.id))))
+        if (screen == Screen.Result || screen == Screen.Play) replaceTop(Screen.Play) else open(Screen.Play)
+    }
 
     fun startSkill(skill: Skill) {
         if (Curriculum.isReview(skill)) {
@@ -315,7 +365,14 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
         val current = profile ?: return
         val (skill, active) = Progression.resumable(current) ?: return
         val context = QuestionContext(Random(System.nanoTime()), current.maalform, current.letterCase)
-        round = RoundState(skill, Curriculum.round(skill, context, count = active.total), startIndex = active.done, startFirstTry = active.firstTry)
+        val restored = RoundState(skill, Curriculum.round(skill, context, count = active.total),
+            startIndex = active.done.coerceAtMost(active.total - 1), startFirstTry = active.firstTry, adventureId = active.adventureId)
+        round = restored
+        if (active.done == active.total) {
+            // The last answer was saved, but the delivery/result was interrupted. Do not count it twice.
+            finishRound(restored)
+            return
+        }
         if (screen == Screen.Result || screen == Screen.Play) replaceTop(Screen.Play) else open(Screen.Play)
     }
 
@@ -425,6 +482,7 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             today = today,
             now = now,
             trackRound = !current.isReview,
+            adventureId = current.adventureId,
         )
         commit(state.withProfile(updated))
     }
@@ -483,12 +541,18 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             now = System.currentTimeMillis(),
             answersCounted = true,
         )
-        commit(state.withProfile(outcome.profile))
+        val adventureProfile = Adventures.complete(outcome.profile, current.adventureId, current.skill.id)
+        val finishedQuest = Adventures.quest(current.adventureId)?.takeIf { it.id in adventureProfile.adventures && it.id !in player.adventures }
+        val finalOutcome = outcome.copy(profile = adventureProfile)
+        val planetMission = SolarDestination.forSkill(current.skill)?.missionId == current.skill.id
+        commit(state.withProfile(adventureProfile))
         result = ResultInfo(
-            outcome = outcome,
+            outcome = finalOutcome,
             skill = current.skill,
             raceMode = null,
-            next = Progression.nextInChapter(outcome.profile, current.skill),
+            next = if (planetMission) null else Progression.nextInChapter(outcome.profile, current.skill),
+            adventureCompleted = finishedQuest,
+            newStamp = SolarDestination.entries.firstOrNull { it.missionId == current.skill.id && player.stars(it.missionId) == 0 && adventureProfile.stars(it.missionId) > 0 },
         )
         round = null
         replaceTop(Screen.Result)
@@ -603,20 +667,34 @@ class KometViewModel(application: Application) : AndroidViewModel(application) {
             "off" -> updateSettings { it.copy(speech = false) }
             "on" -> updateSettings { it.copy(speech = true) }
         }
+        val destination = SolarDestination.entries.firstOrNull { screen == "solar_${it.planetId}" }
+        if (destination != null) {
+            goHome()
+            open(Screen.SolarWorld(destination))
+        }
         when (screen) {
             "home" -> goHome()
+            "overview" -> { goHome(); open(Screen.SolarOverview) }
             "math" -> { goHome(); open(Screen.World(Subject.MATH)) }
             "reading" -> { goHome(); open(Screen.World(Subject.READING)) }
             "cards" -> { goHome(); open(Screen.Collection) }
             "race" -> { goHome(); open(Screen.RaceMenu) }
             "parent" -> { goHome(); open(Screen.Parent) }
             "explore" -> { goHome(); open(Screen.Explore) }
-            "montessori" -> { goHome(); open(Screen.Montessori) }
+            "clock" -> { goHome(); open(Screen.ClockWorkshop) }
+            "pizza" -> { goHome(); open(Screen.Workshop(app.komet.domain.DiscoveryWorkshop.PIZZA)) }
+            "post" -> { goHome(); open(Screen.Workshop(app.komet.domain.DiscoveryWorkshop.POST)) }
+            "geography" -> { goHome(); open(Screen.Topic(app.komet.domain.Topic.GEOGRAPHY)) }
+            "rover" -> { goHome(); open(Screen.Workshop(app.komet.domain.DiscoveryWorkshop.ROVER)) }
             "english" -> { goHome(); open(Screen.World(Subject.ENGLISH)) }
             "space" -> { goHome(); open(Screen.World(Subject.SPACE)) }
             "addprofile" -> { goHome(); open(Screen.AddProfile) }
             "hero" -> { goHome(); open(Screen.HeroEditor) }
             "shop" -> { goHome(); open(Screen.Shop) }
+            "adventure_math" -> { goHome(); open(Screen.World(Subject.MATH)); open(Screen.Adventure(Subject.MATH)) }
+            "adventure_reading" -> { goHome(); open(Screen.World(Subject.READING)); open(Screen.Adventure(Subject.READING)) }
+            "adventure_english" -> { goHome(); open(Screen.World(Subject.ENGLISH)); open(Screen.Adventure(Subject.ENGLISH)) }
+            "adventure_space" -> { goHome(); open(Screen.World(Subject.SPACE)); open(Screen.Adventure(Subject.SPACE)) }
         }
         skill?.let(Curriculum::skill)?.let {
             goHome()

@@ -4,7 +4,7 @@ Dato: 26. september 2026. Versjonskode 7, pakkenamn `app.komet`, minste Android 
 
 ## Før publisering
 
-- 98 lokale einingstestar bestått under utviklinga, inkludert Montessori-materiale og nye lydar.
+- 98 lokale einingstestar bestått under utviklinga, inkludert nye lydar.
 - Mobil og nettbrett i begge retningar, skriftstorleik 2.0, nynorsk, bokmål og avslåtte
   animasjonar kontrollerte. Sjå `VERIFICATION_UI_2026-09-26.md` for detaljar.
 - `testDebugUnitTest`, `assembleRelease`, `lintRelease` og `lintDebug`: BUILD SUCCESSFUL.
@@ -31,9 +31,7 @@ Dato: 26. september 2026. Versjonskode 7, pakkenamn `app.komet`, minste Android 
   installasjon; Android viste «App installed». Den nye APK-en vart ikkje installert med adb.
 - Testprofilen TTee var bevart med 3 stjerner og 18 gullklumpar. Ein fullført runde,
   100 % rett første gong, 1 minutt og Blanda og tekst: 1 av 6 nivå fullført var identiske
-  før og etter oppdateringa. Nytt Montessori-val vart vist på stjernekartet; verkstaden
-  opna med alle tre arbeid i det signerte release-bygget. Profil, stjerner og gull var
-  òg bevarte etter omstart av emulatoren.
+  før og etter oppdateringa. Profil, stjerner og gull var òg bevarte etter omstart av emulatoren.
 - Lokale skjermbilete og UI-dumpar ligg i `app/build/reports/release-v2.1.0/` (Git-ignorert).
 - Automatisk sjekk er framleis aktiv i GitHub-utgåva. Appen sjekkar når han kjem fram,
   høgst éin gong kvar tolvte time. Ein vaksen vel nedlasting og godkjenner installasjonen.

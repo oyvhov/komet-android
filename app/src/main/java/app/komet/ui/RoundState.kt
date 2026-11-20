@@ -10,6 +10,7 @@ import app.komet.domain.Question
 import app.komet.domain.RaceMode
 import app.komet.domain.RoundOutcome
 import app.komet.domain.Skill
+import app.komet.domain.SolarDestination
 import app.komet.domain.Subject
 import kotlin.random.Random
 
@@ -17,11 +18,16 @@ sealed interface Screen {
     data object Onboarding : Screen
     data object AddProfile : Screen
     data object Home : Screen
+    data object SolarOverview : Screen
+    data class SolarWorld(val destination: SolarDestination) : Screen
     data class World(val subject: Subject) : Screen
+    data class Adventure(val subject: Subject, val celebrationId: String? = null) : Screen
     data object Play : Screen
     data object Result : Screen
     data object Collection : Screen
     data object Explore : Screen
+    data object ClockWorkshop : Screen
+    data class Workshop(val kind: app.komet.domain.DiscoveryWorkshop) : Screen
     data class Topic(val topic: app.komet.domain.Topic) : Screen
     data object RaceMenu : Screen
     data object Race : Screen
@@ -29,7 +35,6 @@ sealed interface Screen {
     data object Parent : Screen
     data object HeroEditor : Screen
     data object Shop : Screen
-    data object Montessori : Screen
 }
 
 enum class Phase { ANSWERING, CORRECT, REVEALED }
@@ -45,6 +50,7 @@ class RoundState(
     startFirstTry: Int = 0,
     /** For a review round: the level each task comes from, so its answer is counted there. */
     val sources: List<Skill>? = null,
+    val adventureId: String? = null,
 ) {
     var index by mutableIntStateOf(startIndex)
     var phase by mutableStateOf(Phase.ANSWERING)
@@ -121,4 +127,6 @@ data class ResultInfo(
     val skill: Skill?,
     val raceMode: RaceMode?,
     val next: Skill?,
+    val adventureCompleted: app.komet.domain.AdventureQuest? = null,
+    val newStamp: SolarDestination? = null,
 )

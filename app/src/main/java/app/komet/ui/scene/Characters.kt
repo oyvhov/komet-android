@@ -40,7 +40,7 @@ import kotlin.math.sin
 
 enum class HeroPose { IDLE, WALK, CHEER, WAVE }
 
-enum class BoltMood { IDLE, HAPPY, TALK, SURPRISED }
+enum class BoltMood { IDLE, HAPPY, TALK, SURPRISED, HELPING }
 
 internal val SuitWhite = Color(0xFFF4F7FF)
 internal val SuitShade = Color(0xFFC3CDE6)
@@ -311,7 +311,8 @@ fun DrawScope.drawBolt(mood: BoltMood, t: Float, paint: String? = null) {
         val happy = mood == BoltMood.HAPPY
         val handLift = if (happy) -22f + sin(t * 10f) * 5f else 0f
         drawHand(Offset(8f, 60f + sin(t * 2.4f + 1f) * 3f + handLift), line, colors)
-        drawHand(Offset(92f, 60f + sin(t * 2.4f + 2.2f) * 3f + handLift), line, colors)
+        val helpfulLift = if (mood == BoltMood.HELPING) -16f + sin(t * 2f) * 2f else 0f
+        drawHand(Offset(92f, 60f + sin(t * 2.4f + 2.2f) * 3f + handLift + helpfulLift), line, colors)
 
         drawRoundRect(colors.trim, Offset(9f, 38f), Size(10f, 22f), CornerRadius(4f))
         drawRoundRect(K.Outline, Offset(9f, 38f), Size(10f, 22f), CornerRadius(4f), style = line)
@@ -349,6 +350,13 @@ fun DrawScope.drawBolt(mood: BoltMood, t: Float, paint: String? = null) {
                     drawCircle(BoltCyan, 5.4f, Offset(x, 43f))
                 }
                 drawCircle(BoltCyan, 3f, Offset(50f, 54f))
+            }
+            BoltMood.HELPING -> {
+                // A calm smile and an open hand: a miss is an invitation to try together.
+                for (x in listOf(40f, 60f)) {
+                    drawRoundRect(BoltCyan, Offset(x - 3f, 37f), Size(6f, 9f), CornerRadius(3f))
+                }
+                drawArc(BoltCyan, 15f, 150f, false, Offset(44f, 48f), Size(12f, 7f), style = Stroke(2.4f, cap = StrokeCap.Round))
             }
             else -> {
                 val eyeHeight = if (blink) 2.4f else 12f

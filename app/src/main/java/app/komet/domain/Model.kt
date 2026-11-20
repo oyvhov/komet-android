@@ -35,6 +35,9 @@ sealed interface Token {
 
 /** What the task shows. Every visual is drawn by the app itself; there are no image assets. */
 sealed interface Visual {
+    data class Flag(val country: AtlasCountry) : Visual
+    data class WorldPin(val place: AtlasPlace) : Visual
+    data class SeaChart(val boat: ChartCell, val tower: ChartCell, val kmPerStep: Int?, val harbours: List<ChartCell> = emptyList()) : Visual
     data object None : Visual
     data class Equation(val tokens: List<Token>) : Visual
     data class Objects(val emoji: String, val count: Int, val scattered: Boolean = false) : Visual
@@ -77,6 +80,7 @@ sealed interface Visual {
 }
 
 sealed interface Option {
+    data class Flag(val country: AtlasCountry) : Option
     data class Label(val text: Txt, val kind: GlyphKind) : Option
     data class Picture(val emoji: String, val caption: String? = null) : Option
     data class Shape(val item: PatternItem) : Option

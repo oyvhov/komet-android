@@ -1,9 +1,11 @@
 package app.komet.data
 
 import app.komet.domain.ActiveRound
+import app.komet.domain.Adventures
 import app.komet.domain.AppState
 import app.komet.domain.Curriculum
 import app.komet.domain.DayStats
+import app.komet.domain.DiscoveryWorkshop
 import app.komet.domain.HeroLook
 import app.komet.domain.LetterCase
 import app.komet.domain.Maalform
@@ -111,14 +113,17 @@ class StateStore(private val file: File) {
                     put("firstTry", round.firstTry)
                     put("total", round.total)
                     put("updatedAt", round.updatedAt)
+                    round.adventureId?.let { put("adventureId", it) }
                 })
             }
             put("favorites", JSONArray().apply { profile.favorites.forEach { put(it) } })
+            put("workshops", JSONObject().apply { profile.nextWorkshopMission.forEach { (kind, index) -> put(kind.name, index) } })
             put("visitedPlanets", JSONArray().apply { profile.visitedPlanets.sortedBy { it.ordinal }.forEach { put(it.name) } })
             put("nuggets", profile.nuggets)
             put("owned", JSONArray().apply { profile.owned.sorted().forEach { put(it) } })
             put("equipped", JSONObject().apply { profile.equipped.forEach { (slot, id) -> put(slot.name, id) } })
             put("collectedNuggets", JSONArray().apply { profile.collectedNuggets.sorted().forEach { put(it) } })
+            put("adventures", JSONArray().apply { profile.adventures.sorted().forEach { put(it) } })
             put("hero", JSONObject().apply {
                 put("suit", profile.hero.suit)
                 put("skin", profile.hero.skin)
@@ -182,13 +187,16 @@ class StateStore(private val file: File) {
                 val skillId = round.optString("skillId", "").ifBlank { return@let null }
                 val total = round.optInt("total", 0)
                 val done = round.optInt("done", 0)
-                if (total <= 0 || done !in 1 until total) return@let null
+                val adventureId = round.optString("adventureId", "").takeIf { Adventures.validRound(it, skillId) }
+                val valid = if (adventureId != null) done in 0..total else done in 1 until total
+                if (total !in 1..100 || !valid) return@let null
                 ActiveRound(
                     skillId = skillId,
                     done = done,
                     firstTry = round.optInt("firstTry", 0).coerceIn(0, done),
                     total = total,
                     updatedAt = round.optLong("updatedAt", 0L),
+                    adventureId = adventureId,
                 )
             }
             val favoritesJson = json.optJSONArray("favorites") ?: JSONArray()
@@ -223,6 +231,10 @@ class StateStore(private val file: File) {
                 createdAt = json.optLong("createdAt", 0L),
                 activeRound = activeRound,
                 favorites = favorites,
+                nextWorkshopMission = json.optJSONObject("workshops")?.let { workshops ->
+                    DiscoveryWorkshop.entries.filter { workshops.has(it.name) }
+                        .associateWith { workshops.optInt(it.name, 0).coerceAtLeast(0) }
+                }.orEmpty(),
                 hero = hero,
                 visitedPlanets = json.optJSONArray("visitedPlanets")?.let { visited ->
                     (0 until visited.length()).mapNotNull { enumOrNull<Subject>(visited.optString(it, "")) }.toSet()
@@ -239,6 +251,7 @@ class StateStore(private val file: File) {
                     }.toMap()
                 } ?: emptyMap(),
                 collectedNuggets = strings(json.optJSONArray("collectedNuggets")).filter { Curriculum.skill(it) != null }.toSet(),
+                adventures = strings(json.optJSONArray("adventures")).filter { Adventures.quest(it) != null }.toSet(),
             )
         }
 

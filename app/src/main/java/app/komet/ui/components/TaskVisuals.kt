@@ -95,6 +95,9 @@ fun TaskVisual(
     Box(modifier, contentAlignment = Alignment.Center) {
         when (visual) {
             Visual.None -> Unit
+            is Visual.Flag -> AtlasFlag(visual.country, Modifier.size(minOf(270.dp, LocalVisualBox.current.width, LocalVisualBox.current.height * 1.4f), minOf(166.dp, LocalVisualBox.current.height)))
+            is Visual.WorldPin -> AtlasMap(visual.place)
+            is Visual.SeaChart -> SeaChart(visual)
             is Visual.Equation -> EquationView(visual.tokens, state)
             is Visual.Objects -> ObjectsView(visual.emoji, visual.count, visual.scattered)
             is Visual.AddGroups -> AddGroupsView(visual)

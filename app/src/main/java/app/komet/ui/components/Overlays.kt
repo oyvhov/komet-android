@@ -92,7 +92,7 @@ fun CloseButton(onClick: () -> Unit, modifier: Modifier = Modifier, size: Dp = 5
  * corner. A tap on the veil closes it as well.
  */
 @Composable
-fun KometDialog(onClose: () -> Unit, maxWidth: Dp = 520.dp, content: @Composable ColumnScope.() -> Unit) {
+fun KometDialog(onClose: () -> Unit, maxWidth: Dp = 520.dp, closeButtonSize: Dp = 56.dp, content: @Composable ColumnScope.() -> Unit) {
     val motion = LocalMotion.current
     val appearance = remember { Animatable(if (motion) 0f else 1f) }
     val feedback = LocalFeedback.current
@@ -132,7 +132,7 @@ fun KometDialog(onClose: () -> Unit, maxWidth: Dp = 520.dp, content: @Composable
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                     content = content,
                 )
-                CloseButton(onClose, Modifier.align(Alignment.TopEnd))
+                CloseButton(onClose, Modifier.align(Alignment.TopEnd), size = closeButtonSize)
             }
         }
     }

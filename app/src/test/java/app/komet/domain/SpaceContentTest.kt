@@ -8,6 +8,49 @@ import kotlin.random.Random
 class SpaceContentTest {
 
     @Test
+    fun `atlas covers all topics exactly once and every real planet has its own mission`() {
+        val destinations = SolarDestination.entries
+        val expectedOrder = listOf("merkur", "venus", "jorda", "mars", "jupiter", "saturn", "uranus", "neptun")
+        assertEquals(expectedOrder, destinations.map { it.planet.id })
+        assertEquals(Topics.all.sorted(), destinations.flatMap { it.topics }.sorted())
+        assertEquals(Subject.entries, destinations.mapNotNull { it.trail })
+        assertTrue(destinations.all { it.topics.isNotEmpty() })
+        assertEquals(8, destinations.map { it.missionId }.toSet().size)
+        Curriculum.skills.forEach { skill -> assertTrue(skill.id, SolarDestination.forSkill(skill) != null) }
+        destinations.forEach { destination ->
+            val skill = requireNotNull(Curriculum.skill(destination.missionId))
+            assertEquals(destination, SolarDestination.forSkill(skill))
+            assertEquals(Subject.SPACE, skill.subject)
+        }
+    }
+
+    @Test
+    fun `planet missions teach the picture orbit order and clue for their own planet`() {
+        val orderFromSun = listOf("merkur", "venus", "jorda", "mars", "jupiter", "saturn", "uranus", "neptun")
+        for (destination in SolarDestination.entries) {
+            val mission = requireNotNull(Curriculum.skill(destination.missionId))
+            val planet = SpaceContent.planets.single { it.id == destination.planetId }
+            for (maalform in Maalform.entries) {
+                repeat(25) { seed ->
+                    val round = Curriculum.round(mission, QuestionContext(Random(seed), maalform))
+                    assertEquals(setOf("picture", "order", "clue"), round.map { it.key }.toSet())
+                    for (question in round) {
+                        val answer = question.answer as Answer.Choice
+                        val expected = when (question.key) {
+                            "picture" -> Option.Label(planet.name, GlyphKind.PLAIN)
+                            "order" -> Option.Label(txt((orderFromSun.indexOf(planet.id) + 1).toString()), GlyphKind.NUMBER)
+                            else -> Option.Art(planet.art, planet.name)
+                        }
+                        assertEquals(1, answer.options.count { it == expected })
+                        assertEquals(expected, answer.options[answer.correct])
+                        assertTrue(requireNotNull(question.explanation).get(maalform).isNotBlank())
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     fun `planets are the eight of the solar system in the right order and size`() {
         val planets = SpaceContent.planets
         assertEquals(8, planets.size)

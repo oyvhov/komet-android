@@ -169,5 +169,7 @@ object SpaceCurriculum {
                 factSkill("s_quiz", txt("Stor romquiz"), txt("Alt om verdsrommet", "Alt om verdensrommet"), 3, "🏆", 8) { SpaceContent.allFacts },
             ),
         ),
+        PlanetMissions.chapter,
+        GeographyCurriculum.chapter,
     )
 }

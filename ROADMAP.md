@@ -1,6 +1,8 @@
 # Komet — vegkart
 
-Oppdatert 26. september 2026. Publisert release: **2.1.0** (versjonskode 7). Sjå [verifikasjonen](docs/VERIFICATION_v2.1.0.md).
+Oppdatert 8. oktober 2026. Publisert release: **2.1.0** (versjonskode 7). Sjå [releaseverifikasjonen](docs/VERIFICATION_v2.1.0.md).
+Lokalt er både [Bolt som følgjesven](docs/VERIFICATION_BOLT_2026-10-08.md) og
+[fire planet-eventyr med tolv oppdrag](docs/VERIFICATION_ADVENTURE_2026-10-08.md) klare for vidare utprøving.
 
 Retning frå eigaren: appen skal sjå ut som eit skikkeleg kult spel og ikkje som ein barnsleg, fargerik
 barneapp. Han skal passe for litt større barn. Barnet skal kunne finne oppgåvetypane han likar, uavhengig
@@ -46,31 +48,36 @@ lærer undervegs. Alt fyller skjermen på både mobil og nettbrett, med grafikk,
       oppsett for mobil og nettbrett i ståande og liggjande format.
       *Gjort:* `ui/scene/Scene.kt` – kamera i scene-einingar, drag og kast, parallakse, tolerer stor
       skrift og avslåtte animasjonar.
-- [ ] **2. Helten og venen.** Hovudfigur og ein følgjesven som guidar, snakkar (opplesing) og reagerer
+- [x] **2. Helten og venen.** Hovudfigur og ein følgjesven som guidar, snakkar (opplesing) og reagerer
       på svar, med animasjonar for kvile, gå, hoppe og juble.
       *Gjort:* astronauten (kvile, gå, vinke, juble) med astronautbyggjar i oppstarten og roboten Bolt
-      som les nivånamn høgt. *Att:* Bolt reagerer på svar (kjem med fase 7).
+      som les nivånamn høgt. Bolt gir no hjelp på trykk og reagerer roleg ved bom og med jubel ved rett
+      svar på mobil og nettbrett. Oppgåva ventar medan hjelpa er open. Begge målformer, stor skrift og
+      avslåtte animasjonar er kontrollerte; lytting og yting på fysisk nettbrett står att under fase 9.
 - [x] **3. Stjernekartet.** Eit stort, levande solsystem å dra rundt i. Raketten flyg mellom planetane,
       og låste område ligg i tåke.
       *Gjort:* sola, fire fag-planetar, rakettbana, romkort og Utforsk; raketten flyg med hale. Ingen
       område er låste i dag (første nivå i kvart kapittel er alltid ope), så tåka ventar til historia.
-- [ ] **4. Planetane som stader.** Kvar fag-planet får ein illustrert overflate med landemerke,
+- [x] **4. Planetane som stader.** Kvar fag-planet får ein illustrert overflate med landemerke,
       innbyggjarar med oppdrag og nivå som ting i verda (steinar, dører, skilt).
       *Gjort:* fire landskap (Talplaneten, Bokstavplaneten, Engelskplaneten, Rombasen) med sti, skilt for
-      kapittel, øvingsverkstad, landingsplass, mål og innbyggjarar som hoppar. *Att:* oppdrag frå
-      innbyggjarane.
+      kapittel, øvingsverkstad, landingsplass, mål og innbyggjarar. Pip, Mira, Rio og Vega har no tre
+      oppdrag kvar. Krystallfyret, signalbrua, stjernehagen og teleskopet endrar seg varig etter
+      fullførte oppdrag. Mobil, nettbrett, begge målformer og stor skrift er kontrollerte lokalt.
 - [ ] **5. Historia.** Hovudforteljing i kapittel, oppdragsbok, korte animerte mellomscener med
       opplesing, og løningar som endrar verda.
-      *Gjort:* Bolt ønskjer velkomen til kvar planet første gong. *Att:* forteljing, oppdragsbok og
-      mellomscener.
+      *Gjort:* Bolt ønskjer velkomen til kvar planet første gong. Fire lokale forteljingar i tre
+      kapittel, takk frå innbyggjarane og lagra endringar i stadene. *Att:* ei hovudforteljing som
+      bind planetane saman, ei samla oppdragsbok og mellomscener.
 - [x] **6. Musikk og lydar.** Eigen musikk for kvart område, lydar for det barnet trykkjer på, stemmer til
       figurane og innstilling for musikk av/på.
       *Gjort:* sju melodiar laga i kode, sus, steg, boing, pip og glitter, demping under opplesing og
       brytar på foreldresida.
-- [ ] **7. Oppgåvene inne i eventyret.** Oppgåveskjermen blir ei scene med figurane til stades og animert
+- [x] **7. Oppgåvene inne i eventyret.** Oppgåveskjermen blir ei scene med figurane til stades og animert
       respons; på nettbrett står scena og oppgåva side om side.
-      *Gjort:* planetbakgrunn, astronauten på framdriftslinja, Bolt i svarbanneret, astronaut og Bolt
-      ved svara på nettbrett, og resultatet som feiring. *Att:* rakettløpet og romkorta i same stil.
+      *Gjort:* planetbakgrunn, astronauten på framdriftslinja, Bolt som hjelpeknapp, astronaut og Bolt
+      ved svara i det breie oppsettet, og resultatet som feiring. Rakettløpet og romkorta fekk same
+      visuelle retning i 2.1.0 (sjå pussinga frå 26. september under).
 - [ ] **8. Heimebasen.** Ein eigen base å pynte med ting barnet vinn.
       *Gjort:* gullklumpar og butikk der astronauten, Bolt og raketten kan pyntast. *Att:* sjølve basen.
 - [ ] **9. Pussing og test.** Yting på eldre nettbrett, test på fysisk nettbrett, release 2.0.
@@ -78,24 +85,16 @@ lærer undervegs. Alt fyller skjermen på både mobil og nettbrett, med grafikk,
 Første leveranse er ein heil smakebit: stjernekartet i fullskjerm med rakett, éin planet ferdig
 illustrert med figurar og oppdrag, og musikk – på både mobil og nettbrett.
 
-## Montessori-verkstad · skulepilot
-
-- [x] Eige val på stjernekartet, med roleg arbeid utan tid, poeng eller straff.
-- [x] Talstenger 1–5, teljepinnar 0–5 og talsporing 1–5; nynorsk, bokmål og opplesing av arbeidsinstruks.
-- [x] Lærarrettleiing for ein liten pilot med fysisk materiell og observasjonar: `docs/MONTESSORI_VERKSTAD.md`.
-- [ ] Observer barn og lærarar i faktisk skulebruk før fleire materiell og pedagogiske påstandar blir lagde til.
-
 ## Lokal visuell pussing · 26. september 2026
 
 - [x] Felles 3D-knappar med mjuk trykkrørsle, lysrespons og ein ny kort trykklyd.
 - [x] Dialogar med fjøring og opningslyd; mjuke skjermovergangar og sakte lys i rombakgrunnen.
 - [x] Rakettløpet med lysande spor, motorflamme og oppgåveflate med svakt banelys.
 - [x] Romkort med metalliske rammer, glød, sveving og stjerneglimt i framvisinga.
-- [x] Montessori med eige roleg musikkspor, plasseringslydar og visuelle materialval på mobil.
-- [x] Eigne nettbrettoppsett: Montessori-materiale og rettleiing side om side, eigne svarfelt i
-      rakettløpet og illustrasjon og lesetekst ved sida av kvarandre på opne romkort.
+- [x] Eigne nettbrettoppsett: eigne svarfelt i rakettløpet og illustrasjon og lesetekst ved sida
+      av kvarandre på opne romkort.
 - [x] 98 lokale einingstestar grøne og skjermkontroll på mobil og nettbrett, også med skrift 2.0.
-      Sjå `docs/VERIFICATION_UI_2026-09-26.md`.
+      Sjå [verifikasjonen av 2.1.0](docs/VERIFICATION_v2.1.0.md).
 - [x] Publisert som 2.1.0 på GitHub etter ønske frå eigaren; ekte oppdatering frå 2.0.0 gjennom appen testa med bevart framgang.
 - [ ] Lytte- og ytingskontroll på fysisk nettbrett.
 
@@ -123,8 +122,8 @@ illustrert med figurar og oppdrag, og musikk – på både mobil og nettbrett.
 - [x] Publisering av utvidinga i 2.0.0, med logo, skjermbilete og signert APK. Oppdatering gjennom appen testa på Komet-emulatoren.
 - [ ] Kontroll på fysisk nettbrett.
 
-Dette er nye læringsnivå med romforteljingar; oppdragsbok, mellomscener og varige endringar
-av sjølve planetlandskapet står framleis att i eventyrvegkartet.
+Dette er nye læringsnivå med romforteljingar. Innbyggjaroppdraga med varige endringar i stadene
+vart lagde til lokalt 8. oktober. Ei samla oppdragsbok og mellomscener står framleis att.
 - [x] Aktiv utsending etter kvar oppgåve: animert romskip, lyshale, landingsglitter, lyd og lys i
       basen for kvar levering. Barnet styrer tempoet; forklaringar blir også viste ved rett svar.
       Kontrollert med stor skrift, begge målformer og avslåtte animasjonar.

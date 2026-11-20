@@ -1,5 +1,8 @@
 package app.komet.ui.screens
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import app.komet.ui.scene.StoryLanding
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,25 +24,34 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.komet.domain.Curriculum
+import app.komet.domain.DiscoveryWorkshop
 import app.komet.domain.Progression
 import app.komet.domain.Skill
 import app.komet.domain.Subject
 import app.komet.domain.Topic
 import app.komet.domain.Topics
+import app.komet.domain.Txt
 import app.komet.ui.KometViewModel
 import app.komet.ui.S
 import app.komet.ui.components.GameText
@@ -50,6 +62,7 @@ import app.komet.ui.components.PressSurface
 import app.komet.ui.components.RoundIconButton
 import app.komet.ui.components.ScreenTopBar
 import app.komet.ui.components.StarRow
+import app.komet.ui.components.StarGlyph
 import app.komet.ui.components.fixedSp
 import app.komet.ui.components.gloss
 import app.komet.ui.components.str
@@ -57,58 +70,95 @@ import app.komet.ui.components.subjectTone
 import app.komet.ui.theme.K
 import app.komet.ui.theme.ReadingFont
 
-/** Utforsk: the child's favourites first, then every kind of task, whatever grade it belongs to. */
+/** One compact index of task types, with subjects always in reach. */
 @Composable
 fun ExploreScreen(vm: KometViewModel) {
     val profile = vm.profile ?: return
     val favorites = profile.favorites.mapNotNull(Curriculum::skill)
-    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        ScreenTopBar(
-            title = S.explore.str(),
-            onBack = { vm.back() },
-            modifier = Modifier
-                .widthIn(max = MaxContentWidth)
-                .padding(horizontal = 20.dp, vertical = 8.dp),
-        )
-        LazyColumn(
-            modifier = Modifier
-                .widthIn(max = MaxContentWidth)
-                .fillMaxWidth()
-                .weight(1f),
-            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 36.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            item(key = "favorites") { SectionHeading(S.favorites.str()) }
-            if (favorites.isEmpty()) {
-                item(key = "favorites-hint") {
-                    Text(S.favoritesHint.str(), style = MaterialTheme.typography.bodyLarge, color = K.Muted)
-                }
-            } else {
-                items(favorites, key = { "fav-${it.id}" }) { skill ->
-                    LevelRow(
-                        skill = skill,
-                        stars = profile.stars(skill.id),
-                        favorite = true,
-                        onPlay = { vm.startSkill(skill) },
-                        onFavorite = { vm.toggleFavorite(skill.id) },
-                    )
-                }
-            }
-            Subject.entries.filter { subject -> Topics.all.any { it.subject == subject } }.forEach { subject ->
-                item(key = "heading-$subject") {
-                    SectionHeading(S.subject(subject).str(), Modifier.padding(top = 10.dp))
+    val subject = vm.exploreSubject ?: profile.lastSubject ?: Subject.MATH
+    val topics: @Composable () -> Unit = {
+        key(subject) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 28.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items(DiscoveryWorkshop.entries.filter { it.subject == subject }, key = { it.name }) {
+                    DiscoveryButton(vm, it)
                 }
                 item(key = "topics-$subject") {
-                    TopicGrid(Topics.all.filter { it.subject == subject }) { topic, index, tileModifier ->
+                    TopicGrid(Topics.all.filter { it.subject == subject }) { topic, modifier ->
                         val skills = Topics.skills(topic)
                         TopicTile(
                             topic = topic,
-                            shade = index,
                             detail = S.levelCount(skills.size).str(),
                             stars = "${Progression.earnedStars(profile, skills)} / ${skills.size * 3}",
                             onClick = { vm.open(app.komet.ui.Screen.Topic(topic)) },
-                            modifier = tileModifier,
+                            modifier = modifier,
                         )
+                    }
+                }
+                if (favorites.isNotEmpty()) {
+                    item(key = "favorites") { SectionHeading(S.favorites.str()) }
+                    items(favorites, key = { "fav-${it.id}" }) { skill ->
+                        LevelRow(
+                            skill = skill,
+                            stars = profile.stars(skill.id),
+                            favorite = true,
+                            onPlay = { vm.startSkill(skill) },
+                            onFavorite = { vm.toggleFavorite(skill.id) },
+                        )
+                    }
+                }
+            }
+        }
+    }
+    BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        val sideBySide = maxWidth >= 720.dp && maxHeight >= 430.dp
+        Column(Modifier.widthIn(max = if (sideBySide) 1200.dp else MaxContentWidth).fillMaxSize()) {
+            ScreenTopBar(Txt("Alle oppgåver", "Alle oppgaver").str(), { vm.back() }, Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
+            if (sideBySide) {
+                Row(Modifier.fillMaxSize()) {
+                    Column(Modifier.fillMaxWidth(.28f).verticalScroll(rememberScrollState())
+                        .padding(start = 16.dp, end = 8.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        SubjectPicker(subject, { vm.exploreSubject = it }, Modifier.fillMaxWidth(), rail = true)
+                        StoryLanding(vm, subject)
+                    }
+                    Box(Modifier.weight(1f)) { topics() }
+                }
+            } else {
+                SubjectPicker(subject, { vm.exploreSubject = it }, Modifier.fillMaxWidth().padding(horizontal = 16.dp))
+                Box(Modifier.weight(1f)) { topics() }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SubjectPicker(subject: Subject, select: (Subject) -> Unit, modifier: Modifier, rail: Boolean = false) {
+    BoxWithConstraints(modifier) {
+        val columns = if (rail) 1 else if (maxWidth >= 580.dp) 4 else 2
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Subject.entries.chunked(columns).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    row.forEach { candidate ->
+                        val active = candidate == subject
+                        val tone = subjectTone(candidate)
+                        PressSurface(
+                            onClick = { select(candidate) },
+                            modifier = Modifier.weight(1f).heightIn(min = 64.dp).semantics { selected = active },
+                            face = if (active) lerp(K.Surface, tone.face, 0.36f) else K.SurfaceLow,
+                            edge = K.SpaceTop, depth = 3.dp,
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 5.dp),
+                        ) {
+                            GameText(
+                                S.subject(candidate).str(),
+                                color = if (active) tone.accent else K.Muted,
+                                style = MaterialTheme.typography.titleSmall,
+                                textAlign = TextAlign.Center, maxLines = 1, autoFit = true,
+                            )
+                        }
                     }
                 }
             }
@@ -119,6 +169,10 @@ fun ExploreScreen(vm: KometViewModel) {
 /** Every level of one kind of task, easiest first, all playable whatever the child's grade. */
 @Composable
 fun TopicScreen(vm: KometViewModel, topic: Topic) {
+    if (topic == Topic.GEOGRAPHY) {
+        AtlasIndex(vm)
+        return
+    }
     val profile = vm.profile ?: return
     val skills = Topics.skills(topic)
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -139,6 +193,9 @@ fun TopicScreen(vm: KometViewModel, topic: Topic) {
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 36.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (topic == Topic.CLOCK) {
+                item { ClockWorkshopButton(onClick = { vm.open(app.komet.ui.Screen.ClockWorkshop) }, modifier = Modifier.fillMaxWidth()) }
+            }
             items(skills, key = { it.id }) { skill ->
                 LevelRow(
                     skill = skill,
@@ -153,18 +210,29 @@ fun TopicScreen(vm: KometViewModel, topic: Topic) {
 }
 
 @Composable
-private fun SectionHeading(text: String, modifier: Modifier = Modifier) {
-    GameText(text, style = MaterialTheme.typography.headlineSmall, modifier = modifier.semantics { heading() })
+private fun SectionHeading(text: String, modifier: Modifier = Modifier, color: Color = K.Text) {
+    Text(
+        text,
+        color = color,
+        style = MaterialTheme.typography.headlineSmall,
+        modifier = modifier.semantics { heading() },
+    )
 }
 
 @Composable
-private fun TopicGrid(topics: List<Topic>, tile: @Composable (Topic, Int, Modifier) -> Unit) {
+internal fun TopicGrid(topics: List<Topic>, tile: @Composable (Topic, Modifier) -> Unit) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val perRow = if (maxWidth >= 600.dp) 3 else 2
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            topics.chunked(perRow).forEachIndexed { rowIndex, row ->
-                Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    row.forEachIndexed { column, topic -> tile(topic, rowIndex * perRow + column, Modifier.weight(1f).fillMaxHeight()) }
+        val perRow = when {
+            LocalDensity.current.fontScale >= 1.6f -> 1
+            maxWidth >= 760.dp -> 4
+            maxWidth >= 560.dp -> 3
+            maxWidth >= 282.dp -> 2
+            else -> 1
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            topics.chunked(perRow).forEach { row ->
+                Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    row.forEach { topic -> tile(topic, Modifier.weight(1f).fillMaxHeight()) }
                     repeat(perRow - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
@@ -173,35 +241,61 @@ private fun TopicGrid(topics: List<Topic>, tile: @Composable (Topic, Int, Modifi
 }
 
 @Composable
-private fun TopicTile(topic: Topic, shade: Int, detail: String, stars: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun TopicTile(topic: Topic, onClick: () -> Unit, modifier: Modifier = Modifier, detail: String? = null, stars: String? = null) {
     val tone = subjectTone(topic.subject)
-    // Neighbouring tiles differ a little in depth, so a grid of one colour still has rhythm.
-    val face = lerp(tone.face, tone.edge, listOf(0f, 0.2f, 0.1f, 0.28f)[shade % 4])
+    val face = lerp(K.Surface, tone.edge, 0.19f)
+    val iconShape = RoundedCornerShape(10.dp)
     PressSurface(
         onClick = onClick,
-        modifier = modifier.heightIn(min = 132.dp),
+        modifier = modifier.heightIn(min = if (detail == null) 66.dp else 88.dp),
         face = face,
-        edge = lerp(tone.edge, K.Outline, 0.25f),
-        top = lerp(face, Color.White, 0.1f),
-        shape = RoundedCornerShape(24.dp),
-        depth = 6.dp,
-        contentAlignment = Alignment.TopStart,
-        contentPadding = PaddingValues(14.dp),
+        edge = K.SpaceTop,
+        top = lerp(K.SurfaceHigh, tone.face, 0.18f),
+        contentAlignment = Alignment.CenterStart,
+        contentPadding = PaddingValues(horizontal = 7.dp, vertical = 7.dp),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            if (isPictograph(topic.icon)) {
-                Text(topic.icon, fontSize = fixedSp(34.dp))
-            } else {
-                GameText(
-                    topic.icon,
-                    style = MaterialTheme.typography.headlineLarge.copy(fontFamily = if (topic.subject == Subject.READING) ReadingFont else null),
-                    fontSize = fixedSp(if (topic.icon.length > 2) 30.dp else 40.dp),
-                    maxLines = 1,
-                )
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.size(31.dp)
+                    .gloss(lerp(tone.edge, K.SurfaceLow, 0.35f), iconShape, top = tone.face)
+                    .border(1.dp, tone.accent.copy(alpha = 0.52f), iconShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (isPictograph(topic.icon)) {
+                    Text(topic.icon, fontSize = fixedSp(17.dp))
+                } else {
+                    GameText(
+                        topic.icon,
+                        style = MaterialTheme.typography.headlineSmall.copy(fontFamily = if (topic.subject == Subject.READING) ReadingFont else null),
+                        fontSize = fixedSp(if (topic.icon.length > 2) 13.dp else 18.dp),
+                        color = tone.accent,
+                        maxLines = 1,
+                    )
+                }
             }
-            GameText(topic.title.str(), style = MaterialTheme.typography.titleLarge, maxLines = 2)
-            // One text, so large system fonts wrap it as a line and not word by word in three boxes.
-            Text("$detail  ·  ⭐ $stars", style = MaterialTheme.typography.labelMedium, color = Color.White.copy(alpha = 0.9f))
+            Column(Modifier.weight(1f)) {
+                val title = topic.title.str()
+                val titleStyle = MaterialTheme.typography.titleSmall
+                if (title.any { it.isWhitespace() }) {
+                    Text(title, style = titleStyle, color = K.Text)
+                } else {
+                    BasicText(
+                        title, style = titleStyle.copy(color = K.Text), maxLines = 1, softWrap = false,
+                        autoSize = TextAutoSize.StepBased(
+                            minFontSize = fixedSp(10.dp),
+                            maxFontSize = titleStyle.fontSize,
+                            stepSize = 0.5.sp,
+                        ),
+                    )
+                }
+                if (detail != null) Text(detail, style = MaterialTheme.typography.bodySmall, color = K.Muted)
+                if (stars != null) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        StarGlyph(true, Modifier.size(12.dp))
+                        Text(stars, style = MaterialTheme.typography.bodySmall, color = K.GoldTop)
+                    }
+                }
+            }
         }
     }
 }
