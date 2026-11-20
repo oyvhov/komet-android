@@ -1,40 +1,29 @@
 # Endringslogg
 
-## I arbeid · Solsystemet
+## 2.3.0 · 20. november 2026 · Jordatlas og planetreiser
 
-- Åtte ekte planetar samla på heimeskjermen, med oppgåvetypar og eit planetoppdrag på kvar planet.
-- **Alle oppgåver** gir direkte fagval og ei tettare oversikt på mobil. Du finn Klokkeverkstaden på Saturn.
+- Jorda har fått eit atlas med elleve nivå frå førskule til 3. klasse. Finn flagg, hovudstader, verdsdelar og hav, bruk kompass og målestokk eller trykk på kartet for å leggje til kai.
+- Ti oppdrag i Stjerneposten på Uranus lèt barnet tyde pakkelappar og skrive meldingar på romspråk. På Venus deler barnet pizza i brøkar, og på Mars kan det programmere ein rover.
+- Dra mellom åtte planetar på heimeskjermen eller bruk Kartoversikt, reisepass og Planetjakt. Klokkeverkstaden finst på Saturn.
+- Fire innbyggjarar har tre forteljingsoppdrag kvar. Barnet ser kva det har reparert, og kan halde fram der det slapp. Bolt kan lese oppgåva og forklare svaret.
+- Atlaset og oppgåvene brukar eigne oppsett for mobil og nettbrett. Alt nytt læringsinnhald finst på nynorsk og bokmål.
 
-## I arbeid · Klokkeverkstaden
+## 2.2.0 · 19. november 2026 · Klokkeverkstaden
 
-- Leik med analoge visarar og digital tid på Talplaneten og i Utforsk. Øv på heile timar, halve timar, kvarter og femminuttssteg.
+- Leik med analoge visarar og digital tid på Talplaneten og i Utforsk.
+- Øv på heile timar, halve timar, kvarter og femminuttssteg med opplesing og forklaringar.
 - Stjernekartet har rolegare lys og tydelegare planetskilt. Utforsk, oppgåvene og planetkorta har eit meir samanhengande uttrykk.
 - Montessori-verkstaden er fjerna frå appen.
 
-## I arbeid · 8. oktober 2026 · Planetane vaknar
+## 2.1.0 · 26. september 2026 · Montessori og nettbrett
 
-- Pip, Mira, Rio og Vega har tre forteljingsoppdrag kvar, med fem oppgåver tilpassa klassesteget.
-- Krystallfyret, signalbrua, stjernehagen og teleskopet endrar seg etter kvart oppdrag og held på endringane.
-- Innbyggjarane kan trykkjast på, og kvar planet har ein tydeleg inngang til eventyret.
-- Barnet sender hjelpa sjølv etter kvart svar, får takk og ser det som vart reparert.
-- Eventyr blir lagra per spelar, også ved avbrot før første svar eller etter siste svar før leveringa.
-- Vanleg øving og stjerner fungerer som før. Historia kan fullførast med hjelp og utan tidspress.
-- Nynorsk og bokmål, opplesing på trykk og stillbilete av ferdig framgang når animasjonar er av.
-
-## I arbeid · 8. oktober 2026 · Bolt hjelper til
-
-- Bolt er ein hjelpeknapp i alle oppgåver, på mobil og nettbrett, med jubel ved rett svar og roleg støtte ved bom.
-- Trykk på Bolt for hjelp og opplesing på vald målform. Oppgåva ventar medan hjelpa er open.
-- Forklaringar og løysingar blir først brukte etter rett svar eller når fasiten er vist; hjelpa følgjer alltid gjeldande oppgåve.
-- Hjelpa fungerer også utan tale og animasjonar. Knappane til Bolt, hjelp og lukking har minst 64 dp trykkflate.
-- Emulatorstarten finn rett einingsnamn også når berre éin emulator er kopla til, og kan velje PC-grafikk med `-GpuMode host`.
-
-## 2.1.0 · 26. september 2026 · nettbrett og visuell pussing
-
-- Eigne nettbrettoppsett med store materialillustrasjonar.
+- Eiga Montessori-inspirert verkstad med talstenger 1–5, teljepinnar 0–5 og talsporing 1–5.
+- Arbeid utan klokke eller poeng, på nynorsk og bokmål, med lærarrettleiing for ein skulepilot.
+- Eigne nettbrettoppsett med arbeidsmatte og rettleiing side om side og store materialillustrasjonar.
 - Ny illustrert løpsmeny, eigne svarfelt på nettbrett, lysande rakettspor og motorflamme.
 - Metalliske romkort med glød, sveving og brei framvising av illustrasjon og lesetekst.
-- Mjukare knappar, dialogar og skjermovergangar og nye lydeffektar.
+- Mjukare knappar, dialogar og skjermovergangar, nye lydeffektar og roleg Montessori-musikk.
+- Retta kontrollen av talstengene slik at rett rekkjefølgje blir godkjend.
 - Tilpassingar for stor skrift og avslåtte animasjonar. GitHub-oppdatering er framleis aktiv i APK-en.
 
 ## 2.0.0 · 15. september 2026 · romoppdrag og jamnare nivå
